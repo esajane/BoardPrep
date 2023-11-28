@@ -1,0 +1,24 @@
+import React from "react";
+import "./App.css";
+import Courselist from "./pages/Courselist";
+import Searchbar from "./components/Searchbar";
+import "./styles/testing.css";
+import Carousel from "./components/Carousel";
+import Syllabus from "./components/Syllabus";
+import CourseMain from "./components/CourseMain";
+import CourseDetails from "./pages/CourseDetails";
+import CourseList from "./pages/Courselist";
+
+function App() {
+  return (
+    <>
+      <Searchbar />
+      <CourseList />
+      {/* <main>
+        <Courselist />
+      </main> */}
+    </>
+  );
+}
+
+export default App;

@@ -1,0 +1,18 @@
+
+.details-container{
+    background-color: #1C1B29;
+    overflow: hidden;
+    
+
+    .img{
+        height: 1450px;
+        width: 1080px;
+        opacity: 30%;
+        position: relative; /* Add this line */
+        left: -225px;
+    }
+
+    title{
+        font-style: oblique;
+    }
+}
