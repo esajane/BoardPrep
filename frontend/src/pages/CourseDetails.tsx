@@ -3,12 +3,13 @@ import axios from "axios";
 import "../styles/details.css";
 import SyllabusComponent from "../components/Syllabus";
 import CourseMain from "../components/CourseMain";
+import { useParams } from "react-router-dom";
 
-// Define interfaces for your data types
 interface Course {
   course_id: string;
   course_title: string;
   image: string;
+  long_description: string;
 }
 
 export interface SyllabusList {
@@ -18,26 +19,28 @@ export interface SyllabusList {
 export interface Lessons {
   order: number;
   lesson_title: string;
-  content: string;
 }
 
 function CourseDetails() {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const { id } = useParams();
+  const [course, setCourse] = useState<Course | null>(null);
   const [syllabus, setSyllabus] = useState<SyllabusList[]>([]);
   const [lessons, setLessons] = useState<Lessons[]>([]);
 
-  // Fetch courses, syllabus, and lessons
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [courseResponse, syllabusResponse, lessonsResponse] =
-          await Promise.all([
-            axios.get("http://127.0.0.1:8000/courses/"),
-            axios.get("http://127.0.0.1:8000/syllabi/"),
-            axios.get("http://127.0.0.1:8000/lessons/"),
-          ]);
+        const courseResponse = await axios.get(
+          `http://127.0.0.1:8000/course/details/${id}/`
+        );
+        const syllabusResponse = await axios.get(
+          `http://127.0.0.1:8000/syllabi/${id}/`
+        );
+        const lessonsResponse = await axios.get(
+          `http://127.0.0.1:8000/lessons/?course_id=${id}/`
+        );
 
-        setCourses(courseResponse.data);
+        setCourse(courseResponse.data);
         setSyllabus(syllabusResponse.data);
         setLessons(lessonsResponse.data);
       } catch (error) {
@@ -45,19 +48,25 @@ function CourseDetails() {
       }
     };
 
-    fetchData();
-  }, []);
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
+
+  if (!course) {
+    return <div>Loading...</div>; // or any other loading state representation
+  }
 
   return (
     <div className="details-container">
-      {courses.map((course) => (
-        <div key={course.course_id}>
-          <div className="img">
-            <img src={course.image} alt={course.course_title} />
-          </div>
-          <CourseMain id={course.course_id} title={course.course_title} />
-        </div>
-      ))}
+      <div className="img">
+        <img src={course.image} alt={course.course_title} />
+      </div>
+      <CourseMain
+        id={course.course_id}
+        title={course.course_title}
+        description={course.long_description}
+      />
       <SyllabusComponent syllabus={syllabus} lessons={lessons} />
     </div>
   );

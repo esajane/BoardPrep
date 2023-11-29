@@ -1,5 +1,6 @@
 import "../styles/testing.css";
 import React from "react";
+import { Link } from "react-router-dom";
 
 interface CourseCardProps {
   id: string;
@@ -15,7 +16,7 @@ function CourseCard({
   image,
 }: CourseCardProps) {
   return (
-    <a href={`/course/${id}`} className="coursecard-link">
+    <Link to={`/course/${id}`} className="coursecard-link">
       <div className="coursecard">
         <div className="imagebox">
           <img src={image} alt={course_title} className="img" />
@@ -25,7 +26,7 @@ function CourseCard({
           <p>{short_description}</p>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
 

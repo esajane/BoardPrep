@@ -8,16 +8,16 @@ import Syllabus from "./components/Syllabus";
 import CourseMain from "./components/CourseMain";
 import CourseDetails from "./pages/CourseDetails";
 import CourseList from "./pages/Courselist";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <>
-      <Searchbar />
-      <CourseList />
-      {/* <main>
-        <Courselist />
-      </main> */}
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" Component={CourseList} />
+        <Route path="/course/:id" Component={CourseDetails} />
+      </Routes>
+    </Router>
   );
 }
 
