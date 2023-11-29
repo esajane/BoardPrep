@@ -14,7 +14,7 @@ router.register(r'syllabi', SyllabusViewSet)
 router.register(r'lessons', LessonViewSet)
 router.register(r'pages', PageViewSet)
 router.register(r'paragraphs', ParagraphViewSet)
-router.register(r'class', ClassViewSet)
+router.register(r'classes', ClassViewSet)
 #pagkuha og indibidwal nga mga kurso
 
 urlpatterns = [
