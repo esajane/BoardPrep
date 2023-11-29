@@ -3,7 +3,6 @@ import "../styles/syllabus.css";
 import { SyllabusList } from "../pages/CourseDetails";
 import { Lessons } from "../pages/CourseDetails";
 
-// Add props interface
 interface SyllabusProps {
   syllabus: SyllabusList[];
   lessons: Lessons[];
@@ -12,8 +11,6 @@ interface SyllabusProps {
 function Syllabus({ syllabus, lessons }: SyllabusProps) {
   return (
     <div className="syllabus-main">
-      {/* Render syllabus and lessons here */}
-      {/* Example: */}
       <div className="syllabus-lhs">
         {syllabus.map((s) => (
           <div key={s.description}>
@@ -21,6 +18,7 @@ function Syllabus({ syllabus, lessons }: SyllabusProps) {
             <p>{s.description}</p>
           </div>
         ))}
+        <button></button>
       </div>
       <div className="syllabus-container">
         {lessons.map((lesson) => (
@@ -29,6 +27,7 @@ function Syllabus({ syllabus, lessons }: SyllabusProps) {
           </div>
         ))}
       </div>
+      <button></button>
     </div>
   );
 }
