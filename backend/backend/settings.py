@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'Subscription',
     'Institution',
     'Class',
+    'Mocktest',
     'rest_framework',
     'corsheaders',
 ]
