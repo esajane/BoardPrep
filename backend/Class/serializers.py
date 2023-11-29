@@ -5,7 +5,11 @@ from .models import Class
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
-        fields = ['classId', 'className', 'classDescription', 'course', 'teacher']
+        fields = '__all__'
+        extra_kwargs = {
+            'classCode': {'required': False, 'read_only': True},
+            'students': {'required': False}
+        }
     
     def create(self, validated_data):
         students = validated_data.pop('students', [])

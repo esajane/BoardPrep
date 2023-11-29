@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import ClassModal from '../components/ClassModal'
+import profileImage from '../assets/16.png'
+import ClassCard from '../components/ClassCard'
+import '../styles/class.css'
 
 interface Class {
   classId: number,
@@ -12,6 +16,11 @@ interface Class {
 
 function Classes() {
   const [classes, setClasses] = useState<Class[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+
+  useEffect(() => {
+    fetchClasses();
+  }, [])
 
   const fetchClasses = async () => {
     try {
@@ -22,23 +31,28 @@ function Classes() {
     }
   }
 
-  useEffect(() => {
-    fetchClasses();
-  })
+  const openModal = () => {
+    setModalOpen(true);
+  }
+
+  const closeModal = () => {
+      setModalOpen(false);
+  }
 
   return (
-    <div>
-      <h1>Classes</h1>
-      <div>
-        {classes.map((classObj) => (
-          <div key={classObj.classId}>
-            <h2>{classObj.className}</h2>
-            <p>{classObj.classDescription}</p>
-            <p>{classObj.course}</p>
-            <p>{classObj.students}</p>
-            <p>{classObj.classCode}</p>
-          </div>
-        ))}
+    <div className="class-background">
+      <header>
+        <h1>MY CLASSES</h1>
+        <div className="profile-pic2">
+          <img src={profileImage} className="logo" alt="RILL" />
+        </div>
+      </header>
+      <div className="class-container">
+        { classes.map((classItem) => <ClassCard className={classItem.className} classDescription={classItem.classDescription} students={classItem.students} />) }
+        <button className="create-classbtn" onClick={openModal}>
+            Create Class +
+        </button>
+        { modalOpen && <ClassModal closeModal={closeModal} fetchClasses={fetchClasses} />  }
       </div>
     </div>
   )

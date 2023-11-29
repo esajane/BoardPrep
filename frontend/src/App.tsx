@@ -10,6 +10,7 @@ import CourseDetails from "./pages/CourseDetails";
 import CourseList from "./pages/Courselist";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Classes from "./pages/Classes";
+import Classroom from "./pages/Classroom";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" Component={CourseList} />
         <Route path="/course/:id" Component={CourseDetails} />
         <Route path="/classes" Component={Classes} />
+        <Route path="/classes/:id" Component={Classroom} />
       </Routes>
     </Router>
   );

@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from User.models import Teacher, Student
 
@@ -13,6 +14,13 @@ class Class(models.Model):
 
     def __str__(self):
         return self.className
+    
+    def save(self, *args, **kwargs):
+        if not self.classCode:
+            self.classCode = uuid.uuid4().hex[:6].upper()
+            while Class.objects.filter(classCode=self.classCode).exists():
+                self.classCode = uuid.uuid4().hex[:6].upper()
+        super(Class, self).save(*args, **kwargs)
     
 class JoinRequest(models.Model):
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
