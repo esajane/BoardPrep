@@ -18,3 +18,6 @@ class JoinRequest(models.Model):
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     is_accepted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('class_instance', 'student')

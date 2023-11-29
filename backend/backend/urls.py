@@ -15,10 +15,11 @@ router.register(r'syllabi', SyllabusViewSet)
 router.register(r'lessons', LessonViewSet)
 router.register(r'pages', PageViewSet)
 router.register(r'paragraphs', ParagraphViewSet)
-router.register(r'class', ClassViewSet)
+router.register(r'classes', ClassViewSet)
 router.register(r'mocktest', MockTestViewSet)
 router.register(r'mocktest/questions', MockQuestionsViewSet)
 router.register(r'mocktest/scores', MockTestScoresViewSet)
+
 
 #pagkuha og indibidwal nga mga kurso
 
