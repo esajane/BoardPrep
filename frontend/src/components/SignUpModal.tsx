@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import '../styles/class.scss';
 
 interface SignupModalProps {
@@ -6,7 +7,7 @@ interface SignupModalProps {
   userType: 'student' | 'teacher';
 }
 
-function SignupModal({ closeModal }: SignupModalProps) {
+function SignupModal({ closeModal, userType }: SignupModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [firstname, setFirstname] = useState('');
@@ -23,15 +24,34 @@ function SignupModal({ closeModal }: SignupModalProps) {
   console.log(specialization);
   console.log(institutionid);
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/student/', {
+        userName: username,
+        password: password,
+        firstName: firstname,
+        lastName: lastname,
+        email: email,
+        specialization: specialization,
+      });
+      if (response.status === 201) {
+        closeModal();
+        console.log('Success Fully Registered');
+      } else {
+        console.log(response);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
     <div id="modal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h1 className="title">SignUp Student</h1>
+          <h1 className="title">{userType === 'student' ? 'Signup Student' : 'Signup Teacher'}</h1>
           <span className="close title" onClick={closeModal}>
             &times;
           </span>
@@ -67,18 +87,16 @@ function SignupModal({ closeModal }: SignupModalProps) {
             name="password"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <input
-            type="text"
-            placeholder="Specialization"
+          <select
             name="specialization"
             onChange={(e) => setSpecialization(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Institution ID"
-            name="institutionid"
-            onChange={(e) => setInstitutionid(e.target.value)}
-          />
+          >
+            <option value="">Select Specialization</option>
+            <option value="1">Chemical Engineering</option>
+            <option value="2">Civil Engineering</option>
+            <option value="3">Electrical Engineering</option>
+            <option value="4">Mechanical Engineering</option>
+          </select>
           <button type="submit" className="card-button">
             Create
           </button>

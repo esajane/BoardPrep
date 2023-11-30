@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import SignupModal from '../components/SignUpModal';
 import SigninModal from '../components/SignInModal';
 import '../styles/home.scss';

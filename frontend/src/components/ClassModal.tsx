@@ -35,6 +35,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
         course: course, // TODO: replace with actual course
         teacher: 'teacher1' // TODO: replace with actual teacher
       })
+      console.log(response);
       if (response.status === 201) {
         closeModal()
         setClasses([...classes, response.data])
@@ -45,7 +46,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
       console.error(err)
     }
   }
-  
+
   return (
     <div id="modal" className="modal">
       <div className="modal-content">
