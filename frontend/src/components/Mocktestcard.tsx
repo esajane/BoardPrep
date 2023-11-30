@@ -7,7 +7,6 @@ interface MockTestCardProps {
   choices: string[];
 }
 
-// MockTestCard.tsx:
 const MockTestCard: React.FC<MockTestCardProps> = ({ question, choices }) => {
   return (
       <div className="mock-test-card">

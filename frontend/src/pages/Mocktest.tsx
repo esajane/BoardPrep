@@ -3,12 +3,10 @@ import axios from 'axios';
 import MockTestCard from '../components/Mocktestcard';
 import '../styles/mocktest.scss';
 
-// Define the structure of the question as it comes from the backend
 interface MocktestDetail {
   mocktestID: number;
   mocktestName: string;
   mocktestDescription: string;
-  // Add any other fields that are necessary
 }
 
 interface Question {
@@ -19,7 +17,6 @@ interface Question {
   choiceC: string;
   choiceD: string;
   subject: string;
-  // Add any other fields that are necessary
 }
 
 const Mocktest: React.FC = () => {
@@ -29,8 +26,7 @@ const Mocktest: React.FC = () => {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-  // Fetch the details of the mock test
-  axios.get('http://127.0.0.1:8000/mocktest/') // Replace <mocktest_id> with the actual ID
+  axios.get('http://127.0.0.1:8000/mocktest/')
     .then(response => {
       setMocktestDetails(response.data[0]);
     })
@@ -38,7 +34,6 @@ const Mocktest: React.FC = () => {
       console.error('There was an error fetching the mock test details', error);
     });
 
-  // Fetch questions from the backend
   axios.get('http://127.0.0.1:8000/questions/')
     .then(response => {
       setQuestions(response.data);
@@ -49,7 +44,6 @@ const Mocktest: React.FC = () => {
 }, []);
 
 
-  // Timer setup
   useEffect(() => {
     intervalId.current = setInterval(() => {
       setTimeRemaining((prevTime) => prevTime - 1);
