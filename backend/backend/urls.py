@@ -17,8 +17,8 @@ router.register(r'pages', PageViewSet)
 router.register(r'paragraphs', ParagraphViewSet)
 router.register(r'classes', ClassViewSet)
 router.register(r'mocktest', MockTestViewSet)
-router.register(r'mocktest/questions', MockQuestionsViewSet)
-router.register(r'mocktest/scores', MockTestScoresViewSet)
+router.register(r'questions', MockQuestionsViewSet)
+router.register(r'scores', MockTestScoresViewSet)
 
 
 #pagkuha og indibidwal nga mga kurso
