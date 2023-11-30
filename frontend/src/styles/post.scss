@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+.post-card {
+  height: auto;
+  width: 50vw;
+  border: 1px solid rgba($color: #B650F4, $alpha: .75);
+  border-radius: 16px;
+  overflow: hidden;
+
+  &--read {
+    width: 100%;
+    height: auto;
+    background-color: rgba($color: #B650F4, $alpha: .2);
+    padding: 20px;
+
+    &--header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 5px;
+
+      &--pic {
+        border-radius: 50%;
+        height: 35px;
+        width: 35px;
+        overflow: hidden;
+      
+        img {
+          height: 100%;
+          width: 100%;
+          background-size: stretch;
+        }
+      }
+
+      &--name {
+        font-weight: 700;
+      }
+
+      &--time {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba($color: #ffffff, $alpha: .5);
+      }
+    }
+
+    &--body {
+      margin: 0px 55px;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+  }
+
+  &--reply {
+    display: flex;
+    width: 100%;
+    height: 38px;
+    background-color: rgba($color: #8460AD, $alpha: 1);
+    color: rgba($color: #ffffff, $alpha: .5);
+    padding-left: 25px;
+    align-items: center;
+
+    &--text {
+      margin-left: 10px;
+    }
+  }
+}
