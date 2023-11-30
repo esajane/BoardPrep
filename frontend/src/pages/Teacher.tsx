@@ -43,7 +43,7 @@ const Teacher = () => {
           {modalOpenSignup && (
             <SignupModal closeModal={closeModalSignup} userType="teacher" />
           )}
-          {modalOpenSignin && <SigninModal closeModal={closeModalSignin} />}
+          {modalOpenSignin && <SigninModal closeModal={closeModalSignin} userType="teacher" />}
         </div>
       </header>
     </div>
