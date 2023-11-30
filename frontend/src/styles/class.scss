@@ -156,6 +156,10 @@ header {
     padding: 20px;
     border: 0;
   }
+
+  textarea {
+    resize: none;
+  }
 }
 
 .close {

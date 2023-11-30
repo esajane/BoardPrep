@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import profileImage from '../assets/16.png'
 import '../styles/classroom.scss'
 import PostsTab from '../components/PostsTab'
+import StudentsTab from '../components/StudentsTab'
 
 interface Class {
   classId: number,
@@ -38,6 +39,8 @@ function Classroom() {
     switch (activeLink) {
       case 'Posts':
         return <PostsTab classId={classItem.classId} />;
+      case 'Students':
+        return <StudentsTab students={classItem.students} />;
       default:
         return <PostsTab classId={classItem.classId} />;
     }

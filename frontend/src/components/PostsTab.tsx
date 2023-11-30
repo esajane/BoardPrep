@@ -58,13 +58,14 @@ function PostsTab({ classId }: PostProps) {
   return (
     <div className='posts-tab'>
       <div className="posts-tab--center">
-        {posts.map((post) => (
+        {posts.length > 0 ? posts.map((post) => (
           <Post
             key={post.id}
             content={post.content}
             createdAt={post.created_at}
           />
-        ))}
+        )):
+        <div>No posts yet.</div>}
       </div>
       {addingPost ? (
         <div className="input-container">

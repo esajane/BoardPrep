@@ -2,12 +2,22 @@ import React, { FormEvent, useRef } from 'react'
 import axios from 'axios';
 import '../styles/class.scss'
 
-interface ClassModalProps {
-  closeModal: () => void;
-  fetchClasses: () => void;
+interface Class {
+  classId: number,
+  className: string,
+  classDescription: string,
+  course: string,
+  students: string[],
+  classCode: string,
 }
 
-function ClassModal({ closeModal, fetchClasses }: ClassModalProps) {
+interface ClassModalProps {
+  closeModal: () => void;
+  classes: Class[];
+  setClasses: (classes: Class[]) => void;
+}
+
+function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   const nameRef = useRef<HTMLInputElement>(null)
   const descriptionRef = useRef<HTMLTextAreaElement>(null)
   const courseRef = useRef<HTMLInputElement>(null)
@@ -27,7 +37,7 @@ function ClassModal({ closeModal, fetchClasses }: ClassModalProps) {
       })
       if (response.status === 201) {
         closeModal()
-        fetchClasses()
+        setClasses([...classes, response.data])
       } else {
         console.log(response)
       }

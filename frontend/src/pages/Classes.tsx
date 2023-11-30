@@ -52,7 +52,7 @@ function Classes() {
         <button className="create-classbtn" onClick={openModal}>
             Create Class +
         </button>
-        { modalOpen && <ClassModal closeModal={closeModal} fetchClasses={fetchClasses} />  }
+        { modalOpen && <ClassModal closeModal={closeModal} classes={classes} setClasses={setClasses} />  }
       </div>
     </div>
   )
