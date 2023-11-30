@@ -8,18 +8,18 @@
   background: #100D1F;
   color: #ffffff;
   padding: 40px;
-  min-height: 150vh;
+  min-height: 155vh;
 
   h1 {
     font-size: 30px;
     text-align: left;
+    margin-bottom: 5px;
   }
 
   .subtitle {
     font-size: 20px;
     color: rgba(255, 255, 255, 0.5);
     margin-bottom: 40px;
-    margin-top: -12px;
   }
 
   .exam-timer {
@@ -30,7 +30,7 @@
     border-radius: 20px;
     position: absolute;
     right: 40px;
-    top: 65px;
+    top: 55px;
   }
 
   .submit-button {
