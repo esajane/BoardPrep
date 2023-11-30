@@ -4,30 +4,35 @@ import Post from './Post'
 import '../styles/poststab.scss'
 import { MdOutlinePostAdd, MdSend } from "react-icons/md";
 
-interface Post {
+interface Posts {
   id: number,
   content: string,
   created_at: string,
   class_instance: number,
 }
 
-function PostsTab() {
+interface PostProps {
+  classId: number,
+}
+
+function PostsTab({ classId }: PostProps) {
   const [addingPost, setAddingPost] = useState(false);
   const [newPostContent, setNewPostContent] = useState("");
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Posts[]>([]);
 
   useEffect(() => {
-    fetchPosts();
-  }, [])
-
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/posts/");
-      setPosts(response.data);
-    } catch (err) {
-      console.error(err);
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/posts/?class_id=${classId}`);
+        setPosts(response.data);
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
+    fetchPosts();
+  }, [classId])
+
+  
 
   const handleAddPostClick = () => {
     setAddingPost(true);
@@ -38,7 +43,7 @@ function PostsTab() {
       if(newPostContent !== "") {
         const response = await axios.post(`http://127.0.0.1:8000/posts/`, {
           content: newPostContent,
-          class_instance: 1, // TODO: replace with actual class
+          class_instance: classId,
           teacher: 'teacher1' // TODO: replace with actual teacher
         });
         setPosts([...posts, response.data]);

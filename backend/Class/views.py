@@ -25,8 +25,17 @@ class ClassViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Invalid join request'}, status=status.HTTP_400_BAD_REQUEST)
         
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        class_id = self.request.query_params.get('class_id')
+        try:
+            class_id = int(class_id)
+        except:
+            return queryset.none()
+        return queryset.filter(class_instance_id=class_id)
+        
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()

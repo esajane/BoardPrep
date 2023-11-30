@@ -20,24 +20,26 @@ function Classroom() {
   const [activeLink, setActiveLink] = useState('Posts');
 
   useEffect(() => {
-    fetchClass();
-  }, [])
-
-  const fetchClass = async () => {
-    try {
-      const response = await axios.get(`http://127.0.0.1:8000/classes/${classId}/`);
-      setClass(response.data);
-    } catch (err) {
-      console.error(err);
+    const fetchClass = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/classes/${classId}/`);
+        setClass(response.data);
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
+    fetchClass();
+  }, [classId])
+
+  
 
   const renderTab = () => {
+    if(!classItem) return null;
     switch (activeLink) {
       case 'Posts':
-        return <PostsTab />;
+        return <PostsTab classId={classItem.classId} />;
       default:
-        return <PostsTab />;
+        return <PostsTab classId={classItem.classId} />;
     }
   }
 
