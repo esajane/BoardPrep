@@ -3,7 +3,7 @@ import axios from 'axios'
 import ClassModal from '../components/ClassModal'
 import profileImage from '../assets/16.png'
 import ClassCard from '../components/ClassCard'
-import '../styles/class.css'
+import '../styles/class.scss'
 
 interface Class {
   classId: number,
@@ -48,7 +48,7 @@ function Classes() {
         </div>
       </header>
       <div className="class-container">
-        { classes.map((classItem) => <ClassCard className={classItem.className} classDescription={classItem.classDescription} students={classItem.students} />) }
+        { classes.map((classItem) => <ClassCard classId={classItem.classId} className={classItem.className} classDescription={classItem.classDescription} />) }
         <button className="create-classbtn" onClick={openModal}>
             Create Class +
         </button>

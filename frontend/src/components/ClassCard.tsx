@@ -1,14 +1,16 @@
 import React from 'react'
 import cardImage from '../assets/biomech.png'
-import '../styles/class.css'
+import '../styles/class.scss'
+import { Link } from 'react-router-dom'
 
 interface ClassCardProps {
+  classId: number,
   className: string,
   classDescription: string,
-  students: string[],
 }
 
-function ClassCard({ className, classDescription, students }: ClassCardProps) {
+function ClassCard({ classId, className, classDescription }: ClassCardProps) {
+
   return (
     <div className="class-card">
       <img src={cardImage} className="logo" alt="RILL" />
@@ -18,7 +20,9 @@ function ClassCard({ className, classDescription, students }: ClassCardProps) {
         <p className="card-description">
           { classDescription }
         </p>
-        <button className="card-button">Classroom</button>
+        <Link to={`/classes/${classId}`} className="card-button">
+          <button className="card-button">Classroom</button>
+        </Link>
       </div>
     </div>
   )

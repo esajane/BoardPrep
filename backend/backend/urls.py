@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, PageViewSet, ParagraphViewSet
-from Class.views import ClassViewSet
+from Class.views import ClassViewSet, PostViewSet, CommentViewSet
 
 router = routers.DefaultRouter()
 router.register(r'courses', CourseListViewSet)
@@ -15,6 +15,8 @@ router.register(r'lessons', LessonViewSet)
 router.register(r'pages', PageViewSet)
 router.register(r'paragraphs', ParagraphViewSet)
 router.register(r'classes', ClassViewSet)
+router.register(r'posts', PostViewSet)
+router.register(r'comments', CommentViewSet)
 #pagkuha og indibidwal nga mga kurso
 
 urlpatterns = [

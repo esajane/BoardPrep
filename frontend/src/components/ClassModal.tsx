@@ -1,6 +1,6 @@
 import React, { FormEvent, useRef } from 'react'
 import axios from 'axios';
-import '../styles/class.css'
+import '../styles/class.scss'
 
 interface ClassModalProps {
   closeModal: () => void;
