@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+.students-tab {
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  max-height: 800px;
+  overflow: auto;
+
+  &--center {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;  
+    align-items: center;
+  }
+}
