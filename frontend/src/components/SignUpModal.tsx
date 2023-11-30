@@ -14,7 +14,6 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [specialization, setSpecialization] = useState('');
-  const [institutionid, setInstitutionid] = useState('');
 
   console.log(username);
   console.log(firstname);
@@ -22,13 +21,12 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
   console.log(password);
   console.log(email);
   console.log(specialization);
-  console.log(institutionid);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/student/', {
+      const response = await axios.post(`http://127.0.0.1:8000/${userType}/`, {
         userName: username,
         password: password,
         firstName: firstname,

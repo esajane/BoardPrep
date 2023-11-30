@@ -41,7 +41,7 @@ const Student = () => {
           {modalOpenSignup && (
             <SignupModal closeModal={closeModalSignup} userType="student" />
           )}
-          {modalOpenSignin && <SigninModal closeModal={closeModalSignin} />}
+          {modalOpenSignin && <SigninModal closeModal={closeModalSignin} userType="student" />}
         </div>
       </header>
     </div>
