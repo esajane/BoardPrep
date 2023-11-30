@@ -25,7 +25,6 @@ router.register(r'scores', MockTestScoresViewSet)
 router.register(r'student', StudentViewSet)
 router.register(r'teacher', TeacherViewSet)
 
-
 #pagkuha og indibidwal nga mga kurso
 
 urlpatterns = [

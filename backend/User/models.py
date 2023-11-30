@@ -5,6 +5,10 @@ from Subscription.models import Subscription
 
 # Create your models here.
 class User(models.Model):
+    USER_TYPE_CHOICES = [
+        ('S', 'Student'),
+        ('T', 'Teacher'),
+    ]
     user_name = models.CharField(primary_key=True, null=False, max_length=255, blank=False)
     password = models.CharField(null=False, max_length=255, blank=False)
     first_name = models.CharField(null=False, max_length=255, blank=False)
@@ -12,6 +16,7 @@ class User(models.Model):
     email = models.CharField(null=False, max_length=255, blank=False)
     registration_date = models.DateField(auto_now_add=True)
     last_login = models.DateField(auto_now=True)
+    user_type = models.CharField(max_length=1, choices=USER_TYPE_CHOICES)
 
 
 class Specialization(models.Model):
@@ -35,6 +40,10 @@ class Student(User):
     def __str__(self):
         return self.user_name
 
+    def save(self, *args, **kwargs):
+        self.user_type = 'S'
+        super(Student, self).save(*args, **kwargs)
+
 class Teacher(User):
     name = models.CharField(null=False, max_length=255, blank=False)
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
@@ -42,3 +51,7 @@ class Teacher(User):
 
     def __str__(self):
         return self.user_name
+
+    def save(self, *args, **kwargs):
+        self.user_type = 'T'
+        super(Teacher, self).save(*args, **kwargs)
