@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, PageViewSet, ParagraphViewSet
 from Class.views import ClassViewSet, PostViewSet, CommentViewSet
+from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet
 
 router = routers.DefaultRouter()
 router.register(r'courses', CourseListViewSet)
@@ -17,6 +18,11 @@ router.register(r'paragraphs', ParagraphViewSet)
 router.register(r'classes', ClassViewSet)
 router.register(r'posts', PostViewSet)
 router.register(r'comments', CommentViewSet)
+router.register(r'mocktest', MockTestViewSet)
+router.register(r'mocktest/questions', MockQuestionsViewSet)
+router.register(r'mocktest/scores', MockTestScoresViewSet)
+
+
 #pagkuha og indibidwal nga mga kurso
 
 urlpatterns = [
