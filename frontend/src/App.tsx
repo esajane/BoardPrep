@@ -8,6 +8,7 @@ import Syllabus from "./components/Syllabus";
 import CourseMain from "./components/CourseMain";
 import CourseDetails from "./pages/CourseDetails";
 import CourseList from "./pages/Courselist";
+import MockTest from "./pages/Mocktest";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Classes from "./pages/Classes";
 import Classroom from "./pages/Classroom";
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route path="/" Component={CourseList} />
         <Route path="/course/:id" Component={CourseDetails} />
+        <Route path="/mocktest/" Component={MockTest} />
         <Route path="/classes" Component={Classes} />
         <Route path="/classes/:id" Component={Classroom} />
       </Routes>
