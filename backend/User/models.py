@@ -7,6 +7,8 @@ from Subscription.models import Subscription
 class User(models.Model):
     user_name = models.CharField(primary_key=True, null=False, max_length=255, blank=False)
     password = models.CharField(null=False, max_length=255, blank=False)
+    first_name = models.CharField(null=False, max_length=255, blank=False)
+    last_name = models.CharField(null=False, max_length=255, blank=False)
     email = models.CharField(null=False, max_length=255, blank=False)
     registration_date = models.DateField(auto_now_add=True)
     last_login = models.DateField(auto_now=True)
