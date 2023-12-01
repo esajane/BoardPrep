@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import axios from 'axios';
-import '../styles/class.scss';
+import { useState } from "react";
+import axios from "axios";
+import "../styles/class.scss";
 
 interface SignupModalProps {
   closeModal: () => void;
-  userType: 'student' | 'teacher';
+  userType: "student" | "teacher";
 }
 
 function SignupModal({ closeModal, userType }: SignupModalProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [specialization, setSpecialization] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [email, setEmail] = useState("");
+  const [specialization, setSpecialization] = useState("");
 
   console.log(username);
   console.log(firstname);
@@ -26,17 +26,20 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/${userType}/`, {
-        userName: username,
-        password: password,
-        firstName: firstname,
-        lastName: lastname,
-        email: email,
-        specialization: specialization,
-      });
+      const response = await axios.post(
+        `http://127.0.0.1:8000/register/${userType}/`,
+        {
+          userName: username,
+          password: password,
+          firstName: firstname,
+          lastName: lastname,
+          email: email,
+          specialization: specialization,
+        },
+      );
       if (response.status === 201) {
         closeModal();
-        console.log('Success Fully Registered');
+        console.log("Success Fully Registered");
       } else {
         console.log(response);
       }
@@ -49,7 +52,9 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
     <div id="modal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h1 className="title">{userType === 'student' ? 'Signup Student' : 'Signup Teacher'}</h1>
+          <h1 className="title">
+            {userType === "student" ? "Signup Student" : "Signup Teacher"}
+          </h1>
           <span className="close title" onClick={closeModal}>
             &times;
           </span>
