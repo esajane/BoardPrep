@@ -1,8 +1,13 @@
 from rest_framework import serializers
 
 from .models import Class, Post, Comment
+from Course.models import Course
+
+from User.models import Teacher
+
 
 class ClassSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
     class Meta:
         model = Class
         fields = '__all__'

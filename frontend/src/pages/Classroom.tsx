@@ -1,77 +1,99 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import { useParams } from 'react-router-dom'
-import profileImage from '../assets/16.png'
-import '../styles/classroom.scss'
-import PostsTab from '../components/PostsTab'
-import StudentsTab from '../components/StudentsTab'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import profileImage from "../assets/16.png";
+import "../styles/classroom.scss";
+import PostsTab from "../components/PostsTab";
+import StudentsTab from "../components/StudentsTab";
+import Materials from "../components/Materials";
 
 interface Class {
-  classId: number,
-  className: string,
-  classDescription: string,
-  course: string,
-  students: string[],
-  classCode: string,
+  classId: number;
+  className: string;
+  classDescription: string;
+  course: string;
+  students: string[];
+  classCode: string;
 }
 
 function Classroom() {
-  const { id: classId } = useParams()
-  const [classItem, setClass] = useState<Class>()
-  const [activeLink, setActiveLink] = useState('Posts');
+  const { id: classId } = useParams();
+  const [classItem, setClass] = useState<Class>();
+  const [activeLink, setActiveLink] = useState("Posts");
 
   useEffect(() => {
     const fetchClass = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/classes/${classId}/`);
+        const response = await axios.get(
+          `http://127.0.0.1:8000/classes/${classId}/`
+        );
         setClass(response.data);
       } catch (err) {
         console.error(err);
       }
-    }
+    };
     fetchClass();
-  }, [classId])
-
-  
+  }, [classId]);
 
   const renderTab = () => {
-    if(!classItem) return null;
+    if (!classItem) return null;
     switch (activeLink) {
-      case 'Posts':
+      case "Posts":
         return <PostsTab classId={classItem.classId} />;
-      case 'Students':
+      case "Students":
         return <StudentsTab students={classItem.students} />;
+      case "Materials":
+        return <Materials courseId={classItem.course} />;
+
       default:
         return <PostsTab classId={classItem.classId} />;
     }
-  }
+  };
 
   return (
     <div className="class-background">
       <header>
-        <div className='left-header'>
-          <div className='left-header--title'>
+        <div className="left-header">
+          <div className="left-header--title">
             <h1>Classroom</h1>
             <h3>{classItem && classItem.className}</h3>
           </div>
           <nav className="class-nav">
-              <ul>
-                  <li className={activeLink === 'Posts' ? 'active' : ''} onClick={() => setActiveLink('Posts')}>Posts</li>
-                  <li className={activeLink === 'Materials' ? 'active' : ''} onClick={() => setActiveLink('Materials')}>Materials</li>
-                  <li className={activeLink === 'Activities' ? 'active' : ''} onClick={() => setActiveLink('Activities')}>Activities</li>
-                  <li className={activeLink === 'Students' ? 'active' : ''} onClick={() => setActiveLink('Students')}>Students</li>
-              </ul>
+            <ul>
+              <li
+                className={activeLink === "Posts" ? "active" : ""}
+                onClick={() => setActiveLink("Posts")}
+              >
+                Posts
+              </li>
+              <li
+                className={activeLink === "Materials" ? "active" : ""}
+                onClick={() => setActiveLink("Materials")}
+              >
+                Materials
+              </li>
+              <li
+                className={activeLink === "Activities" ? "active" : ""}
+                onClick={() => setActiveLink("Activities")}
+              >
+                Activities
+              </li>
+              <li
+                className={activeLink === "Students" ? "active" : ""}
+                onClick={() => setActiveLink("Students")}
+              >
+                Students
+              </li>
+            </ul>
           </nav>
         </div>
         <div className="profile-pic2">
           <img src={profileImage} className="logo" alt="RILL" />
         </div>
       </header>
-      <div className='class-content'>
-        {renderTab()}
-      </div>
+      <div className="class-content">{renderTab()}</div>
     </div>
-  )
+  );
 }
 
-export default Classroom
+export default Classroom;

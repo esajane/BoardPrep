@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CourseCard from "../components/Coursecard";
-import "../styles/testing.css";
+import "../styles/testing.scss";
 
 interface Course {
   course_id: string;

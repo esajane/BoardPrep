@@ -1,4 +1,4 @@
-import "../styles/testing.css";
+import "../styles/testing.scss";
 
 import React from "react";
 
