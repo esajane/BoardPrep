@@ -4,7 +4,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import StudentSerializer, TeacherSerializer
+from .serializers import StudentSerializer, TeacherSerializer, UserSerializer
 from .models import Student, Teacher, User
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -28,6 +28,21 @@ class TeacherViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=201)  # Successful creation
         return Response(serializer.errors, status=400)
+
+class UserLogin(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        try:
+            user = User.objects.get(user_name=username)
+        except User.DoesNotExist:
+            return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
+
+        if password == user.password:
+            response_data = {'message': 'Login Successfully', **UserSerializer(user).data}
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
 
 class StudentLogin(APIView):
     def post(self, request):
