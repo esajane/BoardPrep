@@ -1,11 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.hashers import check_password
-from rest_framework import viewsets, status
+from django.contrib.auth import login, logout
+from django.contrib.sessions.models import Session
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication
 from .serializers import StudentSerializer, TeacherSerializer, UserSerializer
-from .models import Student, Teacher, User
+from .models import Student, Teacher, User, Specialization
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
@@ -76,21 +79,22 @@ class TeacherLogin(APIView):
             return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
 
 class StudentRegister(APIView):
-    serializer_class = StudentSerializer
-
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
+    def post(self, request):
+        serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)  # Successful creation
-        return Response(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TeacherRegister(APIView):
-    serializer_class = TeacherSerializer
-
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
+    def post(self, request):
+        serializer = TeacherSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)  # Successful creation
-        return Response(serializer.errors, status=400)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

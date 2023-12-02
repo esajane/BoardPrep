@@ -31,12 +31,12 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
       const response = await axios.post(
         `http://127.0.0.1:8000/register/${userType}/`,
         {
-          userName: username,
-          password: password,
-          firstName: firstname,
-          lastName: lastname,
-          email: email,
-          specialization: specialization,
+          user_name: username,
+          password,
+          first_name: firstname,
+          last_name: lastname,
+          email,
+          specialization,
         },
       );
       if (response.status === 201) {
@@ -44,7 +44,7 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
         console.log("Success Fully Registered");
         navigate("/teacher");
       } else {
-        console.log(response);
+        console.log(response.data['email']);
       }
     } catch (err) {
       console.log(err);
