@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+.student-card {
+  border: 1px solid white;
+  height: 60px;
+  width: 50vw;
+  background-color: rgba($color: #B650F4, $alpha: .2);
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    &--pic {
+      border-radius: 50%;
+      height: 35px;
+      width: 35px;
+      overflow: hidden;
+    
+      img {
+        height: 100%;
+        width: 100%;
+        background-size: stretch;
+      }
+    }
+  }
+
+  &__req-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .request_btn {
+      all: unset;
+      font-size: 20px;
+      line-height: 1px;
+      padding: 5px;
+    }
+  
+    .accept {
+      border: 1px solid #08d46c;
+      border-radius: 50%;
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        background-color: #08d46c;
+        color: white;
+      }
+    }
+  
+    .reject {
+      border: 1px solid #e04434;
+      border-radius: 50%;
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        background-color: #e04434;
+        color: white;
+      }
+    }
+  }
+}

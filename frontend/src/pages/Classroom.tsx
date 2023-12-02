@@ -16,18 +16,28 @@ interface Class {
   classCode: string;
 }
 
+interface JoinRequest {
+  id: number;
+  is_accepted: boolean;
+  class_instance: number;
+  student: string;
+}
+
 function Classroom() {
   const { id: classId } = useParams();
   const [classItem, setClass] = useState<Class>();
   const [activeLink, setActiveLink] = useState("Posts");
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
 
   useEffect(() => {
     const fetchClass = async () => {
       try {
-        const response = await axios.get(
+        let response = await axios.get(
           `http://127.0.0.1:8000/classes/${classId}/`
         );
         setClass(response.data);
+        response = await axios.get(`http://127.0.0.1:8000/join-requests/?class_id=${classId}`);
+        setJoinRequests(response.data);
       } catch (err) {
         console.error(err);
       }
@@ -41,7 +51,7 @@ function Classroom() {
       case "Posts":
         return <PostsTab classId={classItem.classId} />;
       case "Students":
-        return <StudentsTab students={classItem.students} />;
+        return <StudentsTab joinRequests={joinRequests} students={classItem.students} />;
       case "Materials":
         return <Materials courseId={classItem.course} />;
 

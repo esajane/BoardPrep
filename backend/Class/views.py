@@ -3,7 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Class, JoinRequest, Post, Comment
-from .serializers import ClassSerializer, PostSerializer, CommentSerializer
+from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer
 
 # Create your views here.
 class ClassViewSet(viewsets.ModelViewSet):
@@ -40,3 +40,15 @@ class PostViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+class JoinRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = JoinRequestSerializer
+
+    def get_queryset(self):
+        queryset = JoinRequest.objects.all()
+        class_id = self.request.query_params.get('class_id')
+        try:
+            class_id = int(class_id)
+        except:
+            return queryset.none()
+        return queryset.filter(class_instance=class_id, is_accepted=False)
