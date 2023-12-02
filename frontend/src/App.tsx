@@ -8,8 +8,12 @@ import Syllabus from "./components/Syllabus";
 import CourseMain from "./components/CourseMain";
 import CourseDetails from "./pages/CourseDetails";
 import CourseList from "./pages/Courselist";
+import MockTest from "./pages/Mocktest";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LessonPage from "./pages/LessonPage";
+import Classes from "./pages/Classes";
+import Classroom from "./pages/Classroom";
+import Student from "./pages/Student";
+import Teacher from "./pages/Teacher";
 
 function App() {
   return (
@@ -17,6 +21,11 @@ function App() {
       <Routes>
         <Route path="/" Component={CourseList} />
         <Route path="/course/:id" Component={CourseDetails} />
+        <Route path="/mocktest/" Component={MockTest} />
+        <Route path="/classes" Component={Classes} />
+        <Route path="/classes/:id" Component={Classroom} />
+        <Route path="/student" Component={Student} />
+        <Route path="/teacher" Component={Teacher} />
       </Routes>
     </Router>
   );
