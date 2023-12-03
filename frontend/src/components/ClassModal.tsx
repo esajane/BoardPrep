@@ -29,18 +29,20 @@ interface Course {
 function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const [courseValue, setCourseValue] = useState('');
+  const [courseValue, setCourseValue] = useState("");
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/course/details/');
+        const response = await axios.get(
+          "http://127.0.0.1:8000/course/details/"
+        );
         setCourses(response.data);
       } catch (err) {
         console.error(err);
       }
-    }
+    };
     fetchCourses();
   }, []);
 
@@ -91,7 +93,9 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           <select value={courseValue} onChange={handleChange}>
             <option value="">Select a course</option>
             {courses.map((course: Course) => (
-              <option key={course.course_id} value={course.course_id}>{course.course_title}</option>
+              <option key={course.course_id} value={course.course_id}>
+                {course.course_title}
+              </option>
             ))}
           </select>
           <button type="submit" className="card-button">

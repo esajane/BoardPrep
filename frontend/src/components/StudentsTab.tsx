@@ -1,6 +1,6 @@
-import React from 'react';
-import StudentCard from './StudentCard';
-import '../styles/studentstab.scss'
+import React from "react";
+import StudentCard from "./StudentCard";
+import "../styles/studentstab.scss";
 
 interface JoinRequest {
   id: number;
@@ -16,9 +16,14 @@ interface StudentsTabProps {
   fetchClass: () => void;
 }
 
-function StudentsTab({ classId, joinRequests, students, fetchClass }: StudentsTabProps) {
+function StudentsTab({
+  classId,
+  joinRequests,
+  students,
+  fetchClass,
+}: StudentsTabProps) {
   return (
-    <div className='students-tab'>
+    <div className="students-tab">
       <div className="students-tab--center">
         {students.length + joinRequests.length > 0 ? (
           <table>
@@ -33,17 +38,18 @@ function StudentsTab({ classId, joinRequests, students, fetchClass }: StudentsTa
             <tbody>
               {joinRequests.map((joinRequest, index) => {
                 return (
-                <StudentCard 
-                  key={index}
-                  classId={classId}
-                  studentId={joinRequest.student}
-                  is_accepted={joinRequest.is_accepted}
-                  requestId={joinRequest.id}
-                  fetchClass={fetchClass}
-                />
-              )})}
+                  <StudentCard
+                    key={index}
+                    classId={classId}
+                    studentId={joinRequest.student}
+                    is_accepted={joinRequest.is_accepted}
+                    requestId={joinRequest.id}
+                    fetchClass={fetchClass}
+                  />
+                );
+              })}
               {students.map((student, index) => (
-                <StudentCard 
+                <StudentCard
                   key={index}
                   classId={classId}
                   studentId={student}

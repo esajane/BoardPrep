@@ -35,7 +35,9 @@ function Classroom() {
         `http://127.0.0.1:8000/classes/${classId}/`
       );
       setClass(response.data);
-      response = await axios.get(`http://127.0.0.1:8000/join-requests/?class_id=${classId}`);
+      response = await axios.get(
+        `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
+      );
       setJoinRequests(response.data);
     } catch (err) {
       console.error(err);
@@ -49,7 +51,9 @@ function Classroom() {
           `http://127.0.0.1:8000/classes/${classId}/`
         );
         setClass(response.data);
-        response = await axios.get(`http://127.0.0.1:8000/join-requests/?class_id=${classId}`);
+        response = await axios.get(
+          `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
+        );
         setJoinRequests(response.data);
       } catch (err) {
         console.error(err);
@@ -64,7 +68,14 @@ function Classroom() {
       case "Posts":
         return <PostsTab classId={classItem.classId} />;
       case "Students":
-        return <StudentsTab classId={classItem.classId} joinRequests={joinRequests} students={classItem.students} fetchClass={fetchClass} />;
+        return (
+          <StudentsTab
+            classId={classItem.classId}
+            joinRequests={joinRequests}
+            students={classItem.students}
+            fetchClass={fetchClass}
+          />
+        );
       case "Materials":
         return <Materials courseId={classItem.course} />;
 
