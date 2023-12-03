@@ -1,9 +1,10 @@
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Class, JoinRequest, Post, Comment
-from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer
+from .models import Class, JoinRequest, Post, Comment, Activity, Submission
+from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer
 
 # Create your views here.
 class ClassViewSet(viewsets.ModelViewSet):
@@ -86,3 +87,48 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
         except:
             return queryset.none()
         return queryset.filter(class_instance=class_id, is_accepted=False)
+    
+class ActivityViewSet(viewsets.ModelViewSet):
+    queryset = Activity.objects.all()
+    serializer_class = ActivitySerializer
+
+    def update_activity_statuses(self, queryset):
+        current_date = timezone.now()
+        for activity in queryset:
+            updated = False
+            if current_date >= activity.due_date:
+                activity.status = 'Completed'
+                updated = True
+            elif current_date >= activity.start_date:
+                activity.status = 'In Progress'
+                updated = True
+            if updated:
+                activity.save(update_fields=['status'])
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        class_id = self.request.query_params.get('class_id')
+        if class_id is not None:
+            try:
+                class_id = int(class_id)
+                queryset = queryset.filter(class_instance_id=class_id)
+            except ValueError:
+                queryset = queryset.none()
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        self.update_activity_statuses(queryset)
+        return super(ActivityViewSet, self).list(request, *args, **kwargs)
+    
+class SubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = SubmissionSerializer
+
+    def get_queryset(self):
+        queryset = Submission.objects.all()
+        activity_id = self.request.query_params.get('activity_id')
+        try:
+            activity_id = int(activity_id)
+        except:
+            return queryset.none()
+        return queryset.filter(activity_id=activity_id)

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, PageViewSet, ParagraphViewSet
-from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestViewSet
+from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestViewSet, ActivityViewSet, SubmissionViewSet
 from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet
 from User.views import StudentViewSet, TeacherViewSet
 
@@ -25,6 +25,8 @@ router.register(r'scores', MockTestScoresViewSet)
 router.register(r'student', StudentViewSet)
 router.register(r'teacher', TeacherViewSet)
 router.register(r'join-requests', JoinRequestViewSet, basename='join-requests')
+router.register(r'activities', ActivityViewSet, basename='activities')
+router.register(r'submissions', SubmissionViewSet, basename='submissions')
 
 #pagkuha og indibidwal nga mga kurso
 

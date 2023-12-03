@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Class, Post, Comment, JoinRequest
+from .models import Class, Post, Comment, JoinRequest, Activity, Submission
 from Course.models import Course
 
 from User.models import Teacher
@@ -34,4 +34,14 @@ class PostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
+        fields = '__all__'
+
+class ActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+
+class SubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
         fields = '__all__'
