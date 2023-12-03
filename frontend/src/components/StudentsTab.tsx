@@ -10,11 +10,13 @@ interface JoinRequest {
 }
 
 interface StudentsTabProps {
+  classId: number;
   joinRequests: JoinRequest[];
   students: string[];
+  fetchClass: () => void;
 }
 
-function StudentsTab({ joinRequests, students }: StudentsTabProps) {
+function StudentsTab({ classId, joinRequests, students, fetchClass }: StudentsTabProps) {
   return (
     <div className='students-tab'>
       <div className="students-tab--center">
@@ -33,14 +35,17 @@ function StudentsTab({ joinRequests, students }: StudentsTabProps) {
                 return (
                 <StudentCard 
                   key={index}
+                  classId={classId}
                   studentId={joinRequest.student}
                   is_accepted={joinRequest.is_accepted}
                   requestId={joinRequest.id}
+                  fetchClass={fetchClass}
                 />
               )})}
               {students.map((student, index) => (
                 <StudentCard 
                   key={index}
+                  classId={classId}
                   studentId={student}
                   is_accepted={true}
                 />

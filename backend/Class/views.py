@@ -35,11 +35,45 @@ class PostViewSet(viewsets.ModelViewSet):
         except:
             return queryset.none()
         return queryset.filter(class_instance_id=class_id)
+    
+    def destroy(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        try:
+            post = Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({'message': 'Post Not Found!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        #if request.user.id != post.teacher_id:
+        #    return Response({'message': 'Unauthorized!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
         
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        queryset = Comment.objects.all()
+        post_id = self.request.query_params.get('post_id')
+        try:
+            post_id = int(post_id)
+        except:
+            return queryset.none()
+        return queryset.filter(post_id=post_id)
+    
+    def destroy(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            return Response({'message': 'Comment Not Found!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        #if request.user.id != comment.teacher_id:
+        #    return Response({'message': 'Unauthorized!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class JoinRequestViewSet(viewsets.ModelViewSet):
     serializer_class = JoinRequestSerializer

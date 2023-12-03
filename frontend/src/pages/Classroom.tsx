@@ -29,6 +29,19 @@ function Classroom() {
   const [activeLink, setActiveLink] = useState("Posts");
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
 
+  const fetchClass = async () => {
+    try {
+      let response = await axios.get(
+        `http://127.0.0.1:8000/classes/${classId}/`
+      );
+      setClass(response.data);
+      response = await axios.get(`http://127.0.0.1:8000/join-requests/?class_id=${classId}`);
+      setJoinRequests(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     const fetchClass = async () => {
       try {
@@ -51,7 +64,7 @@ function Classroom() {
       case "Posts":
         return <PostsTab classId={classItem.classId} />;
       case "Students":
-        return <StudentsTab joinRequests={joinRequests} students={classItem.students} />;
+        return <StudentsTab classId={classItem.classId} joinRequests={joinRequests} students={classItem.students} fetchClass={fetchClass} />;
       case "Materials":
         return <Materials courseId={classItem.course} />;
 

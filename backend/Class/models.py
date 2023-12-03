@@ -31,19 +31,21 @@ class JoinRequest(models.Model):
         unique_together = ('class_instance', 'student')
 
 class Post(models.Model):
+    id = models.AutoField(primary_key=True)
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.title
+        return self.content
     
 class Comment(models.Model):
+    id = models.AutoField(primary_key=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.title
+        return self.content

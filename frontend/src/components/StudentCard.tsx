@@ -19,12 +19,14 @@ interface Student {
 }
 
 interface StudentCardProps {
+  classId: number;
   studentId: string;
   is_accepted: boolean;
   requestId?: number;
+  fetchClass?: () => void;
 }
 
-function StudentCard({ studentId, is_accepted, requestId }: StudentCardProps) {
+function StudentCard({ classId, studentId, is_accepted, requestId, fetchClass }: StudentCardProps) {
   const [student, setStudent] = useState<Student>();
   const [acceptColor, setAcceptColor] = useState('#08d46c');
   const [rejectColor, setRejectColor] = useState('#e04434');
@@ -45,10 +47,13 @@ function StudentCard({ studentId, is_accepted, requestId }: StudentCardProps) {
 
   const handleAccept = async () => {
     try {
-      await axios.post('http://127.0.0.1:8000/classes/1/accept-join-request/', {
+      await axios.post(`http://127.0.0.1:8000/classes/${classId}/accept-join-request/`, {
         join_request_id: requestId
       });
       setIsAccepted(true);
+      if(fetchClass) {
+        fetchClass();
+      }
     } catch (err) {
       console.error(err);
     }

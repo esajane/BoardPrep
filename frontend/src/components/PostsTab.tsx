@@ -9,6 +9,7 @@ interface Posts {
   content: string,
   created_at: string,
   class_instance: number,
+  teacher: string,
 }
 
 interface PostProps {
@@ -63,6 +64,9 @@ function PostsTab({ classId }: PostProps) {
             key={post.id}
             content={post.content}
             createdAt={post.created_at}
+            postId={post.id}
+            setPosts={setPosts}
+            teacher_id={post.teacher}
           />
         )):
         <div>No posts yet.</div>}
