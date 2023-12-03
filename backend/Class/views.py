@@ -94,6 +94,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     def update_activity_statuses(self, queryset):
         current_date = timezone.now()
+        current_date = current_date.replace(hour=current_date.hour + 8)
         for activity in queryset:
             updated = False
             if current_date >= activity.due_date:
@@ -102,6 +103,8 @@ class ActivityViewSet(viewsets.ModelViewSet):
             elif current_date >= activity.start_date:
                 activity.status = 'In Progress'
                 updated = True
+            else:
+                print(activity.start_date, current_date)
             if updated:
                 activity.save(update_fields=['status'])
     
