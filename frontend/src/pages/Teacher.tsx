@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import SignupModal from '../components/SignUpModal';
 import SigninModal from '../components/SignInModal';
-import '../styles/home.scss';
+import '../styles/user.scss';
 
 const Teacher = () => {
   const [modalOpenSignin, setModalOpenSignin] = useState(false);
@@ -32,14 +32,16 @@ const Teacher = () => {
   return (
     <div className="background">
       <header>
-        <h1>BoardPrep - Teacher</h1>
+        <h1><a href='/' className='homer'>BoardPrep</a> - Teacher</h1>
         <div>
-          <button className="button" onClick={openModalSignin}>
+        <div className="user">
+          <button className="user-c" onClick={openModalSignin}>
             Signin
           </button>
-          <button className="button" onClick={openModalSignup}>
+          <button className="user-c" onClick={openModalSignup}>
             Signup
           </button>
+        </div>
           {modalOpenSignup && (
             <SignupModal closeModal={closeModalSignup} userType="teacher" />
           )}

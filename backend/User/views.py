@@ -49,7 +49,7 @@ class UserLogin(APIView):
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
                 'iat': datetime.datetime.utcnow()
             }
-            token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8')
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
             response = Response()
             response.set_cookie(key='jwt', value=token, httponly=True)
             response.data = {
@@ -119,3 +119,19 @@ class TeacherRegister(APIView):
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserView(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        student = Student.objects.all()
+        serializer = StudentSerializer(student, many=True)
+        return Response(serializer.data)
