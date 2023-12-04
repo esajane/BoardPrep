@@ -83,9 +83,9 @@ class Activity(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.pk:
-            current_date = timezone.now()
-            current_date = current_date.replace(hour=current_date.hour + 8)
-            self.created_at = current_date
+            self.created_at = timezone.now()
+            self.start_date = self.start_date.replace(hour=self.start_date.hour - 8)
+            self.due_date = self.due_date.replace(hour=self.due_date.hour - 8)
         if self.created_at >= self.start_date:
             raise ValueError("Not a valid start date")
         if self.start_date >= self.due_date:

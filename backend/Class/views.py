@@ -3,8 +3,8 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Class, JoinRequest, Post, Comment, Activity, Submission
-from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer
+from .models import Class, JoinRequest, Post, Comment, Activity, Submission, Attachment
+from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer, AttachmentSerializer
 
 # Create your views here.
 class ClassViewSet(viewsets.ModelViewSet):
@@ -94,7 +94,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     def update_activity_statuses(self, queryset):
         current_date = timezone.now()
-        current_date = current_date.replace(hour=current_date.hour + 8)
         for activity in queryset:
             updated = False
             if current_date >= activity.due_date:
@@ -103,8 +102,6 @@ class ActivityViewSet(viewsets.ModelViewSet):
             elif current_date >= activity.start_date:
                 activity.status = 'In Progress'
                 updated = True
-            else:
-                print(activity.start_date, current_date)
             if updated:
                 activity.save(update_fields=['status'])
     
@@ -135,3 +132,7 @@ class SubmissionViewSet(viewsets.ModelViewSet):
         except:
             return queryset.none()
         return queryset.filter(activity_id=activity_id)
+    
+class AttachmentViewSet(viewsets.ModelViewSet):
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer

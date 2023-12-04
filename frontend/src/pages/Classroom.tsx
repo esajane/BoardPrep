@@ -6,6 +6,7 @@ import "../styles/classroom.scss";
 import PostsTab from "../components/PostsTab";
 import StudentsTab from "../components/StudentsTab";
 import Materials from "../components/Materials";
+import ActivitiesTab from "../components/ActivitiesTab";
 
 interface Class {
   classId: number;
@@ -78,7 +79,8 @@ function Classroom() {
         );
       case "Materials":
         return <Materials courseId={classItem.course} />;
-
+      case "Activities":
+        return <ActivitiesTab classId={classItem.classId} />;
       default:
         return <PostsTab classId={classItem.classId} />;
     }
