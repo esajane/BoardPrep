@@ -34,7 +34,7 @@ router.register(r'attachments', AttachmentViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-    path('', include('User.urls')),
+    #path('', include('User.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
     re_path(r'^lessons/(?P<course_id>[^/.]+)/$', LessonViewSet.as_view({'get': 'by_course'})),
 
