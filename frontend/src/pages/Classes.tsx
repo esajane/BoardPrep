@@ -48,8 +48,9 @@ function Classes() {
         </div>
       </header>
       <div className="class-container">
-        {classes.map((classItem) => (
+        {classes.map((classItem, index) => (
           <ClassCard
+            key={index}
             classId={classItem.classId}
             className={classItem.className}
             classDescription={classItem.classDescription}

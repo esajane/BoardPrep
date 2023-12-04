@@ -6,6 +6,7 @@ import "../styles/classroom.scss";
 import PostsTab from "../components/PostsTab";
 import StudentsTab from "../components/StudentsTab";
 import Materials from "../components/Materials";
+import ActivitiesTab from "../components/ActivitiesTab";
 
 interface Class {
   classId: number;
@@ -16,18 +17,45 @@ interface Class {
   classCode: string;
 }
 
+interface JoinRequest {
+  id: number;
+  is_accepted: boolean;
+  class_instance: number;
+  student: string;
+}
+
 function Classroom() {
   const { id: classId } = useParams();
   const [classItem, setClass] = useState<Class>();
   const [activeLink, setActiveLink] = useState("Posts");
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+
+  const fetchClass = async () => {
+    try {
+      let response = await axios.get(
+        `http://127.0.0.1:8000/classes/${classId}/`
+      );
+      setClass(response.data);
+      response = await axios.get(
+        `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
+      );
+      setJoinRequests(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetchClass = async () => {
       try {
-        const response = await axios.get(
+        let response = await axios.get(
           `http://127.0.0.1:8000/classes/${classId}/`
         );
         setClass(response.data);
+        response = await axios.get(
+          `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
+        );
+        setJoinRequests(response.data);
       } catch (err) {
         console.error(err);
       }
@@ -41,10 +69,18 @@ function Classroom() {
       case "Posts":
         return <PostsTab classId={classItem.classId} />;
       case "Students":
-        return <StudentsTab students={classItem.students} />;
+        return (
+          <StudentsTab
+            classId={classItem.classId}
+            joinRequests={joinRequests}
+            students={classItem.students}
+            fetchClass={fetchClass}
+          />
+        );
       case "Materials":
         return <Materials courseId={classItem.course} />;
-
+      case "Activities":
+        return <ActivitiesTab classId={classItem.classId} />;
       default:
         return <PostsTab classId={classItem.classId} />;
     }
