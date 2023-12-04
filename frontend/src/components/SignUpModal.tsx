@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "../styles/class.scss";
+import { useNavigate } from "react-router-dom";
 
 interface SignupModalProps {
   closeModal: () => void;
@@ -14,6 +15,7 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const navigate = useNavigate();
 
   console.log(username);
   console.log(firstname);
@@ -29,19 +31,20 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
       const response = await axios.post(
         `http://127.0.0.1:8000/register/${userType}/`,
         {
-          userName: username,
-          password: password,
-          firstName: firstname,
-          lastName: lastname,
-          email: email,
-          specialization: specialization,
+          user_name: username,
+          password,
+          first_name: firstname,
+          last_name: lastname,
+          email,
+          specialization,
         },
       );
       if (response.status === 201) {
         closeModal();
         console.log("Success Fully Registered");
+        navigate("/teacher");
       } else {
-        console.log(response);
+        console.log(response.data['email']);
       }
     } catch (err) {
       console.log(err);

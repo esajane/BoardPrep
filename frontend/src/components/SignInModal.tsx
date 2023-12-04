@@ -1,15 +1,17 @@
 import React, { FormEvent, useState } from 'react';
 import axios from 'axios';
 import '../styles/class.scss';
+import { useNavigate } from 'react-router-dom';
 
 interface SigninModalProps {
   closeModal: () => void;
   userType: 'student' | 'teacher';
 }
 
-function SigninModal({ closeModal, userType  }: SigninModalProps) {
+function SigninModal({ closeModal, userType }: SigninModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   console.log(username);
   console.log(password);
@@ -17,13 +19,14 @@ function SigninModal({ closeModal, userType  }: SigninModalProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/login/${userType}/`, {
+      const response = await axios.post(`http://127.0.0.1:8000/login/user/`, {
         username,
-        password
-      })
+        password,
+      });
       console.log(response.data);
       closeModal();
-    } catch(err) {
+      navigate('/classes', { replace: true })
+    } catch (err) {
       console.log(err);
     }
   };
@@ -32,7 +35,9 @@ function SigninModal({ closeModal, userType  }: SigninModalProps) {
     <div id="modal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h1 className="title">{userType === 'student' ? 'Signup Student' : 'Signup Teacher'}</h1>
+          <h1 className="title">
+            {userType === 'student' ? 'Signup Student' : 'Signup Teacher'}
+          </h1>
           <span className="close title" onClick={closeModal}>
             &times;
           </span>
@@ -60,5 +65,3 @@ function SigninModal({ closeModal, userType  }: SigninModalProps) {
 }
 
 export default SigninModal;
-
-
