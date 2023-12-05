@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import Post from './Post'
-import '../styles/poststab.scss'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Post from "./Post";
+import "../styles/poststab.scss";
 import { MdOutlinePostAdd, MdSend } from "react-icons/md";
 
 interface Posts {
-  id: number,
-  content: string,
-  created_at: string,
-  class_instance: number,
+  id: number;
+  content: string;
+  created_at: string;
+  class_instance: number;
+  teacher: string;
+  teacher_name: string;
 }
 
 interface PostProps {
-  classId: number,
+  classId: number;
 }
 
 function PostsTab({ classId }: PostProps) {
@@ -23,16 +25,16 @@ function PostsTab({ classId }: PostProps) {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/posts/?class_id=${classId}`);
+        const response = await axios.get(
+          `http://127.0.0.1:8000/posts/?class_id=${classId}`
+        );
         setPosts(response.data);
       } catch (err) {
         console.error(err);
       }
-    }
+    };
     fetchPosts();
-  }, [classId])
-
-  
+  }, [classId]);
 
   const handleAddPostClick = () => {
     setAddingPost(true);
@@ -40,11 +42,11 @@ function PostsTab({ classId }: PostProps) {
 
   const handleSendPost = async () => {
     try {
-      if(newPostContent !== "") {
+      if (newPostContent !== "") {
         const response = await axios.post(`http://127.0.0.1:8000/posts/`, {
           content: newPostContent,
           class_instance: classId,
-          teacher: 'teacher1' // TODO: replace with actual teacher
+          teacher: "teacher1", // TODO: replace with actual teacher
         });
         setPosts([...posts, response.data]);
       }
@@ -56,16 +58,15 @@ function PostsTab({ classId }: PostProps) {
   };
 
   return (
-    <div className='posts-tab'>
+    <div className="posts-tab">
       <div className="posts-tab--center">
-        {posts.length > 0 ? posts.map((post) => (
-          <Post
-            key={post.id}
-            content={post.content}
-            createdAt={post.created_at}
-          />
-        )):
-        <div>No posts yet.</div>}
+        {posts.length > 0 ? (
+          posts.map((post) => (
+            <Post key={post.id} post={post} setPosts={setPosts} />
+          ))
+        ) : (
+          <div>No posts yet.</div>
+        )}
       </div>
       {addingPost ? (
         <div className="input-container">
@@ -80,12 +81,15 @@ function PostsTab({ classId }: PostProps) {
           </button>
         </div>
       ) : (
-        <button className={addingPost ? "add-post" : "add-post animate-button"} onClick={handleAddPostClick}>
+        <button
+          className={addingPost ? "add-post" : "add-post animate-button"}
+          onClick={handleAddPostClick}
+        >
           <MdOutlinePostAdd /> Add Post
         </button>
       )}
     </div>
-  )
+  );
 }
 
-export default PostsTab
+export default PostsTab;

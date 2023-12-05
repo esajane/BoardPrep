@@ -33,6 +33,7 @@ header {
   height: 50px;
   width: 50px;
   overflow: hidden;
+  cursor: pointer;
 
   img {
     height: 50px;
@@ -85,12 +86,13 @@ header {
 }
 
 .card-description {
+  margin-top: 10px;
   font-size: 11px;
   color: #4d4d4d;
 }
 
 .card-duration {
-  font-size: 10px;
+  font-size: 13px;
   color: #777795;
 }
 

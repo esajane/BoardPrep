@@ -16,15 +16,35 @@ import Classroom from "./pages/Classroom";
 import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
+import Home from "./pages/Home";
 
 function App() {
   return (
+<<<<<<< HEAD
+=======
+    // <Router>
+    //   <Routes>
+    //     <Route path="/" Component={Home}/>
+    //     {/* <Route path="/" Component={CourseList} /> */}
+    //     <Route path="/course/:id" Component={CourseDetails} />
+    //     <Route path="/mocktest/" Component={MockTest} />
+    //     <Route path="/classes" Component={Classes} />
+    //     <Route path="/classes/:id" Component={Classroom} />
+    //     <Route path="/student" Component={Student} />
+    //     <Route path="/teacher" Component={Teacher} />
+    //   </Routes>
+    // </Router>
+>>>>>>> main
     <Router>
       <Routes>
         <Route path="/" Component={CourseList} />
         <Route path="/course/:id" Component={CourseDetails} />
+<<<<<<< HEAD
         <Route path="/course/:course_id/mocktest/:mocktest_id" Component={MockTest} />
         <Route path="/course/:course_id/mocktest/:mocktest_id/results" Component={MockTestResults} />
+=======
+        <Route path="/mocktest/" Component={MockTest} />
+>>>>>>> main
         <Route path="/classes" Component={Classes} />
         <Route path="/classes/:id" Component={Classroom} />
         <Route path="/student" Component={Student} />
