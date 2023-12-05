@@ -1,16 +1,16 @@
-import React, { FormEvent, useState } from 'react';
-import axios from 'axios';
-import '../styles/class.scss';
-import { useNavigate } from 'react-router-dom';
+import React, { FormEvent, useState } from "react";
+import axios from "axios";
+import "../styles/class.scss";
+import { useNavigate } from "react-router-dom";
 
 interface SigninModalProps {
   closeModal: () => void;
-  userType: 'student' | 'teacher';
+  userType: "student" | "teacher";
 }
 
 function SigninModal({ closeModal, userType }: SigninModalProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   console.log(username);
@@ -25,7 +25,7 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
       });
       console.log(response.data);
       closeModal();
-      navigate('/classes', { replace: true })
+      navigate("/classes", { replace: true });
     } catch (err) {
       console.log(err);
     }
@@ -36,7 +36,7 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
       <div className="modal-content">
         <div className="modal-header">
           <h1 className="title">
-            {userType === 'student' ? 'Signup Student' : 'Signup Teacher'}
+            {userType === "student" ? "Signup Student" : "Signup Teacher"}
           </h1>
           <span className="close title" onClick={closeModal}>
             &times;
