@@ -8,7 +8,7 @@
   background: #100D1F;
   color: #ffffff;
   padding: 40px;
-  min-height: 155vh;
+  min-height: auto;
 
   h1 {
     font-size: 30px;
@@ -43,8 +43,7 @@
     font-size: 18px;
     cursor: pointer;
     display: block;
-    position: absolute;
-    right: 40px;
+    align-self: flex-end;
     margin: 40px 0 0px 1272px;
     transition: background-color 0.3s;
 

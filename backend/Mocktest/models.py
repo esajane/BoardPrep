@@ -26,13 +26,14 @@ class MockQuestions(models.Model):
 
 class MockTestScores(models.Model):
     mocktestScoreID = models.BigAutoField(primary_key=True)
-    mocktestId = models.ForeignKey('MockTest', on_delete=models.CASCADE)
-    student = models.ForeignKey('User.Student', on_delete=models.CASCADE)
+    mocktest_id = models.ForeignKey('MockTest', on_delete=models.CASCADE, related_name='mocktest_scores')
+    student = models.ForeignKey('User.Student', on_delete=models.CASCADE, related_name='student_scores')
     score = models.FloatField(null=False)
     mocktestDateTaken = models.DateField(auto_now_add=True)
+    totalQuestions = models.IntegerField(default=0)
 
     class Meta:
-        unique_together = ['mocktestId', 'student']
+        unique_together = ['mocktest_id', 'student']
 
     def __str__(self):
-        return f"{self.studentID} - {self.mocktestId}"
+        return f"{self.student} - {self.mocktest_id}"
