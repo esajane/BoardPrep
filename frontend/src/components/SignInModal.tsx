@@ -1,7 +1,8 @@
-import React, { FormEvent, useState } from "react";
-import axios from "axios";
+import React, { FormEvent, useState, useEffect } from "react";
 import "../styles/class.scss";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { selectUser, signIn } from "../redux/slices/authSlice";
 
 interface SigninModalProps {
   closeModal: () => void;
@@ -9,23 +10,23 @@ interface SigninModalProps {
 }
 
 function SigninModal({ closeModal, userType }: SigninModalProps) {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  console.log(username);
-  console.log(password);
+  useEffect(() => {
+    if (user.isAuth) {
+      navigate("/classes");
+      closeModal();
+    }
+  }, [user, navigate, closeModal]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/login/user/`, {
-        username,
-        password,
-      });
-      console.log(response.data);
-      closeModal();
-      navigate("/classes", { replace: true });
+      await dispatch(signIn({ username, password }));
     } catch (err) {
       console.log(err);
     }

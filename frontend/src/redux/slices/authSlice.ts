@@ -2,16 +2,14 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 interface AuthState {
-  username: string;
-  user_type: string;
+  isAuth: boolean;
   isLoading: boolean;
   error: string | null;
   token: string;
 }
 
 const initialState: AuthState = {
-  username: "",
-  user_type: "",
+  isAuth: false,
   isLoading: false,
   error: null,
   token: "",
@@ -26,10 +24,12 @@ const authSlice = createSlice({
       state.isLoading = true;
     });
     builder.addCase(signIn.fulfilled, (state, action: PayloadAction<any>) => {
+      state.isAuth = true;
       state.isLoading = false;
       state.token = action.payload;
     });
     builder.addCase(signIn.rejected, (state, action: PayloadAction<any>) => {
+      state.isAuth = false;
       state.isLoading = false;
       state.error = action.payload;
     });
