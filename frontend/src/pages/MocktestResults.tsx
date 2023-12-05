@@ -14,7 +14,7 @@ const MockTestResults = () => {
   const location = useLocation();
   const { state } = location;
   const { studentId, mocktestId } = useParams();
-  const { score, total, mocktestName, studentName, dateOfMocktest } = location.state || {}; // Use location.state for passed state
+  const { score, total, mocktestName, studentName, dateOfMocktest } = location.state || {};
 
   useEffect(() => {
     console.log('Mocktest ID:', mocktestId);
