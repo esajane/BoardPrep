@@ -8,13 +8,13 @@
   border: 1px solid white;
 }
 
-ul {
+.items {
   display: flex;
   flex-direction: column;
   gap: 7;
   list-style: none;
 
-  li {
+  .item {
     font-size: 18px;
     cursor: pointer;
     color: white;
