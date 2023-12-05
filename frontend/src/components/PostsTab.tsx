@@ -10,6 +10,7 @@ interface Posts {
   created_at: string;
   class_instance: number;
   teacher: string;
+  teacher_name: string;
 }
 
 interface PostProps {
@@ -61,14 +62,7 @@ function PostsTab({ classId }: PostProps) {
       <div className="posts-tab--center">
         {posts.length > 0 ? (
           posts.map((post) => (
-            <Post
-              key={post.id}
-              content={post.content}
-              createdAt={post.created_at}
-              postId={post.id}
-              setPosts={setPosts}
-              teacher_id={post.teacher}
-            />
+            <Post key={post.id} post={post} setPosts={setPosts} />
           ))
         ) : (
           <div>No posts yet.</div>

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.utils import timezone
+from django.http import StreamingHttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -136,3 +137,22 @@ class SubmissionViewSet(viewsets.ModelViewSet):
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
+
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        attachment = self.get_object()
+        if attachment.file:
+            def file_iterator(file_name, chunk_size=8192):
+                with open(file_name, 'rb') as file:
+                    while True:
+                        chunk = file.read(chunk_size)
+                        if chunk:
+                            yield chunk
+                        else:
+                            break
+            response = StreamingHttpResponse(file_iterator(attachment.file.path))
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(attachment.file.name)
+            return response
+        else:
+            return Response({"error": "No file attached"}, status=status.HTTP_404_NOT_FOUND)

@@ -88,7 +88,7 @@ function Classroom() {
 
   return (
     <div className="class-background">
-      <header>
+      <div className="header">
         <div className="left-header">
           <div className="left-header--title">
             <h1>Classroom</h1>
@@ -126,7 +126,7 @@ function Classroom() {
         <div className="profile-pic2">
           <img src={profileImage} className="logo" alt="RILL" />
         </div>
-      </header>
+      </div>
       <div className="class-content">{renderTab()}</div>
     </div>
   );

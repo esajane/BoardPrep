@@ -8,11 +8,8 @@ import { convertToPHTime } from "../functions";
 import Reply from "./Reply";
 
 interface PostProps {
-  content: string;
-  createdAt: string;
-  postId: number;
+  post: Posts;
   setPosts: React.Dispatch<React.SetStateAction<any[]>>;
-  teacher_id: string;
 }
 
 interface Posts {
@@ -20,7 +17,8 @@ interface Posts {
   content: string;
   created_at: string;
   class_instance: number;
-  teacher_id: string;
+  teacher: string;
+  teacher_name: string;
 }
 
 interface Comment {
@@ -29,9 +27,10 @@ interface Comment {
   created_at: string;
   post: number;
   user: string;
+  user_name: string;
 }
 
-function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
+function Post({ post, setPosts }: PostProps) {
   const [showMenu, setShowMenu] = useState(false);
   const replyRef = useRef<HTMLInputElement>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -41,7 +40,7 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
     const fetchComments = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/comments/?post_id=${postId}`
+          `http://127.0.0.1:8000/comments/?post_id=${post.id}`
         );
         setComments(response.data);
       } catch (err) {
@@ -50,14 +49,16 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
     };
 
     fetchComments();
-  }, [postId]);
+  }, [post.id]);
 
   const toggleMenu = () => setShowMenu(!showMenu);
 
   const deletePost = async () => {
     try {
-      await axios.delete(`http://localhost:8000/posts/${postId}/`);
-      setPosts((posts: Posts[]) => posts.filter((post) => post.id !== postId));
+      await axios.delete(`http://localhost:8000/posts/${post.id}/`);
+      setPosts((posts: Posts[]) =>
+        posts.filter((currPost) => currPost.id !== post.id)
+      );
     } catch (err) {
       console.error(err);
     }
@@ -74,7 +75,7 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
       if (reply) {
         const response = await axios.post(`http://127.0.0.1:8000/comments/`, {
           content: reply,
-          post: postId,
+          post: post.id,
           user: "student1", // TODO: replace with actual student
         });
         setComments([...comments, response.data]);
@@ -115,10 +116,10 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
               Kobe Paras
             </div>
             <div className="post-card--read--header--left--time">
-              {convertToPHTime(createdAt)}
+              {convertToPHTime(post.created_at)}
             </div>
           </div>
-          {teacher_id === curr_user && (
+          {post.teacher === curr_user && (
             <div className="post-card--read--header--menu" onClick={toggleMenu}>
               <FaEllipsisV />
               {showMenu && (
@@ -131,7 +132,7 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
             </div>
           )}
         </div>
-        <div className="post-card--read--body">{content}</div>
+        <div className="post-card--read--body">{post.content}</div>
         <div className="post-card--read--replies">
           {comments.length > 0 && (
             <div
