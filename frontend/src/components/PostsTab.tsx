@@ -3,6 +3,8 @@ import axios from "axios";
 import Post from "./Post";
 import "../styles/poststab.scss";
 import { MdOutlinePostAdd, MdSend } from "react-icons/md";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Posts {
   id: number;
@@ -18,6 +20,7 @@ interface PostProps {
 }
 
 function PostsTab({ classId }: PostProps) {
+  const user = useAppSelector(selectUser);
   const [addingPost, setAddingPost] = useState(false);
   const [newPostContent, setNewPostContent] = useState("");
   const [posts, setPosts] = useState<Posts[]>([]);
@@ -46,7 +49,7 @@ function PostsTab({ classId }: PostProps) {
         const response = await axios.post(`http://127.0.0.1:8000/posts/`, {
           content: newPostContent,
           class_instance: classId,
-          teacher: "teacher1", // TODO: replace with actual teacher
+          teacher: user.token.id,
         });
         setPosts([...posts, response.data]);
       }
@@ -68,26 +71,27 @@ function PostsTab({ classId }: PostProps) {
           <div>No posts yet.</div>
         )}
       </div>
-      {addingPost ? (
-        <div className="input-container">
-          <textarea
-            className="post-input"
-            value={newPostContent}
-            onChange={(e) => setNewPostContent(e.target.value)}
-            placeholder="Type your post..."
-          />
-          <button className="send-post" onClick={handleSendPost}>
-            <MdSend /> Post
+      {user.token.type === "T" &&
+        (addingPost ? (
+          <div className="input-container">
+            <textarea
+              className="post-input"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+              placeholder="Type your post..."
+            />
+            <button className="send-post" onClick={handleSendPost}>
+              <MdSend /> Post
+            </button>
+          </div>
+        ) : (
+          <button
+            className={addingPost ? "add-post" : "add-post animate-button"}
+            onClick={handleAddPostClick}
+          >
+            <MdOutlinePostAdd /> Add Post
           </button>
-        </div>
-      ) : (
-        <button
-          className={addingPost ? "add-post" : "add-post animate-button"}
-          onClick={handleAddPostClick}
-        >
-          <MdOutlinePostAdd /> Add Post
-        </button>
-      )}
+        ))}
     </div>
   );
 }

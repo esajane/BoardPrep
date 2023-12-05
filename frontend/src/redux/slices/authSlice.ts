@@ -1,18 +1,30 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
+interface Token {
+  id: string;
+  type: string;
+  exp: number;
+  iat: number;
+}
+
 interface AuthState {
   isAuth: boolean;
   isLoading: boolean;
   error: string | null;
-  token: string;
+  token: Token;
 }
 
 const initialState: AuthState = {
   isAuth: false,
   isLoading: false,
   error: null,
-  token: "",
+  token: {
+    id: "",
+    type: "",
+    exp: 0,
+    iat: 0,
+  },
 };
 
 const authSlice = createSlice({
@@ -42,7 +54,12 @@ const authSlice = createSlice({
     signOut: (state) => {
       localStorage.removeItem("token");
       state.isAuth = false;
-      state.token = "";
+      state.token = {
+        id: "",
+        type: "",
+        exp: 0,
+        iat: 0,
+      };
     }
   },
   extraReducers: (builder) => {

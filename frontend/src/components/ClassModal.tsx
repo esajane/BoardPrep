@@ -1,5 +1,7 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 import "../styles/class.scss";
 
 interface Class {
@@ -29,6 +31,7 @@ interface Course {
 }
 
 function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
+  const user = useAppSelector(selectUser);
   const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [courseValue, setCourseValue] = useState("");
@@ -67,7 +70,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
         className: name,
         classDescription: description,
         course: courseValue,
-        teacher: "teacher1",
+        teacher: user.token.id,
         students: ["student1"],
       });
 
