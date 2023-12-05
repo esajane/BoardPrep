@@ -41,11 +41,11 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
           specialization,
         },
       );
-      if (response.status === 201) {
+      if (response.status === 200) {
         closeModal();
         console.log(response.data)
         console.log("Success Fully Registered");
-        navigate(`${location.pathname}`);
+        navigate('/classes', { replace: true })
       } else {
         console.log(response.data['email']);
       }
