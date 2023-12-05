@@ -6,6 +6,8 @@ import profileImage from "../assets/16.png";
 import axios from "axios";
 import { convertToPHTime } from "../functions";
 import Reply from "./Reply";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface PostProps {
   post: Posts;
@@ -31,6 +33,7 @@ interface Comment {
 }
 
 function Post({ post, setPosts }: PostProps) {
+  const user = useAppSelector(selectUser);
   const [showMenu, setShowMenu] = useState(false);
   const replyRef = useRef<HTMLInputElement>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -76,7 +79,7 @@ function Post({ post, setPosts }: PostProps) {
         const response = await axios.post(`http://127.0.0.1:8000/comments/`, {
           content: reply,
           post: post.id,
-          user: "student1", // TODO: replace with actual student
+          user: user.token.id,
         });
         setComments([...comments, response.data]);
         replyRef.current!.value = "";
@@ -102,8 +105,6 @@ function Post({ post, setPosts }: PostProps) {
     }
   };
 
-  const curr_user = "teacher1";
-
   return (
     <div className="post-card">
       <div className="post-card--read">
@@ -113,13 +114,13 @@ function Post({ post, setPosts }: PostProps) {
               <img src={profileImage} className="logo" alt="RILL" />
             </div>
             <div className="post-card--read--header--left--name">
-              Kobe Paras
+              {post.teacher_name}
             </div>
             <div className="post-card--read--header--left--time">
               {convertToPHTime(post.created_at)}
             </div>
           </div>
-          {post.teacher === curr_user && (
+          {post.teacher === user.token.id && (
             <div className="post-card--read--header--menu" onClick={toggleMenu}>
               <FaEllipsisV />
               {showMenu && (

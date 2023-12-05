@@ -4,6 +4,8 @@ import "../styles/reply.scss";
 import { convertToPHTime } from "../functions";
 import { FaEllipsisV } from "react-icons/fa";
 import axios from "axios";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Comment {
   id: number;
@@ -20,9 +22,9 @@ interface ReplyProps {
 }
 
 function Reply({ comment, setComments }: ReplyProps) {
+  const user = useAppSelector(selectUser);
   const [showMenu, setShowMenu] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const curr_user = "student1";
 
   const toggleMenu = () => setShowMenu(!showMenu);
 
@@ -68,7 +70,7 @@ function Reply({ comment, setComments }: ReplyProps) {
             {convertToPHTime(comment.created_at)}
           </div>
         </div>
-        {comment.user === curr_user && hovered && (
+        {comment.user === user.token.id && hovered && (
           <div className="reply--header__menu" onClick={toggleMenu}>
             <FaEllipsisV />
             {showMenu && (
