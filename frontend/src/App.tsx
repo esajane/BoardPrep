@@ -33,7 +33,10 @@ function App() {
     // </Router>
     <Router>
       <Routes>
-        <Route path="/" Component={Classes} />
+        <Route path="/" Component={CourseList} />
+        <Route path="/course/:id" Component={CourseDetails} />
+        <Route path="/mocktest/" Component={MockTest} />
+        <Route path="/classes" Component={Classes} />
         <Route path="/classes/:id" Component={Classroom} />
         <Route path="/student" Component={Student} />
         <Route path="/teacher" Component={Teacher} />

@@ -1,7 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat');
 
 .class-background {
-  header {
+  .header {
+    color: #ffffff;
+    display: flex;
+    width: 90%;
+    margin: auto;
+    padding-top: 35px;
+    align-items: center;
+    justify-content: space-between;
     .left-header {
       display: flex;
       align-items: center;
