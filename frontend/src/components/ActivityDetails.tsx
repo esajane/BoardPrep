@@ -2,6 +2,14 @@ import React from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
 import "../styles/activitydetails.scss";
 import { dueDateify } from "../functions";
+import Attachment from "./Attachment";
+
+interface Attachments {
+  id: number;
+  file: string;
+  link: string;
+  user: string;
+}
 
 interface Activity {
   id: number;
@@ -15,7 +23,7 @@ interface Activity {
   created_at: string;
   class_instance: number;
   teacher: string;
-  attachments: number[];
+  attachments_details: Attachments[];
 }
 
 interface ActivityDetailsProps {
@@ -29,6 +37,16 @@ function ActivityDetails({
   activityDetails,
   setActivityDetails,
 }: ActivityDetailsProps) {
+  const [attachments, setAttachments] = React.useState<Attachments[]>(
+    activityDetails.attachments_details
+  );
+  const statusColor =
+    activityDetails.status === "In Progress"
+      ? "orange"
+      : activityDetails.status === "Completed"
+      ? "#00d15e"
+      : "grey";
+
   const handleBackClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     setActivityDetails(undefined);
@@ -47,7 +65,12 @@ function ActivityDetails({
         <button className="activity-details--header__button">Submit</button>
       </div>
       <div className="activity-details--title">
-        <h2>{activityDetails.title}</h2>
+        <div className="flexify">
+          <h2>{activityDetails.title}</h2>{" "}
+          <span className="status" style={{ backgroundColor: statusColor }}>
+            {activityDetails.status}
+          </span>
+        </div>
         <div className="due_date">
           Due {dueDateify(activityDetails.due_date)}
         </div>
@@ -59,7 +82,18 @@ function ActivityDetails({
         </div>
       </div>
       <div className="activity-details--attachments">
-        <div className="subheader">Attachments</div>
+        {activityDetails.attachments_details.length > 0 && (
+          <>
+            <div className="subheader">Attachments</div>
+            {attachments.map((attachment) => (
+              <Attachment
+                key={attachment.id}
+                attachment={attachment}
+                setAttachments={setAttachments}
+              />
+            ))}
+          </>
+        )}
       </div>
       <div className="activity-details--work-area">
         <div className="subheader">My Work</div>

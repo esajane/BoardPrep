@@ -7,6 +7,8 @@ interface Class {
   className: string;
   classDescription: string;
   course: string;
+  image: string;
+  teacher_name: string;
   students: string[];
   classCode: string;
 }

@@ -9,7 +9,9 @@ interface Class {
   classId: number;
   className: string;
   classDescription: string;
+  teacher_name: string;
   course: string;
+  image: string;
   students: string[];
   classCode: string;
 }
@@ -49,12 +51,7 @@ function Classes() {
       </header>
       <div className="class-container">
         {classes.map((classItem, index) => (
-          <ClassCard
-            key={index}
-            classId={classItem.classId}
-            className={classItem.className}
-            classDescription={classItem.classDescription}
-          />
+          <ClassCard key={index} class={classItem} />
         ))}
         <button className="create-classbtn" onClick={openModal}>
           Create Class +

@@ -11,6 +11,7 @@ interface Comment {
   created_at: string;
   post: number;
   user: string;
+  user_name: string;
 }
 
 interface ReplyProps {
@@ -62,7 +63,7 @@ function Reply({ comment, setComments }: ReplyProps) {
           <div className="reply--header__left--pic">
             <img src={profileImage} className="logo" alt="RILL" />
           </div>
-          <div className="reply--header__left--name">{comment.user}</div>
+          <div className="reply--header__left--name">{comment.user_name}</div>
           <div className="reply--header__left--time">
             {convertToPHTime(comment.created_at)}
           </div>

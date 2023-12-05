@@ -4,6 +4,13 @@ import axios from "axios";
 import ActivityRow from "./ActivityRow";
 import ActivityDetails from "./ActivityDetails";
 
+interface Attachments {
+  id: number;
+  file: string;
+  link: string;
+  user: string;
+}
+
 interface Activity {
   id: number;
   className: string;
@@ -16,7 +23,7 @@ interface Activity {
   created_at: string;
   class_instance: number;
   teacher: string;
-  attachments: number[];
+  attachments_details: Attachments[];
 }
 
 interface ActivitiesTabProps {
