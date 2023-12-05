@@ -37,7 +37,7 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
       <div className="modal-content">
         <div className="modal-header">
           <h1 className="title">
-            {userType === "student" ? "Signup Student" : "Signup Teacher"}
+            {userType === 'student' ? 'Signin Student' : 'Signin Teacher'}
           </h1>
           <span className="close title" onClick={closeModal}>
             &times;
