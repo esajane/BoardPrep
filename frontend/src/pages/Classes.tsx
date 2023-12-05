@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import ClassModal from "../components/ClassModal";
-import profileImage from "../assets/16.png";
-import ClassCard from "../components/ClassCard";
-import "../styles/class.scss";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import ClassModal from '../components/ClassModal';
+import profileImage from '../assets/16.png';
+import ClassCard from '../components/ClassCard';
+import DropDownProfile from '../components/DropDownProfile';
+import '../styles/class.scss';
 
 interface Class {
   classId: number;
@@ -19,6 +20,7 @@ interface Class {
 function Classes() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
 
   useEffect(() => {
     fetchClasses();
@@ -26,7 +28,7 @@ function Classes() {
 
   const fetchClasses = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/classes/");
+      const response = await axios.get('http://127.0.0.1:8000/classes/');
       setClasses(response.data);
     } catch (err) {
       console.error(err);
@@ -46,7 +48,8 @@ function Classes() {
       <header>
         <h1>MY CLASSES</h1>
         <div className="profile-pic2">
-          <img src={profileImage} className="logo" alt="RILL" />
+            <img src={profileImage} className="logo" alt="RILL" onClick={() => setOpenProfile(prev => !prev)} />
+          {openProfile && <DropDownProfile />}
         </div>
       </header>
       <div className="class-container">

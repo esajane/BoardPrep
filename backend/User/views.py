@@ -7,8 +7,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 from .serializers import StudentSerializer, TeacherSerializer, UserSerializer
 from .models import Student, Teacher, User, Specialization
+import jwt, datetime
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
@@ -42,10 +44,29 @@ class UserLogin(APIView):
             return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
 
         if password == user.password:
-            response_data = {'message': 'Login Successfully', **UserSerializer(user).data}
-            return Response(response_data, status=status.HTTP_200_OK)
+            payload = {
+                'id': user.user_name,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                'iat': datetime.datetime.utcnow()
+            }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            response = Response()
+            response.set_cookie(key='jwt', value=token, httponly=True)
+            response.data = {
+                'jwt': token
+            }
+            return response
         else:
             return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
+
+class UserLogout(APIView):
+    def post(self, request):
+        response = Response()
+        response.delete_cookie('jwt')
+        response.data = {
+            'message': 'success'
+        }
+        return response
 
 class StudentLogin(APIView):
     def post(self, request):
@@ -98,3 +119,19 @@ class TeacherRegister(APIView):
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserView(APIView):
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        student = Student.objects.all()
+        serializer = StudentSerializer(student, many=True)
+        return Response(serializer.data)
