@@ -31,9 +31,9 @@ const DropDownProfile = () => {
   return (
     <div className="flex flex-col dropDownProfile">
       <ul className="items">
-        <li>Profile</li>
-        <li>Settings</li>
-        <li onClick={handleLogout}>Logout</li>
+        <li className='item'>Profile</li>
+        <li className='item'>Settings</li>
+        <li className='item' onClick={handleLogout}>Logout</li>
       </ul>
     </div>
   );
