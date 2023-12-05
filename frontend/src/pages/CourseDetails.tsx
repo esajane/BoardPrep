@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../styles/details.css";
+import "../styles/details.scss";
 import SyllabusComponent from "../components/Syllabus";
 import CourseMain from "../components/CourseMain";
 import { useParams } from "react-router-dom";

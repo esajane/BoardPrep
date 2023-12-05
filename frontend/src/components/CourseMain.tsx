@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/course.css";
+import "../styles/course.scss";
 
 interface CourseMainProps {
   id: string;

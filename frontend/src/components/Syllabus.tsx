@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/syllabus.css";
+import "../styles/syllabus.scss";
 import { SyllabusList } from "../pages/CourseDetails";
 import { Lessons } from "../pages/CourseDetails";
 
