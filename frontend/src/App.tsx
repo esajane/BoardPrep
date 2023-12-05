@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import Courselist from "./pages/Courselist";
 import Searchbar from "./components/Searchbar";
@@ -16,8 +16,17 @@ import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
 import Home from "./pages/Home";
+import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
+import { setUserFromLocalStorage } from "./redux/slices/authSlice";
+import { useAppDispatch } from "./redux/hooks";
 
 function App() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setUserFromLocalStorage());
+  }, [dispatch]);
   return (
     // <Router>
     //   <Routes>
@@ -33,14 +42,70 @@ function App() {
     // </Router>
     <Router>
       <Routes>
-        <Route path="/" Component={CourseList} />
-        <Route path="/course/:id" Component={CourseDetails} />
-        <Route path="/mocktest/" Component={MockTest} />
-        <Route path="/classes" Component={Classes} />
-        <Route path="/classes/:id" Component={Classroom} />
-        <Route path="/student" Component={Student} />
-        <Route path="/teacher" Component={Teacher} />
-        <Route path="/home" Component={Home} />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <CourseList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/course/:id"
+          element={
+            <PrivateRoute>
+              <CourseDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/mocktest/"
+          element={
+            <PrivateRoute>
+              <MockTest />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/classes"
+          element={
+            <PrivateRoute>
+              <Classes />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/classes/:id"
+          element={
+            <PrivateRoute>
+              <Classroom />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/student"
+          element={
+            <PublicRoute>
+              <Student />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/teacher"
+          element={
+            <PublicRoute>
+              <Teacher />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <PublicRoute>
+              <Home />
+            </PublicRoute>
+          }
+        />
       </Routes>
     </Router>
   );

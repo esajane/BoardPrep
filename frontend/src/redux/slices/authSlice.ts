@@ -18,7 +18,28 @@ const initialState: AuthState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setUserFromLocalStorage: (state) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        state.isAuth = true;
+        const parts = token.split(".");
+
+        if (parts.length === 3) {
+          try {
+            const payload = JSON.parse(atob(parts[1]));
+            state.token = payload;
+          } catch (error) {
+            console.error("Error decoding JWT:", error);
+            throw new Error("Invalid JWT format");
+          }
+        } else {
+          console.error("Invalid JWT format");
+          throw new Error("Invalid JWT format");
+        }
+      }
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(signIn.pending, (state) => {
       state.isLoading = true;
@@ -45,6 +66,7 @@ export const signIn = createAsyncThunk(
         password: password,
       });
       const token = response.data.jwt;
+      localStorage.setItem("token", token);
 
       if (token) {
         const parts = token.split(".");
@@ -71,6 +93,8 @@ export const signIn = createAsyncThunk(
     }
   }
 );
+
+export const { setUserFromLocalStorage } = authSlice.actions;
 
 export const selectUser = (state: { auth: AuthState }) => state.auth;
 
