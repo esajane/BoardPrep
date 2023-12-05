@@ -35,6 +35,9 @@ function App() {
       <Routes>
         <Route path="/" Component={Classes} />
         <Route path="/classes/:id" Component={Classroom} />
+        <Route path="/student" Component={Student} />
+        <Route path="/teacher" Component={Teacher} />
+        <Route path="/home" Component={Home} />
       </Routes>
     </Router>
   );
