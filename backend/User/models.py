@@ -18,6 +18,7 @@ class User(models.Model):
     registration_date = models.DateField(auto_now_add=True)
     last_login = models.DateField(auto_now=True)
     user_type = models.CharField(max_length=1, choices=USER_TYPE)
+    is_premium = models.BooleanField(default=False)
 
 class Specialization(models.Model):
     CHOICES = [
