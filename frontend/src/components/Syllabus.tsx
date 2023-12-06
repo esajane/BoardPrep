@@ -1,33 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import "../styles/syllabus.scss";
-import { SyllabusList } from "../pages/CourseDetails";
-import { Lessons } from "../pages/CourseDetails";
 
-interface SyllabusProps {
-  syllabus: SyllabusList[];
-  lessons: Lessons[];
+interface Lessons {
+  order: number;
+  lesson_title: string;
+  lesson_id: string;
 }
 
-function Syllabus({ syllabus, lessons }: SyllabusProps) {
+interface SyllabusProps {
+  syllabus?: { syllabus_id: string }[];
+  lessons: Lessons[];
+  onLessonClick: (lessonContent: string) => void;
+}
+
+function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
+  const [currentLessonContent, setCurrentLessonContent] = useState("");
+  const [loadingContent, setLoadingContent] = useState(false);
+  const [error, setError] = useState("");
+  const [fetchedContents, setFetchedContents] = useState<{
+    [key: string]: string;
+  }>({});
+
+  const fetchLessonContent = async (lessonId: string) => {
+    if (fetchedContents[lessonId]) {
+      setCurrentLessonContent(fetchedContents[lessonId]);
+      onLessonClick(fetchedContents[lessonId]);
+      return;
+    }
+
+    setLoadingContent(true);
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/lessons/${lessonId}/`
+      );
+      const newContent = response.data.content;
+      setCurrentLessonContent(newContent);
+      setFetchedContents({ ...fetchedContents, [lessonId]: newContent });
+      onLessonClick(newContent);
+    } catch (error) {
+      console.error("Error fetching lesson content", error);
+      setError("Failed to load lesson content");
+    } finally {
+      setLoadingContent(false);
+    }
+  };
+
+  if (lessons.length === 0) {
+    return <div>No lessons available.</div>;
+  }
+
   return (
-    <div className="syllabus-main">
-      <div className="syllabus-lhs">
-        {syllabus.map((s) => (
-          <div key={s.description}>
-            <h1>Syllabus</h1>
-            <p>{s.description}</p>
-          </div>
-        ))}
-        <button></button>
-      </div>
-      <div className="syllabus-container">
-        {lessons.map((lesson) => (
-          <div key={lesson.order} className="lesson-container">
-            <h2>{lesson.lesson_title}</h2>
-          </div>
-        ))}
-      </div>
-      <button></button>
+    <div className="syllabus-container">
+      {lessons.map((lesson) => (
+        <div
+          key={lesson.lesson_id}
+          className="title-container"
+          onClick={() => fetchLessonContent(lesson.lesson_id)}
+          role="button"
+          tabIndex={0}
+        >
+          <h2>{lesson.lesson_title}</h2>
+        </div>
+      ))}
     </div>
   );
 }

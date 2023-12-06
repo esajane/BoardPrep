@@ -8,63 +8,40 @@
 
 }
 
-.syllabus-main{
-
-    .syllabus-lhs{
-        @include float; 
-        border-radius: 20px;
-        transform: translate(10%, 180%);
-        width: 40%;
-        height: 400px;
-
-        h1{
-            transform: translate(-80px, -80px);
-            font-size: 80px;
-        }
-
-        p{
-            transform: translate(-30px, -160px);
-            font-size: 25px;
-            color: aliceblue;
-        }
-
-        button{
-            @include button;
-            transform: translate(15px, -170px);
-        }
-        
-    }
-
+.syllabus-main {
     .syllabus-container {
-        @include float;
-        margin-top: 55%;
-        margin-left: 55%;
         border-radius: 20px;
-        width: 40%;
-        height: 850px;
+        width: 100%;
+        height: 700px;
         border: 1px solid white;
         background-color: #302E45;
-        overflow: hidden; 
+        overflow: hidden;
+
+        &.collapsed {
+            width: 0; 
+            padding: 0; 
+            overflow: hidden; 
+        }
     
             &:hover {
-                transform: translateX(-10px);
+                transform: translateY(-10px);
                 transition: 0.5s; // Smooth transition for the hover effect
             }
 
         }
 
-        .lesson-container{
+        .title-container{
             margin-top: 30px;
             transform: translate(5.5%, 20%);
             width: 90%;
-            height: 85px;
+            height: 70px;
             background-color: #080420;
             border-radius: 15px;
             margin-bottom: 20px;
 
             h2{
                 padding-top: 25px;
-                font-size: 25px;
+                font-size: 18px;
                 color: #f5f4f4;
                 text-align: center;
             }
