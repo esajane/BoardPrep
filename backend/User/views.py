@@ -102,6 +102,7 @@ class TeacherLogin(APIView):
 
 class StudentRegister(APIView):
     def post(self, request):
+        print(request.data)
         serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
             student = serializer.save()
@@ -125,6 +126,7 @@ class StudentRegister(APIView):
 
 class TeacherRegister(APIView):
     def post(self, request):
+        print(request.data)
         serializer = TeacherSerializer(data=request.data)
         if serializer.is_valid():
             teacher = serializer.save()
