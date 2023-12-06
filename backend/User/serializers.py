@@ -11,7 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
 class StudentSerializer(UserSerializer):
     institution_id = serializers.PrimaryKeyRelatedField(read_only=True)
     subscription = serializers.PrimaryKeyRelatedField(read_only=True)
-    specialization = serializers.SerializerMethodField()
     class Meta:
         model = Student
         fields = ['user_name', 'password', 'first_name', 'last_name', 'email', 'registration_date', 'last_login', 'specialization', 'institution_id', 'subscription']
