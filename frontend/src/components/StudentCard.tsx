@@ -14,6 +14,7 @@ interface Student {
   registration_date: string;
   last_login: string;
   specialization: number;
+  specialization_name: string;
   institution_id: number;
   subscription: number;
 }
@@ -96,7 +97,7 @@ function StudentCard({
           {`${student?.first_name} ${student?.last_name}`}
         </div>
       </td>
-      <td>{student?.specialization}</td>
+      <td>{student?.specialization_name}</td>
       <td>{student?.institution_id}</td>
       <td>
         {!isAccepted && (

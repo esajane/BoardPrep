@@ -168,11 +168,23 @@ class SubmissionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Submission.objects.all()
         activity_id = self.request.query_params.get('activity_id')
-        try:
-            activity_id = int(activity_id)
-        except:
-            return queryset.none()
-        return queryset.filter(activity_id=activity_id)
+        student_id = self.request.query_params.get('student_id')
+
+        if activity_id:
+            try:
+                activity_id = int(activity_id)
+                queryset = queryset.filter(activity_id=activity_id)
+            except ValueError:
+                queryset = queryset.none()
+
+        if student_id:
+            try:
+                queryset = queryset.filter(student_id=student_id)
+            except ValueError:
+                queryset = queryset.none()
+
+        return queryset
+
     
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()

@@ -68,9 +68,13 @@ class ActivitySerializer(serializers.ModelSerializer):
         return AttachmentSerializer(obj.attachments.all(), many=True).data
 
 class SubmissionSerializer(serializers.ModelSerializer):
+    attachments_details = serializers.SerializerMethodField()
     class Meta:
         model = Submission
         fields = '__all__'
+    
+    def get_attachments_details(self, obj):
+        return AttachmentSerializer(obj.attachments.all(), many=True).data
 
 class AttachmentSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
