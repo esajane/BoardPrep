@@ -23,10 +23,21 @@ class Lesson(models.Model):
     lesson_id = models.CharField(max_length=10, primary_key=True)
     lesson_title = models.CharField(max_length=200)
     order = models.IntegerField(help_text="Order of the lesson in the syllabus")
-    content = CKEditor5Field('Text', config_name='extends')
 
     def __str__(self):
         return f"{self.lesson_title} - {self.syllabus.course.course_title}"
+
+class Page(models.Model):
+    syllabus = models.ForeignKey(Syllabus, on_delete=models.CASCADE, related_name='pages_by_syllabus')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='pages')
+    page_number = models.IntegerField(help_text="Page number within the lesson")
+    content = CKEditor5Field('Content', config_name='extends')
+
+    class Meta:
+        ordering = ['page_number']
+
+    def __str__(self):
+        return f"Page {self.page_number} - {self.lesson.lesson_title}"
 
 class FileUpload(models.Model):
     file = models.FileField(upload_to='uploads/')

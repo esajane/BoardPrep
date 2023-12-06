@@ -191,6 +191,16 @@ CKEDITOR_5_CONFIGS = {
             "imageUpload"
         ],
     },
+    "fontColor": {
+            "colors": [
+                "#000000",  # Black
+                "#ffffff",  # White
+                "#ff0000",  # Red
+                "#00ff00",  # Green
+                "#0000ff",  # Blue
+                # Add more colors as needed
+            ],
+    },
     "comment": {
         "language": {"ui": "en", "content": "en"},
         "toolbar": [

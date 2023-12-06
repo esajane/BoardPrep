@@ -1,7 +1,7 @@
 // LessonContainer.scss
 .lesson-container {
     background-color: #080420;
-    padding: 20px;
+    padding: 30px;
     border: 1px solid #ddd;
     border-radius: 5px;
     width: 100%;
@@ -12,9 +12,13 @@
     }
   
     .lesson-content {
+      margin-top: 30px;
+      overflow: hidden;
+      
       p {
         margin-bottom: 10px;
       }
+     
     }
   }
   

@@ -1,6 +1,8 @@
 .coursepage-container{
+    overflow-y: auto;
+    border-radius: 50px;
     height: 100%;
-    padding: 5%;
+    padding: 3%;
     background: #0d0b1c;
     display: flex;
     justify-content: center;
