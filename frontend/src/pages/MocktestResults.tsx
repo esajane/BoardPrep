@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/mocktestresults.scss';
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
+
 
 const MockTestResults = () => {
+  const user = useAppSelector(selectUser);
   const [result, setResult] = useState({
    studentName: '',
    mocktestName: '',
@@ -28,18 +32,18 @@ const MockTestResults = () => {
 
   useEffect(() => {
     console.log('Mocktest Name:', mocktestName);
-    console.log('Student ID:', 'niggasecoya');
+    console.log('Student ID:', user.token.id);
     console.log('Score from state:', score);
     console.log('Total from state:', total);
 
     if (mocktest_id && 'niggasecoya') {
-      axios.get(`http://127.0.0.1:8000/scores/?student_id=${'niggasecoya'}&mocktest_id=${mocktest_id}`)
+      axios.get(`http://127.0.0.1:8000/scores/?student_id=${user.token.id}&mocktest_id=${mocktest_id}`)
         .then((response) => {
           const resultData = response.data.length ? response.data[0] : null;
           console.log('Response Data:', resultData)
           if(resultData) {
               setResult({
-                studentName: resultData.student,
+                studentName: resultData.studentName,
                 mocktestName: resultData.mocktestName,
                 score: resultData.score,
                 totalScore: resultData.totalQuestions,
@@ -53,7 +57,7 @@ const MockTestResults = () => {
           console.error('There was an error fetching the mock  test results', error);
         });
     }
-  }, [mocktestName, 'niggasecoya', score, total]);
+  }, [mocktestName, user.token.id, score, total]);
   console.log(result);
 
   return (
