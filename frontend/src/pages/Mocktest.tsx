@@ -86,11 +86,13 @@ const Mocktest: React.FC = () => {
         console.log(response.data);
         navigate(`/course/${course_id}/mocktest/${mocktest_id}/results`, {
            state: {
+            course_id: course_id,
+            mocktest_id: mocktest_id,
             score: response.data.score,
             total: response.data.total_questions,
             mocktestName: response.data.mocktestName,
             studentName: response.data.studentName,
-            dateOfMocktest: response.data.dateOfMocktest
+            dateOfMocktest: response.data.mocktestDateTaken,
            }
         });
       } catch (error) {
