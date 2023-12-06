@@ -1,4 +1,4 @@
-import React, { FormEvent, useRef } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "../styles/class.scss";
 
@@ -17,18 +17,45 @@ interface ClassModalProps {
   setClasses: (classes: Class[]) => void;
 }
 
+interface Course {
+  course_id: string;
+  syllabus: number;
+  course_title: string;
+  short_description: string;
+  long_description: string;
+  image: string;
+}
+
 function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const courseRef = useRef<HTMLInputElement>(null);
+  const [courseValue, setCourseValue] = useState("");
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/course/details/"
+        );
+        setCourses(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCourseValue(e.target.value);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const name = nameRef.current?.value;
     const description = descriptionRef.current?.value;
-    const course = courseRef.current?.value;
 
-    if (!name || !description || !course) {
+    if (!name || !description) {
       console.error("Required fields are missing");
       return;
     }
@@ -37,17 +64,30 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
       const response = await axios.post("http://127.0.0.1:8000/classes/", {
         className: name,
         classDescription: description,
-        course: course,
-        teacher: "teacher1",
-        students: ["student1"],
+        course: courseValue,
+        teacher: "teach",
+        students: ["stud"],
       });
 
       if (response.status === 201) {
         closeModal();
         setClasses([...classes, response.data]);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error(err.response.data);
+        console.error(err.response.status);
+        console.error(err.response.headers);
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error(err.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error("Error", err.message);
+      }
+      console.error(err.config);
     }
   };
 
@@ -63,7 +103,14 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
         <form onSubmit={handleSubmit}>
           <input type="text" placeholder="Class Name" ref={nameRef} />
           <textarea placeholder="Class Description" ref={descriptionRef} />
-          <input type="text" placeholder="Course ID" ref={courseRef} />
+          <select value={courseValue} onChange={handleChange}>
+            <option value="">Select a course</option>
+            {courses.map((course: Course) => (
+              <option key={course.course_id} value={course.course_id}>
+                {course.course_title}
+              </option>
+            ))}
+          </select>
           <button type="submit" className="card-button">
             Create
           </button>

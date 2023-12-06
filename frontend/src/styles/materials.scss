@@ -1,15 +1,123 @@
-::-webkit-scrollbar {
-    width: 10px;
+@import './toggle.scss';
+
+.materials-page {
+  margin-top: 20px;
+  display: flex;
+  overflow: auto;
+  height: 100%;
+  position: relative;
+
+  .syllabus-main {
+    position: relative;
+    margin-top: 5%;
+    margin-right: 2%;
+    margin-left: 1%;
+    transition: margin-left 0.3s, width 0.3s ease;
+    flex: 0 0 10%; // Make sure to set flex-basis to the width for consistency
+    min-width: 200px;
+    z-index: 10; // Corrected z-index without %
+
+    .syllabus-container {
+      padding-top: 60px; // Padding to prevent content from hiding behind the toggle
+      transition: margin 0.3s ease;
+    }
+
+    &.collapsed {
+      margin-left: -200px; // Collapse the sidebar
+      width: 0; // Collapse to width of the toggle button
+      flex-basis: 0;
+    }
   }
+
+  .lesson-content-container {
+    flex: 1 1 90%; // Set flex-basis to 80%, allowing it to grow
+    border-radius: 10px;;
+    margin-top: 5%;
+    margin-right: 5%;
+    margin-bottom: 5%;
+    padding: 50px;
+    transition: margin 0.3s ease, flex-basis 0.3s ease; // Smooth transition for flex-basis and margin changes
+
+    box-shadow: 15px 15px 30px rgb(112, 0, 78),
+             -15px -15px 30px rgb(60, 60, 60);
+
+
+  }
+
+  &.collapsed .lesson-content-container {
+    flex: 1; // Take up all available space when syllabus-main is collapsed
+    margin-left: 20px; // Remove the margin when sidebar is collapsed
+  }
+}
+
+.checkbox {
+  display: none;
+}
+
+.toggle {
+  position: absolute;
+  margin-top: 6%;
+  margin-left: 5%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 11; // Above the syllabus-main
+  transition: right 0.2s ease;
+
+  .materials-page:not(.collapsed) & {
+    margin-top: 5%; // Adjust this to fit the inside edge of syllabus-main
+    margin-left: 2%;
+  }
+}
+
+  // This will move the toggle button inside the syllabus container when expande
+
+.bars {
+  width: 100%;
+  height: 4px;
+  background-color: rgb(176, 92, 255);
+  border-radius: 4px;
+  transition-duration: .5s;
+}
+
+#bar2 {
+  transition-duration: .8s;
+}
+
+#bar1, #bar3 {
+  width: 70%;
+}
+
+.checkbox:not(:checked) + .toggle .bars {
+  position: absolute;
+  transition-duration: .5s;
+}
+
+.checkbox:not(:checked) + .toggle #bar2 {
+  transform: scaleX(0);
+}
+
+.checkbox:not(:checked) + .toggle #bar1 {
+  width: 100%;
+  transform: rotate(45deg);
+}
+
+.checkbox:not(:checked) + .toggle #bar3 {
+  width: 100%;
+  transform: rotate(-45deg);
+}
+
+.checkbox:not(:checked) + .toggle {
+  transform: rotate(180deg);
+}
+
   
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-  }
-   
-  ::-webkit-scrollbar-thumb {
-    background: rgba($color: #B650F4, $alpha: .75);
-  }
+  // ... Rest of your existing styles
   
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba($color: #B650F4, $alpha: 1); 
-  }
+
+
