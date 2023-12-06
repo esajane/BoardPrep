@@ -178,6 +178,30 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        
+        if instance.file:
+            data = {
+                'id': instance.id,
+                'filename': instance.file.name,
+                'path': instance.file.url,
+                'user': instance.user.id
+            }
+        elif instance.link:
+            data = {
+                'id': instance.id,
+                'title': serializer.data.get('title'),
+                'favicon': serializer.data.get('favicon'),
+                'url': instance.link,
+                'user': instance.user.id
+            }
+        else:
+            data = serializer.data
+
+        return Response(data)
+
     @action(detail=True, methods=['get'])
     def download(self, request, pk=None):
         attachment = self.get_object()

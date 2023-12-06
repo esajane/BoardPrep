@@ -1,5 +1,7 @@
 from rest_framework import serializers
-
+from bs4 import BeautifulSoup
+import requests
+from urllib.parse import urljoin
 from .models import Class, Post, Comment, JoinRequest, Activity, Submission, Attachment
 from Course.models import Course
 
@@ -71,6 +73,34 @@ class SubmissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AttachmentSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    favicon = serializers.SerializerMethodField()
+
     class Meta:
         model = Attachment
-        fields = '__all__'
+        fields = ['id', 'user', 'file', 'link', 'title', 'favicon']
+
+    def get_title(self, obj):
+        if obj.link:
+            return get_site_info(obj.link)['title']
+        if obj.file:
+            return get_filename_from_path(obj.file.name)
+        return None
+
+    def get_favicon(self, obj):
+        if obj.link:
+            return get_site_info(obj.link)['favicon']
+        return None
+    
+def get_site_info(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    title = soup.find('title').text if soup.find('title') else 'No title found'
+    favicon = soup.find('link', rel='icon') or soup.find('link', rel='shortcut icon')
+    favicon_url = urljoin(url, favicon['href']) if favicon and 'href' in favicon.attrs else 'No favicon found'
+
+    return {'title': title, 'favicon': favicon_url}
+
+def get_filename_from_path(path):
+    return path.split('attachments/')[1]

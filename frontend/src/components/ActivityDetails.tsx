@@ -9,6 +9,8 @@ interface Attachments {
   file: string;
   link: string;
   user: string;
+  title: string;
+  favicon: string;
 }
 
 interface Activity {

@@ -162,6 +162,17 @@ header {
   textarea {
     resize: none;
   }
+
+  button {
+    color: #ffffff;
+    width: 100px;
+    height: 34px;
+    border-radius: 5px;
+    background: #b650f4;
+    margin-left: auto;
+    cursor: pointer;
+    border: none;
+  }
 }
 
 .close {

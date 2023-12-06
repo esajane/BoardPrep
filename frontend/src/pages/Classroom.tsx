@@ -57,6 +57,21 @@ function Classroom() {
           `http://127.0.0.1:8000/classes/${classId}/`
         );
         setClass(response.data);
+        if (user.token.type === "T") {
+          if (user.token.id !== response.data.teacher) {
+            navigate(`/classes`);
+          }
+        } else {
+          let studentInClass = false;
+          response.data.students.forEach((student: string) => {
+            if (student === user.token.id) {
+              studentInClass = true;
+            }
+          });
+          if (!studentInClass) {
+            navigate(`/classes`);
+          }
+        }
         response = await axios.get(
           `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
         );

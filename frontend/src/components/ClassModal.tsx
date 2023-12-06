@@ -126,44 +126,10 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
             </>
           ) : (
             <>
-              <input type="text" placeholder="Class Code" />
+              <input type="text" placeholder="Class Code" ref={nameRef} />
               <button type="submit">Join Class</button>
             </>
           )}
-        </form>
-      </div>
-    </div>
-  );
-
-  return (
-    <div id="modal" className="modal">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h1>{user.token.type === "T" ? "Create Class" : "Join Class"}</h1>
-          <span className="close" onClick={closeModal}>
-            &times;
-          </span>
-        </div>
-        <form onSubmit={handleSubmit}>
-          {user.token.type === "T" ? (
-            <>
-              <input type="text" placeholder="Class Name" ref={nameRef} />
-              <textarea placeholder="Class Description" ref={descriptionRef} />
-              <select value={courseValue} onChange={handleChange}>
-                <option value="">Select a course</option>
-                {courses.map((course: Course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_title}
-                  </option>
-                ))}
-              </select>
-            </>
-          ) : (
-            <input type="text" placeholder="Class Code" ref={nameRef} />
-          )}
-          <button type="submit" className="card-button">
-            Create
-          </button>
         </form>
       </div>
     </div>
