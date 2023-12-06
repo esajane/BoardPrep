@@ -67,7 +67,6 @@ function CourseDetails() {
         title={course.course_title}
         description={course.long_description}
       />
-      <SyllabusComponent syllabus={syllabus} lessons={lessons} />
     </div>
   );
 }

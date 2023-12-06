@@ -66,6 +66,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           console.error("Required fields are missing");
           return;
         }
+
         const response = await axios.post("http://127.0.0.1:8000/classes/", {
           className: name,
           classDescription: description,
@@ -98,6 +99,41 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
       console.error(err);
     }
   };
+
+  return (
+    <div id="modal" className="modal">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h1>{user.token.type === "T" ? "Create Class" : "Join Class"}</h1>
+          <span className="close" onClick={closeModal}>
+            &times;
+          </span>
+        </div>
+        <form onSubmit={handleSubmit}>
+          {user.token.type === "T" ? (
+            <>
+              <input type="text" placeholder="Class Name" ref={nameRef} />
+              <textarea placeholder="Class Description" ref={descriptionRef} />
+              <select value={courseValue} onChange={handleChange}>
+                <option value="">Select a course</option>
+                {courses.map((course: Course) => (
+                  <option key={course.course_id} value={course.course_id}>
+                    {course.course_title}
+                  </option>
+                ))}
+              </select>
+              <button type="submit">Create Class</button>
+            </>
+          ) : (
+            <>
+              <input type="text" placeholder="Class Code" />
+              <button type="submit">Join Class</button>
+            </>
+          )}
+        </form>
+      </div>
+    </div>
+  );
 
   return (
     <div id="modal" className="modal">
