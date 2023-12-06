@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import profileImage from "../assets/16.png";
 import "../styles/classroom.scss";
 import PostsTab from "../components/PostsTab";
 import StudentsTab from "../components/StudentsTab";
 import Materials from "../components/Materials";
 import ActivitiesTab from "../components/ActivitiesTab";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Class {
   classId: number;
@@ -26,10 +28,12 @@ interface JoinRequest {
 }
 
 function Classroom() {
+  const user = useAppSelector(selectUser);
   const { id: classId } = useParams();
   const [classItem, setClass] = useState<Class>();
   const [activeLink, setActiveLink] = useState("Posts");
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+  const navigate = useNavigate();
 
   const fetchClass = async () => {
     try {
