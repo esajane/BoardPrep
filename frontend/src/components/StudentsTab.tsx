@@ -1,6 +1,8 @@
 import React from "react";
 import StudentCard from "./StudentCard";
 import "../styles/studentstab.scss";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface JoinRequest {
   id: number;
@@ -14,6 +16,7 @@ interface StudentsTabProps {
   joinRequests: JoinRequest[];
   students: string[];
   fetchClass: () => void;
+  teacher: string;
 }
 
 function StudentsTab({
@@ -21,7 +24,9 @@ function StudentsTab({
   joinRequests,
   students,
   fetchClass,
+  teacher,
 }: StudentsTabProps) {
+  const user = useAppSelector(selectUser);
   return (
     <div className="students-tab">
       <div className="students-tab--center">
@@ -36,18 +41,19 @@ function StudentsTab({
               </tr>
             </thead>
             <tbody>
-              {joinRequests.map((joinRequest, index) => {
-                return (
-                  <StudentCard
-                    key={index}
-                    classId={classId}
-                    studentId={joinRequest.student}
-                    is_accepted={joinRequest.is_accepted}
-                    requestId={joinRequest.id}
-                    fetchClass={fetchClass}
-                  />
-                );
-              })}
+              {teacher === user.token.id &&
+                joinRequests.map((joinRequest, index) => {
+                  return (
+                    <StudentCard
+                      key={index}
+                      classId={classId}
+                      studentId={joinRequest.student}
+                      is_accepted={joinRequest.is_accepted}
+                      requestId={joinRequest.id}
+                      fetchClass={fetchClass}
+                    />
+                  );
+                })}
               {students.map((student, index) => (
                 <StudentCard
                   key={index}
