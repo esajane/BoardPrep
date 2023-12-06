@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 */__pycache__/*
 *.pyc
-=======
 __pycache__/
 media/attachments
->>>>>>> main
+venv/

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import profileImage from "../assets/16.png";
 import "../styles/classroom.scss";
 import PostsTab from "../components/PostsTab";
 import StudentsTab from "../components/StudentsTab";
 import Materials from "../components/Materials";
 import ActivitiesTab from "../components/ActivitiesTab";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Class {
   classId: number;
@@ -26,10 +28,12 @@ interface JoinRequest {
 }
 
 function Classroom() {
+  const user = useAppSelector(selectUser);
   const { id: classId } = useParams();
   const [classItem, setClass] = useState<Class>();
   const [activeLink, setActiveLink] = useState("Posts");
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+  const navigate = useNavigate();
 
   const fetchClass = async () => {
     try {
@@ -53,6 +57,21 @@ function Classroom() {
           `http://127.0.0.1:8000/classes/${classId}/`
         );
         setClass(response.data);
+        if (user.token.type === "T") {
+          if (user.token.id !== response.data.teacher) {
+            navigate(`/classes`);
+          }
+        } else {
+          let studentInClass = false;
+          response.data.students.forEach((student: string) => {
+            if (student === user.token.id) {
+              studentInClass = true;
+            }
+          });
+          if (!studentInClass) {
+            navigate(`/classes`);
+          }
+        }
         response = await axios.get(
           `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
         );

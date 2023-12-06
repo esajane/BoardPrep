@@ -168,15 +168,51 @@ class SubmissionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Submission.objects.all()
         activity_id = self.request.query_params.get('activity_id')
-        try:
-            activity_id = int(activity_id)
-        except:
-            return queryset.none()
-        return queryset.filter(activity_id=activity_id)
+        student_id = self.request.query_params.get('student_id')
+
+        if activity_id:
+            try:
+                activity_id = int(activity_id)
+                queryset = queryset.filter(activity_id=activity_id)
+            except ValueError:
+                queryset = queryset.none()
+
+        if student_id:
+            try:
+                queryset = queryset.filter(student_id=student_id)
+            except ValueError:
+                queryset = queryset.none()
+
+        return queryset
+
     
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        
+        if instance.file:
+            data = {
+                'id': instance.id,
+                'filename': instance.file.name,
+                'path': instance.file.url,
+                'user': instance.user.id
+            }
+        elif instance.link:
+            data = {
+                'id': instance.id,
+                'title': serializer.data.get('title'),
+                'favicon': serializer.data.get('favicon'),
+                'url': instance.link,
+                'user': instance.user.id
+            }
+        else:
+            data = serializer.data
+
+        return Response(data)
 
     @action(detail=True, methods=['get'])
     def download(self, request, pk=None):
