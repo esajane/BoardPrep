@@ -46,6 +46,7 @@ class UserLogin(APIView):
         if password == user.password:
             payload = {
                 'id': user.user_name,
+                'type': user.user_type,
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
                 'iat': datetime.datetime.utcnow()
             }
@@ -103,8 +104,20 @@ class StudentRegister(APIView):
     def post(self, request):
         serializer = StudentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            student = serializer.save()
+            payload = {
+                'id': student.user_name,
+                'type': 'S',
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                'iat': datetime.datetime.utcnow()
+            }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            response = Response()
+            response.set_cookie(key='jwt', value=token, httponly=True)
+            response.data = {
+                'jwt': token
+            }
+            return response
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -114,8 +127,20 @@ class TeacherRegister(APIView):
     def post(self, request):
         serializer = TeacherSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            teacher = serializer.save()
+            payload = {
+                'id': teacher.user_name,
+                'type': 'T',
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                'iat': datetime.datetime.utcnow()
+            }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            response = Response()
+            response.set_cookie(key='jwt', value=token, httponly=True)
+            response.data = {
+                'jwt': token
+            }
+            return response
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -12,6 +12,25 @@ class ClassViewSet(viewsets.ModelViewSet):
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        teacher_id = self.request.query_params.get('teacher_id')
+        student_id = self.request.query_params.get('student_id')
+
+        if teacher_id is not None:
+            try:
+                queryset = queryset.filter(teacher=teacher_id)
+            except ValueError:
+                queryset = queryset.none()
+        
+        if student_id is not None:
+            try:
+                queryset = queryset.filter(students__user_name=student_id)
+            except ValueError:
+                queryset = queryset.none()
+
+        return queryset
+
     @action(detail=True, methods=['post'], url_path='accept-join-request')
     def accept_join_request(self, request, pk=None):
         join_request_id = request.data.get('join_request_id')

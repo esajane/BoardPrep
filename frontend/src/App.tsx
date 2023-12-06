@@ -9,7 +9,6 @@ import CourseMain from "./components/CourseMain";
 import CourseDetails from "./pages/CourseDetails";
 import CourseList from "./pages/Courselist";
 import MockTest from "./pages/Mocktest";
-import MockTestResults from "./pages/MocktestResults";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Classes from "./pages/Classes";
 import Classroom from "./pages/Classroom";
@@ -20,12 +19,23 @@ import Home from "./pages/Home";
 
 function App() {
   return (
+    // <Router>
+    //   <Routes>
+    //     <Route path="/" Component={Home}/>
+    //     {/* <Route path="/" Component={CourseList} /> */}
+    //     <Route path="/course/:id" Component={CourseDetails} />
+    //     <Route path="/mocktest/" Component={MockTest} />
+    //     <Route path="/classes" Component={Classes} />
+    //     <Route path="/classes/:id" Component={Classroom} />
+    //     <Route path="/student" Component={Student} />
+    //     <Route path="/teacher" Component={Teacher} />
+    //   </Routes>
+    // </Router>
     <Router>
       <Routes>
         <Route path="/" Component={CourseList} />
         <Route path="/course/:id" Component={CourseDetails} />
-        <Route path="/course/:course_id/mocktest/:mocktest_id" Component={MockTest} />
-        <Route path="/course/:course_id/mocktest/:mocktest_id/results" Component={MockTestResults} />
+        <Route path="/mocktest/" Component={MockTest} />
         <Route path="/classes" Component={Classes} />
         <Route path="/classes/:id" Component={Classroom} />
         <Route path="/student" Component={Student} />
