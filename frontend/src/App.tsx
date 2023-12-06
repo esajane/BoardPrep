@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "./App.css";
 import Courselist from "./pages/Courselist";
-import CourseDetails from "./pages/CourseDetails";
+
 import "./styles/testing.scss";
 import Syllabus from "./components/Syllabus";
 import MockTest from "./pages/Mocktest";
@@ -30,18 +30,18 @@ function App() {
           path="/"
           element={
             <PrivateRoute>
-              <Courselist />
+              <Home />
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/course/:id"
           element={
             <PrivateRoute>
               <CourseDetails />
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="/mocktest/"
           element={
