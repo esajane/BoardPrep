@@ -11,6 +11,7 @@ from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, Moc
 
 # Create your views here.
 class MockTestViewSet(viewsets.ModelViewSet):
+    queryset = MockTest.objects.none()
     serializer_class = MockTestSerializer
 
     def get_queryset(self):
@@ -23,6 +24,7 @@ class MockTestViewSet(viewsets.ModelViewSet):
         return queryset.filter(course_id=course_id)
 
 class MockQuestionsViewSet(viewsets.ModelViewSet):
+    queryset = MockQuestions.objects.none()
     serializer_class = MockQuestionsSerializer
 
     def get_queryset(self):

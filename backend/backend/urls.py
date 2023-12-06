@@ -19,9 +19,9 @@ router.register(r'paragraphs', ParagraphViewSet)
 router.register(r'classes', ClassViewSet)
 router.register(r'posts', PostViewSet, basename='posts')
 router.register(r'comments', CommentViewSet, basename='comments')
-router.register(r'mocktest', MockTestViewSet)
-router.register(r'questions', MockQuestionsViewSet)
-router.register(r'scores', MockTestScoresViewSet)
+router.register(r'mocktest', MockTestViewSet, basename='mocktest')
+router.register(r'questions', MockQuestionsViewSet, basename='questions')
+router.register(r'scores', MockTestScoresViewSet, basename='scores')
 router.register(r'student', StudentViewSet)
 router.register(r'teacher', TeacherViewSet)
 router.register(r'join-requests', JoinRequestViewSet, basename='join-requests')
@@ -34,7 +34,7 @@ router.register(r'attachments', AttachmentViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-    #path('', include('User.urls')),
+    path('', include('User.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
     re_path(r'^lessons/(?P<course_id>[^/.]+)/$', LessonViewSet.as_view({'get': 'by_course'})),
 
