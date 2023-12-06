@@ -160,3 +160,4 @@ class UserView(APIView):
         student = Student.objects.all()
         serializer = StudentSerializer(student, many=True)
         return Response(serializer.data)
+

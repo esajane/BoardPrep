@@ -3,9 +3,11 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from .models import Course, Lesson, Syllabus, Page, Paragraph
-from Course.serializer import CourseListSerializer, CourseDetailSerializer, SyllabusSerializer, LessonSerializer, PageSerializer, ParagraphSerializer
+from .models import Course, Lesson, Syllabus, FileUpload
+from Course.serializer import CourseListSerializer, CourseDetailSerializer, SyllabusSerializer, LessonSerializer, FileUploadSerializer
+from django.shortcuts import render, redirect
+from .forms import LessonForm
+from django.http import HttpResponse
 
 class CourseListViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -28,31 +30,38 @@ class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
 
-    @action(detail=False, methods=['get'], url_path='(?P<course_id>[^/.]+)')
-    def by_course(self, request, course_id=None):
-        queryset = self.get_queryset().filter(course=course_id)
+
+    def by_syllabus(self, request, syllabus_id=None):
+        queryset = self.get_queryset().filter(syllabus=syllabus_id)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-class PageViewSet(viewsets.ModelViewSet):
-    queryset = Page.objects.all()
-    serializer_class = PageSerializer
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
-    def get_queryset(self):
-        queryset = Lesson.objects.all()
-        course_id = self.request.query_params.get('course_id', None)
-        if course_id is not None:
-            queryset = queryset.filter(course=course_id)
-        return queryset
+# If using a FileUpload model
+class FileUploadViewSet(viewsets.ModelViewSet):
+    queryset = FileUpload.objects.all()
+    serializer_class = FileUploadSerializer
 
-class ParagraphViewSet(viewsets.ModelViewSet):
-    queryset = Paragraph.objects.all()
-    serializer_class = ParagraphSerializer
+def create_lesson(request):
+    if request.method == 'POST':
+        form = LessonForm(request.POST)
+        if form.is_valid():
+            lesson = form.save(commit=False)  # Create the lesson object but don't save it yet
+            existing_course = form.cleaned_data.get('existing_course')
+            if existing_course:
+                lesson.syllabus = existing_course.syllabus
+            lesson.save()  # Save the lesson with the selected syllabus
+            return redirect('success_page')  # Redirect to a success page
+    else:
+        form = LessonForm()
 
-    def get_queryset(self):
-        queryset = Lesson.objects.all()
-        course_id = self.request.query_params.get('course_id', None)
-        if course_id is not None:
-            queryset = queryset.filter(course=course_id)
-        return queryset
+    return render(request, 'lesson_form.html', {'form': form})
 
+
+def success_view(request):
+    # Your logic for the success page
+    return HttpResponse("Lesson created successfully!")
