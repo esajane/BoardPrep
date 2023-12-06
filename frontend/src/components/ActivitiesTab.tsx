@@ -5,6 +5,8 @@ import ActivityRow from "./ActivityRow";
 import ActivityDetails from "./ActivityDetails";
 import { IoCreateOutline } from "react-icons/io5";
 import ActivityModal from "./ActivityModal";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Attachments {
   id: number;
@@ -35,6 +37,7 @@ interface ActivitiesTabProps {
 }
 
 function ActivitiesTab({ classId }: ActivitiesTabProps) {
+  const user = useAppSelector(selectUser);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activityDetails, setActivityDetails] = useState<Activity>();
   const [modalOpen, setModalOpen] = useState(false);
@@ -81,7 +84,7 @@ function ActivitiesTab({ classId }: ActivitiesTabProps) {
         ) : (
           <div>No activities yet.</div>
         )}
-        {!activityDetails && (
+        {!activityDetails && user.token.type === "T" && (
           <button className="activities-tab--center--add" onClick={openModal}>
             <IoCreateOutline />
             Create Activity
