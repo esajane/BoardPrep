@@ -41,11 +41,16 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = MockTestScores.objects.all()
         student_id = self.request.query_params.get('student_id')
+        mocktest_id = self.request.query_params.get('mocktest_id')
+        if student_id:
+            queryset = queryset.filter(student__user_name=student_id)
+        if mocktest_id:
+            queryset = queryset.filter(mocktest_id=mocktest_id)
         # try:
         #     student_id = int(student_id)
         # except:
         #     return queryset.none()
-        return queryset.filter(student_id=student_id)
+        return queryset
 
 @api_view(['POST'])
 def submit_mocktest(request, mocktest_id):
@@ -54,7 +59,7 @@ def submit_mocktest(request, mocktest_id):
         print(f"Authenticated: {request.user.is_authenticated}")
         print(f"Received mocktest_id: {mocktest_id}")
 
-        student = Student.objects.get(user_name='student2')
+        student = Student.objects.get(user_name='niggasecoya')
         mocktest = get_object_or_404(MockTest, pk=mocktest_id)
         answers = request.data.get('answers')
 
@@ -80,7 +85,7 @@ def submit_mocktest(request, mocktest_id):
 
         student_dict = model_to_dict(student, fields=['first_name', 'last_name'])
         student_name = f"{student_dict.get('first_name')} {student_dict.get('last_name')}"
-        mocktest_instance = MockTest.objects.get(id=mocktest_id)
+        mocktest_instance = MockTest.objects.get(mocktestID=mocktest_id)
         mocktest_name = mocktest_instance.mocktestName
 
         response_data = {
@@ -88,7 +93,7 @@ def submit_mocktest(request, mocktest_id):
             'total_questions': total_questions,
             'mocktestName': mocktest_name,
             'studentName': student_name,
-            'mocktestDateTaken': mocktest_score.mocktestDateTaken.strftime('%Y-%m-%d'),
+            'mocktestDateTaken': mocktest_score.mocktestDateTaken.strftime('month %d, %Y'),
             'message': 'Mock test submitted successfully'
         }
 

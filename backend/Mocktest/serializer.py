@@ -13,6 +13,10 @@ class MockTestSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MockTestScoresSerializer(serializers.ModelSerializer):
+    mocktestName = serializers.SerializerMethodField()
     class Meta:
         model = MockTestScores
         fields = '__all__'
+
+    def get_mocktestName(self, obj):
+        return obj.mocktest_id.mocktestName

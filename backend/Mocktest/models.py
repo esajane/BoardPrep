@@ -19,7 +19,7 @@ class MockQuestions(models.Model):
     choiceC = models.CharField(max_length=255, verbose_name="C")
     choiceD = models.CharField(max_length=255, verbose_name="D")
     subject = models.CharField(max_length=255)
-    correctAnswer = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], verbose_name="Correct Answer")
+    correctAnswer = models.CharField(max_length=255, verbose_name="Correct Answer")
 
     def __str__(self):
         return f"{self.question} - {self.subject}"
