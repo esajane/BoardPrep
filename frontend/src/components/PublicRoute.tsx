@@ -5,9 +5,8 @@ import { selectUser } from "../redux/slices/authSlice";
 
 function PublicRoute({ children }: any) {
   const user = useAppSelector(selectUser);
-  const location = useLocation();
   if (user.isAuth) {
-    const previousLocation = location.state?.from || "/classes"; // change lang sa inyo route pag check
+    const previousLocation = user.pathname || "/classes"; // change lang sa inyo route pag check
     return <Navigate to={previousLocation} replace />;
   }
 
