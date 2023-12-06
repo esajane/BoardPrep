@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Class, JoinRequest, Post, Comment, Activity, Submission, Attachment
+from User.models import Student
 from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer, AttachmentSerializer
 
 # Create your views here.
@@ -107,7 +108,27 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
         except:
             return queryset.none()
         return queryset.filter(class_instance=class_id, is_accepted=False)
-    
+
+    def create(self, request, *args, **kwargs):
+        class_code = request.data.get('class_code')
+        student_id = request.data.get('student')
+
+        try:
+            class_instance = Class.objects.get(classCode=class_code)
+            student = Student.objects.get(user_name=student_id)
+        except (Class.DoesNotExist, Student.DoesNotExist):
+            return Response({'error': 'Invalid class code or student ID'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        join_request = JoinRequest.objects.create(
+            class_instance=class_instance,
+            student=student,
+            is_accepted=False
+        )
+        
+        serializer = self.get_serializer(join_request)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
