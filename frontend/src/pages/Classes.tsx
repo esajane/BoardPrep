@@ -69,7 +69,7 @@ function Classes() {
           <ClassCard key={index} class={classItem} />
         ))}
         <button className="create-classbtn" onClick={openModal}>
-          Create Class +
+          {user.token.type === "T" ? "Create Class +" : "Join Class +"}
         </button>
         {modalOpen && (
           <ClassModal
