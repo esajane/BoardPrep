@@ -3,9 +3,14 @@
 .class-background {
   overflow: auto;
 
-
-
-  header {
+  .header-classroom {
+    color: #ffffff;
+    display: flex;
+    width: 90%;
+    margin: auto;
+    padding-top: 35px;
+    align-items: center;
+    justify-content: space-between;
     .left-header {
       display: flex;
       align-items: center;

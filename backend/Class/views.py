@@ -1,15 +1,36 @@
 from django.shortcuts import render
 from django.utils import timezone
+from django.http import StreamingHttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Class, JoinRequest, Post, Comment, Activity, Submission, Attachment
+from User.models import Student
 from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer, AttachmentSerializer
 
 # Create your views here.
 class ClassViewSet(viewsets.ModelViewSet):
     queryset = Class.objects.all()
     serializer_class = ClassSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        teacher_id = self.request.query_params.get('teacher_id')
+        student_id = self.request.query_params.get('student_id')
+
+        if teacher_id is not None:
+            try:
+                queryset = queryset.filter(teacher=teacher_id)
+            except ValueError:
+                queryset = queryset.none()
+        
+        if student_id is not None:
+            try:
+                queryset = queryset.filter(students__user_name=student_id)
+            except ValueError:
+                queryset = queryset.none()
+
+        return queryset
 
     @action(detail=True, methods=['post'], url_path='accept-join-request')
     def accept_join_request(self, request, pk=None):
@@ -87,7 +108,27 @@ class JoinRequestViewSet(viewsets.ModelViewSet):
         except:
             return queryset.none()
         return queryset.filter(class_instance=class_id, is_accepted=False)
-    
+
+    def create(self, request, *args, **kwargs):
+        class_code = request.data.get('class_code')
+        student_id = request.data.get('student')
+
+        try:
+            class_instance = Class.objects.get(classCode=class_code)
+            student = Student.objects.get(user_name=student_id)
+        except (Class.DoesNotExist, Student.DoesNotExist):
+            return Response({'error': 'Invalid class code or student ID'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        join_request = JoinRequest.objects.create(
+            class_instance=class_instance,
+            student=student,
+            is_accepted=False
+        )
+        
+        serializer = self.get_serializer(join_request)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
@@ -136,3 +177,22 @@ class SubmissionViewSet(viewsets.ModelViewSet):
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
+
+    @action(detail=True, methods=['get'])
+    def download(self, request, pk=None):
+        attachment = self.get_object()
+        if attachment.file:
+            def file_iterator(file_name, chunk_size=8192):
+                with open(file_name, 'rb') as file:
+                    while True:
+                        chunk = file.read(chunk_size)
+                        if chunk:
+                            yield chunk
+                        else:
+                            break
+            response = StreamingHttpResponse(file_iterator(attachment.file.path))
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(attachment.file.name)
+            return response
+        else:
+            return Response({"error": "No file attached"}, status=status.HTTP_404_NOT_FOUND)

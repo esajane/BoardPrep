@@ -4,6 +4,8 @@ import "../styles/reply.scss";
 import { convertToPHTime } from "../functions";
 import { FaEllipsisV } from "react-icons/fa";
 import axios from "axios";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Comment {
   id: number;
@@ -11,6 +13,7 @@ interface Comment {
   created_at: string;
   post: number;
   user: string;
+  user_name: string;
 }
 
 interface ReplyProps {
@@ -19,9 +22,9 @@ interface ReplyProps {
 }
 
 function Reply({ comment, setComments }: ReplyProps) {
+  const user = useAppSelector(selectUser);
   const [showMenu, setShowMenu] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const curr_user = "student1";
 
   const toggleMenu = () => setShowMenu(!showMenu);
 
@@ -62,12 +65,12 @@ function Reply({ comment, setComments }: ReplyProps) {
           <div className="reply--header__left--pic">
             <img src={profileImage} className="logo" alt="RILL" />
           </div>
-          <div className="reply--header__left--name">{comment.user}</div>
+          <div className="reply--header__left--name">{comment.user_name}</div>
           <div className="reply--header__left--time">
             {convertToPHTime(comment.created_at)}
           </div>
         </div>
-        {comment.user === curr_user && hovered && (
+        {comment.user === user.token.id && hovered && (
           <div className="reply--header__menu" onClick={toggleMenu}>
             <FaEllipsisV />
             {showMenu && (

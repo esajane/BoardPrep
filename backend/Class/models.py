@@ -53,6 +53,7 @@ class Comment(models.Model):
     
 class Attachment(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='attachments/', blank=True, null=True)
     link = models.URLField(blank=True)
     

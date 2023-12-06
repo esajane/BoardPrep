@@ -6,13 +6,12 @@ import profileImage from "../assets/16.png";
 import axios from "axios";
 import { convertToPHTime } from "../functions";
 import Reply from "./Reply";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface PostProps {
-  content: string;
-  createdAt: string;
-  postId: number;
+  post: Posts;
   setPosts: React.Dispatch<React.SetStateAction<any[]>>;
-  teacher_id: string;
 }
 
 interface Posts {
@@ -20,7 +19,8 @@ interface Posts {
   content: string;
   created_at: string;
   class_instance: number;
-  teacher_id: string;
+  teacher: string;
+  teacher_name: string;
 }
 
 interface Comment {
@@ -29,9 +29,11 @@ interface Comment {
   created_at: string;
   post: number;
   user: string;
+  user_name: string;
 }
 
-function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
+function Post({ post, setPosts }: PostProps) {
+  const user = useAppSelector(selectUser);
   const [showMenu, setShowMenu] = useState(false);
   const replyRef = useRef<HTMLInputElement>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -41,7 +43,7 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
     const fetchComments = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/comments/?post_id=${postId}`
+          `http://127.0.0.1:8000/comments/?post_id=${post.id}`
         );
         setComments(response.data);
       } catch (err) {
@@ -50,14 +52,16 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
     };
 
     fetchComments();
-  }, [postId]);
+  }, [post.id]);
 
   const toggleMenu = () => setShowMenu(!showMenu);
 
   const deletePost = async () => {
     try {
-      await axios.delete(`http://localhost:8000/posts/${postId}/`);
-      setPosts((posts: Posts[]) => posts.filter((post) => post.id !== postId));
+      await axios.delete(`http://localhost:8000/posts/${post.id}/`);
+      setPosts((posts: Posts[]) =>
+        posts.filter((currPost) => currPost.id !== post.id)
+      );
     } catch (err) {
       console.error(err);
     }
@@ -74,8 +78,8 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
       if (reply) {
         const response = await axios.post(`http://127.0.0.1:8000/comments/`, {
           content: reply,
-          post: postId,
-          user: "student1", // TODO: replace with actual student
+          post: post.id,
+          user: user.token.id,
         });
         setComments([...comments, response.data]);
         replyRef.current!.value = "";
@@ -101,8 +105,6 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
     }
   };
 
-  const curr_user = "teacher1";
-
   return (
     <div className="post-card">
       <div className="post-card--read">
@@ -112,13 +114,13 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
               <img src={profileImage} className="logo" alt="RILL" />
             </div>
             <div className="post-card--read--header--left--name">
-              Kobe Paras
+              {post.teacher_name}
             </div>
             <div className="post-card--read--header--left--time">
-              {convertToPHTime(createdAt)}
+              {convertToPHTime(post.created_at)}
             </div>
           </div>
-          {teacher_id === curr_user && (
+          {post.teacher === user.token.id && (
             <div className="post-card--read--header--menu" onClick={toggleMenu}>
               <FaEllipsisV />
               {showMenu && (
@@ -131,7 +133,7 @@ function Post({ content, createdAt, postId, setPosts, teacher_id }: PostProps) {
             </div>
           )}
         </div>
-        <div className="post-card--read--body">{content}</div>
+        <div className="post-card--read--body">{post.content}</div>
         <div className="post-card--read--replies">
           {comments.length > 0 && (
             <div

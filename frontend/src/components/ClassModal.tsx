@@ -1,5 +1,7 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 import "../styles/class.scss";
 
 interface Class {
@@ -7,6 +9,8 @@ interface Class {
   className: string;
   classDescription: string;
   course: string;
+  image: string;
+  teacher_name: string;
   students: string[];
   classCode: string;
 }
@@ -27,6 +31,7 @@ interface Course {
 }
 
 function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
+  const user = useAppSelector(selectUser);
   const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [courseValue, setCourseValue] = useState("");
@@ -55,62 +60,109 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
     const name = nameRef.current?.value;
     const description = descriptionRef.current?.value;
 
-    if (!name || !description) {
-      console.error("Required fields are missing");
-      return;
-    }
-
     try {
-      const response = await axios.post("http://127.0.0.1:8000/classes/", {
-        className: name,
-        classDescription: description,
-        course: courseValue,
-        teacher: "teach",
-        students: ["stud"],
-      });
+      if (user.token.type === "T") {
+        if (!name || !description) {
+          console.error("Required fields are missing");
+          return;
+        }
 
-      if (response.status === 201) {
-        closeModal();
-        setClasses([...classes, response.data]);
-      }
-    } catch (err: any) {
-      if (err.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.error(err.response.data);
-        console.error(err.response.status);
-        console.error(err.response.headers);
-      } else if (err.request) {
-        // The request was made but no response was received
-        console.error(err.request);
+        const response = await axios.post("http://127.0.0.1:8000/classes/", {
+          className: name,
+          classDescription: description,
+          course: courseValue,
+          teacher: user.token.id,
+          students: ["student1"],
+        });
+
+        if (response.status === 201) {
+          closeModal();
+          setClasses([...classes, response.data]);
+        }
       } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error("Error", err.message);
+          if (!name) {
+            console.error("Required fields are missing");
+            return;
+          }
+          const response = await axios.post(
+            "http://127.0.0.1:8000/join-requests/",
+            {
+              class_code: name,
+              student: user.token.id,
+            }
+          );
+          if (response.status === 201) {
+            closeModal();
+          }
+        }
+      } catch (err) {
+        console.error(err);
       }
-      console.error(err.config);
-    }
-  };
+    };
+
+        return (
+          <div id="modal" className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1>{user.token.type === "T" ? "Create Class" : "Join Class"}</h1>
+                <span className="close" onClick={closeModal}>
+                  &times;
+                </span>
+              </div>
+              <form onSubmit={handleSubmit}>
+                {user.token.type === "T" ? (
+                  <>
+                    <input type="text" placeholder="Class Name" ref={nameRef} />
+                    <textarea placeholder="Class Description" ref={descriptionRef} />
+                    <select value={courseValue} onChange={handleChange}>
+                      <option value="">Select a course</option>
+                      {courses.map((course: Course) => (
+                        <option key={course.course_id} value={course.course_id}>
+                          {course.course_title}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="submit">Create Class</button>
+                  </>
+                ) : (
+                  <>
+                    <input type="text" placeholder="Class Code" />
+                    <button type="submit">Join Class</button>
+                  </>
+                )}
+              </form>
+            </div>
+          </div>
+        );
+      }
+    
 
   return (
     <div id="modal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h1>Create Class</h1>
+          <h1>{user.token.type === "T" ? "Create Class" : "Join Class"}</h1>
           <span className="close" onClick={closeModal}>
             &times;
           </span>
         </div>
         <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Class Name" ref={nameRef} />
-          <textarea placeholder="Class Description" ref={descriptionRef} />
-          <select value={courseValue} onChange={handleChange}>
-            <option value="">Select a course</option>
-            {courses.map((course: Course) => (
-              <option key={course.course_id} value={course.course_id}>
-                {course.course_title}
-              </option>
-            ))}
-          </select>
+          {user.token.type === "T" ? (
+            <>
+              <input type="text" placeholder="Class Name" ref={nameRef} />
+              <textarea placeholder="Class Description" ref={descriptionRef} />
+              <select value={courseValue} onChange={handleChange}>
+                <option value="">Select a course</option>
+                {courses.map((course: Course) => (
+                  <option key={course.course_id} value={course.course_id}>
+                    {course.course_title}
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <input type="text" placeholder="Class Code" ref={nameRef} />
+          )}
           <button type="submit" className="card-button">
             Create
           </button>

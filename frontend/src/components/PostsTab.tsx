@@ -3,6 +3,8 @@ import axios from "axios";
 import Post from "./Post";
 import "../styles/poststab.scss";
 import { MdOutlinePostAdd, MdSend } from "react-icons/md";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Posts {
   id: number;
@@ -10,6 +12,7 @@ interface Posts {
   created_at: string;
   class_instance: number;
   teacher: string;
+  teacher_name: string;
 }
 
 interface PostProps {
@@ -17,6 +20,7 @@ interface PostProps {
 }
 
 function PostsTab({ classId }: PostProps) {
+  const user = useAppSelector(selectUser);
   const [addingPost, setAddingPost] = useState(false);
   const [newPostContent, setNewPostContent] = useState("");
   const [posts, setPosts] = useState<Posts[]>([]);
@@ -45,7 +49,7 @@ function PostsTab({ classId }: PostProps) {
         const response = await axios.post(`http://127.0.0.1:8000/posts/`, {
           content: newPostContent,
           class_instance: classId,
-          teacher: "teacher1", // TODO: replace with actual teacher
+          teacher: user.token.id,
         });
         setPosts([...posts, response.data]);
       }
@@ -61,39 +65,33 @@ function PostsTab({ classId }: PostProps) {
       <div className="posts-tab--center">
         {posts.length > 0 ? (
           posts.map((post) => (
-            <Post
-              key={post.id}
-              content={post.content}
-              createdAt={post.created_at}
-              postId={post.id}
-              setPosts={setPosts}
-              teacher_id={post.teacher}
-            />
+            <Post key={post.id} post={post} setPosts={setPosts} />
           ))
         ) : (
           <div>No posts yet.</div>
         )}
       </div>
-      {addingPost ? (
-        <div className="input-container">
-          <textarea
-            className="post-input"
-            value={newPostContent}
-            onChange={(e) => setNewPostContent(e.target.value)}
-            placeholder="Type your post..."
-          />
-          <button className="send-post" onClick={handleSendPost}>
-            <MdSend /> Post
+      {user.token.type === "T" &&
+        (addingPost ? (
+          <div className="input-container">
+            <textarea
+              className="post-input"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+              placeholder="Type your post..."
+            />
+            <button className="send-post" onClick={handleSendPost}>
+              <MdSend /> Post
+            </button>
+          </div>
+        ) : (
+          <button
+            className={addingPost ? "add-post" : "add-post animate-button"}
+            onClick={handleAddPostClick}
+          >
+            <MdOutlinePostAdd /> Add Post
           </button>
-        </div>
-      ) : (
-        <button
-          className={addingPost ? "add-post" : "add-post animate-button"}
-          onClick={handleAddPostClick}
-        >
-          <MdOutlinePostAdd /> Add Post
-        </button>
-      )}
+        ))}
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import "../styles/class.scss";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { selectUser, signUp } from "../redux/slices/authSlice";
 
 interface SignupModalProps {
   closeModal: () => void;
@@ -9,6 +10,8 @@ interface SignupModalProps {
 }
 
 function SignupModal({ closeModal, userType }: SignupModalProps) {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [firstname, setFirstname] = useState("");
@@ -17,35 +20,28 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
   const [specialization, setSpecialization] = useState("");
   const navigate = useNavigate();
 
-  console.log(username);
-  console.log(firstname);
-  console.log(lastname);
-  console.log(password);
-  console.log(email);
-  console.log(specialization);
+  useEffect(() => {
+    if (user.isAuth) {
+      navigate("/classes");
+      closeModal();
+    }
+  }, [user, closeModal, navigate]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/register/${userType}/`,
-        {
-          user_name: username,
+      await dispatch(
+        signUp({
+          username,
           password,
-          first_name: firstname,
-          last_name: lastname,
+          firstname,
+          lastname,
           email,
           specialization,
-        },
+          userType,
+        })
       );
-      if (response.status === 201) {
-        closeModal();
-        console.log("Success Fully Registered");
-        navigate("/teacher");
-      } else {
-        console.log(response.data['email']);
-      }
     } catch (err) {
       console.log(err);
     }

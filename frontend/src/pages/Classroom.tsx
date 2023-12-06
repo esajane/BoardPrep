@@ -88,14 +88,14 @@ function Classroom() {
 
   return (
     <div className="class-background">
-      <header>
+      <div className="header-classroom">
         <div className="left-header">
           <div className="left-header--title">
             <h1>Classroom</h1>
             <h3>{classItem && classItem.className}</h3>
           </div>
           <nav className="class-nav">
-            <ul>
+            <ul className="room-ul">
               <li
                 className={activeLink === "Posts" ? "active" : ""}
                 onClick={() => setActiveLink("Posts")}
@@ -126,7 +126,7 @@ function Classroom() {
         <div className="profile-pic2">
           <img src={profileImage} className="logo" alt="RILL" />
         </div>
-      </header>
+      </div>
       <div className="class-content">{renderTab()}</div>
     </div>
   );
