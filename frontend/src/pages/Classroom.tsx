@@ -15,6 +15,7 @@ interface Class {
   course: string;
   students: string[];
   classCode: string;
+  teacher: string;
 }
 
 interface JoinRequest {
@@ -74,6 +75,7 @@ function Classroom() {
             classId={classItem.classId}
             joinRequests={joinRequests}
             students={classItem.students}
+            teacher={classItem.teacher}
             fetchClass={fetchClass}
           />
         );

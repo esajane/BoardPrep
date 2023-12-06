@@ -13,6 +13,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   token: Token;
+  pathname: string;
 }
 
 const initialState: AuthState = {
@@ -25,6 +26,7 @@ const initialState: AuthState = {
     exp: 0,
     iat: 0,
   },
+  pathname: "",
 };
 
 const authSlice = createSlice({
@@ -60,6 +62,9 @@ const authSlice = createSlice({
         exp: 0,
         iat: 0,
       };
+    },
+    setPathname: (state, action: PayloadAction<string>) => {
+      state.pathname = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -186,7 +191,7 @@ export const signUp = createAsyncThunk(
   }
 );
 
-export const { setUserFromLocalStorage, signOut } = authSlice.actions;
+export const { setUserFromLocalStorage, signOut, setPathname } = authSlice.actions;
 
 export const selectUser = (state: { auth: AuthState }) => state.auth;
 
