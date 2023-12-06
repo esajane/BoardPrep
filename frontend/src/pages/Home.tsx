@@ -1,25 +1,33 @@
 import '../styles/home.scss';
-import boardprep from '../assets/boardprep.png';
+import home from '../assets/home.png';
 import { useNavigate } from 'react-router-dom';
 
 function Home() {
   const navigate = useNavigate();
 
   const studentHandler = () => {
-    navigate("/student");
-  }
+    navigate('/student');
+  };
 
   const teacherHandler = () => {
-    navigate("/teacher")
-  }
+    navigate('/teacher');
+  };
 
   return (
     <div className="background">
       <header>
-        <h1><a href='/' className='homer'>BoardPrep</a></h1>
+        <h1>
+          <a href="/" className="homer">
+            BoardPrep
+          </a>
+        </h1>
         <div className="user">
-          <button className='user-c' onClick={studentHandler}>Student</button>
-          <button className='user-c'onClick={teacherHandler}>Teacher</button>
+          <button className="user-c" onClick={studentHandler}>
+            Student
+          </button>
+          <button className="user-c" onClick={teacherHandler}>
+            Teacher
+          </button>
         </div>
       </header>
       <div className="content">
@@ -28,13 +36,14 @@ function Home() {
             Embrace Success with BoardPrep: Tailored for Triumph
           </h3>
           <p className="ct-p">
-            Lorem ipsum dolor sit amet consectetur <br /> adipisicing elit. Aut
-            saepe voluptatum earum delectus <br /> deserunt id iste, quas
-            officiis et repellat!
+            BoardPrep is your gateway to a tailored learning experience designed
+            to<br/> maximize your success. Explore interactive lessons, collaborate
+            seamlessly,<br/> and track your progress effortlessly. Join us in the
+            journey towards academic triumph!
           </p>
         </div>
-        <div className='ani'>
-          <img src={boardprep} alt="boardprep" className="bp-img" />
+        <div className="ani">
+          <img src={home} alt="boardprep" className="bp-img" />
           <div className="cardo dalisay"></div>
         </div>
       </div>
