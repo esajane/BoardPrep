@@ -12,6 +12,7 @@ import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
 import Home from "./pages/Home";
+import Forum from "./pages/Forum";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import { setUserFromLocalStorage } from "./redux/slices/authSlice";
@@ -63,6 +64,14 @@ function App() {
           element={
             <PrivateRoute>
               <Classroom />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/forum"
+          element={
+            <PrivateRoute>
+              <Forum />
             </PrivateRoute>
           }
         />
