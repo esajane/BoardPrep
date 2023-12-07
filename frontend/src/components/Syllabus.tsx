@@ -56,7 +56,7 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
         <div
           key={lesson.lesson_id}
           className="title-container"
-          onClick={() => fetchLessonContent(lesson.lesson_id)}
+          onClick={() => onLessonClick(lesson.lesson_id)}
           role="button"
           tabIndex={0}
         >

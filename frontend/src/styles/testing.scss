@@ -69,57 +69,41 @@ $p_color: #4D4D4D;
   }
 }
 
-.coursecard {
-  display: flex;
-  position: relative;
-  align-items: center;
-  width: 270px;
-  height: 250px;
-  border-radius: 7%;
-  flex-direction: column;
-  overflow: hidden;
-  background-color: $box_bg;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+// .coursecard {
+//   display: flex;
+//   position: relative;
+//   align-items: center;
+//   width: 270px;
+//   height: 250px;
+//   border-radius: 7%;
+//   flex-direction: column;
+//   overflow: hidden;
+//   background-color: $box_bg;
+//   transition: transform 0.3s ease, box-shadow 0.3s ease;
+//   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-  &:hover {
-    color: grey;
-    transform: translateY(-10px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
-  }
+//   &:hover {
+//     color: grey;
+//     transform: translateY(-10px);
+//     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+//   }
 
-  .imagebox {
-    border-radius: 5%;
-    height: 55%;
-    width: 100%;
-    overflow: hidden;
+//   .imagebox {
+//     border-radius: 5%;
+//     height: 55%;
+//     width: 100%;
+//     overflow: hidden;
 
-    img { 
-      height: 100%;
-      width: 100%;
-      object-fit: fill;
-    }
-  }
+//     img { 
+//       height: 100%;
+//       width: 100%;
+//       object-fit: fill;
+//     }
+//   }
 
-  .defbox {
-    position: relative;
-    margin-left: 1em;
-    width: 100%;
-    font-family: Arial;
-    z-index: 1;
-
-    h3 {
-      text-align: center;
-      color: $headtext_bg;
-    }
-
-    p {
-      font-size: 15px;
-      text-align: left;
-      color: $p_color;
-    }
-  }
-}
+//   .defbox {
+  
+// }
 
 .coursecards-container {
   display: flex;

@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test',
+        'NAME': 'backend',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
@@ -190,6 +190,16 @@ CKEDITOR_5_CONFIGS = {
             "blockQuote",
             "imageUpload"
         ],
+    },
+    "fontColor": {
+            "colors": [
+                "#000000",  # Black
+                "#ffffff",  # White
+                "#ff0000",  # Red
+                "#00ff00",  # Green
+                "#0000ff",  # Blue
+                # Add more colors as needed
+            ],
     },
     "comment": {
         "language": {"ui": "en", "content": "en"},
