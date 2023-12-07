@@ -9,6 +9,7 @@ from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestVi
 from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet
 from User.views import StudentViewSet, TeacherViewSet
 from Course.views import success_view
+from Course.views import page_create_or_edit
 
 router = routers.DefaultRouter()
 router.register(r'courses', CourseListViewSet, basename='course')
@@ -47,10 +48,9 @@ urlpatterns = [
     path('create-page/', views.create_page, name='create_page'),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),
     path('pages/<str:lesson_id>/', PageViewSet.as_view({'get': 'by_lesson'}), name='pages-by-lesson'),
-
-
-
-
+    path('lessons/page/new/', page_create_or_edit, name='create_page'),
+    # URL pattern for editing an existing page
+    path('lessons/<str:lesson_id>/page/<int:page_number>/edit/', page_create_or_edit, name='edit_page'),
 ]
 
 if settings.DEBUG:

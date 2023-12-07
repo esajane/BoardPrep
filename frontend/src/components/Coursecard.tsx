@@ -24,19 +24,16 @@ function CourseCard({
   };
 
   return (
-    <div className="coursecard-container">
-      <div className="coursecard">
-        <div className="imagebox">
-          <img src={image} alt={course_title} className="img" />
-        </div>
-        <div className="defbox">
-          <h3>{course_title}</h3>
-          <p>{short_description}</p>
-        </div>
-        <button className="interactive-button" onClick={handleSelectCourse}>
-          Add Course
-        </button>
+    <div className="coursecard">
+      <div className="imagebox">
+        <img src={image} alt={course_title} className="img" />
       </div>
+      <div className="defbox">
+        <h3>{course_title}</h3>
+      </div>
+      <button className="interactive-button" onClick={handleSelectCourse}>
+        Add Course
+      </button>
     </div>
   );
 }

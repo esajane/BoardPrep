@@ -102,3 +102,53 @@ def edit_page(request, page_id):
 def success_view(request):
     # Your logic for the success page
     return HttpResponse("Lesson created successfully!")
+
+def page_create_or_edit(request, lesson_id=None, page_number=None):
+    if lesson_id:
+        # Editing an existing page or creating a new page for a specific lesson
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+
+        if page_number:
+            # Editing an existing page
+            page = get_object_or_404(Page, lesson=lesson, page_number=page_number)
+            if request.method == 'POST':
+                form = PageEditForm(request.POST, instance=page)
+                if form.is_valid():
+                    form.save()
+                    return redirect('success_page')  # Redirect to a success page
+            else:
+                form = PageEditForm(instance=page)
+        else:
+            # Creating a new page for a specific lesson
+            if request.method == 'POST':
+                form = PageForm(request.POST)
+                if form.is_valid():
+                    page = form.save(commit=False)
+                    page.lesson = lesson
+                    # If a specific syllabus is selected, set it
+                    selected_syllabus = form.cleaned_data.get('existing_syllabus')
+                    if selected_syllabus:
+                        page.syllabus = selected_syllabus
+                    page.save()
+                    return redirect('success_page')  # Redirect to a success page
+            else:
+                form = PageForm()
+    else:
+        # Creating a new page without a specific lesson
+        if request.method == 'POST':
+            form = PageForm(request.POST)
+            if form.is_valid():
+                page = form.save(commit=False)
+                # If a specific syllabus is selected, set it
+                selected_lesson = form.cleaned_data.get('existing_lesson')
+                if selected_lesson:
+                    page.lesson = selected_lesson
+                selected_syllabus = form.cleaned_data.get('existing_syllabus')
+                if selected_syllabus:
+                    page.syllabus = selected_syllabus
+                page.save()
+                return redirect('success_page')  # Redirect to a success page
+        else:
+            form = PageForm()
+
+    return render(request, 'lesson_form.html', {'form': form, 'lesson_id': lesson_id, 'page_number': page_number})

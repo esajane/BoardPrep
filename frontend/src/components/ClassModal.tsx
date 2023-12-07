@@ -40,6 +40,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
   const [courses, setCourses] = useState<Course[]>([]);
   const [showCourselist, setShowCourselist] = useState(false);
+  const course = "Select Course";
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -96,19 +97,25 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           console.error("Required fields are missing");
           return;
         }
+
+        const postData = {
+          class_code: name,
+          student: user.token.id,
+        };
+        console.log("POST Data:", postData);
+
         const response = await axios.post(
           "http://127.0.0.1:8000/join-requests/",
-          {
-            class_code: name,
-            student: user.token.id,
-          }
+          postData
         );
+        console.log("Response:", response);
+
         if (response.status === 201) {
           closeModal();
         }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error in POST request:", err);
     }
   };
 
@@ -121,39 +128,42 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
             &times;
           </span>
         </div>
-        {showCourselist ? (
-          <div className="course-list-popup">
-            <span className="popupclose" onClick={closeModal}>
-              &times;
-            </span>
-            <Courselist onSelectCourse={handleCourseSelect} />
+
+        {showCourselist && (
+          <div className="flex-center">
+            <div className="course-list-popup">
+              <span className="popupclose" onClick={toggleCourseList}>
+                &times;
+              </span>
+              <Courselist onSelectCourse={handleCourseSelect} />
+            </div>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            {user.token.type === "T" ? (
-              <>
-                <input type="text" placeholder="Class Name" ref={nameRef} />
-                <textarea
-                  placeholder="Class Description"
-                  ref={descriptionRef}
-                />
-                <button type="button" onClick={toggleCourseList}>
-                  Select Course
-                </button>
-                <span>Selected Course: {selectedCourseTitle}</span>
-                <button type="submit">Create Class</button>
-              </>
-            ) : (
-              <>
-                <input type="text" placeholder="Class Code" ref={nameRef} />
-                <button type="submit">Join Class</button>
-              </>
-            )}
-          </form>
         )}
+
+        <form onSubmit={handleSubmit}>
+          {user.token.type === "T" ? (
+            <>
+              <input type="text" placeholder="Class Name" ref={nameRef} />
+              <textarea placeholder="Class Description" ref={descriptionRef} />
+              <input
+                type="text"
+                placeholder="Select Course"
+                onClick={toggleCourseList}
+                readOnly
+                value={selectedCourseTitle || "Select Course"} // Show the selected course title in the input field
+              />
+              <button type="submit">Create Class</button>{" "}
+              {/* Create Class button */}
+            </>
+          ) : (
+            <>
+              <input type="text" placeholder="Class Code" ref={nameRef} />
+              <button type="submit">Join Class</button>
+            </>
+          )}
+        </form>
       </div>
     </div>
   );
 }
-
 export default ClassModal;

@@ -1,13 +1,16 @@
 .coursepage-container{
-    overflow-y: auto;
+   
     border-radius: 50px;
-    height: 100%;
+    width: 100%;
+    height: 500px;
     padding: 3%;
     background: #0d0b1c;
     display: flex;
     justify-content: center;
     flex-direction: row;
     flex-wrap: wrap;
+    overflow-y: auto;
+    
 }
 .coursecards-container {
     gap: 30px;

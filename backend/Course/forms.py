@@ -12,16 +12,14 @@ class PageForm(forms.ModelForm):
     existing_syllabus = forms.ModelChoiceField(
         queryset=Syllabus.objects.all(), required=False, label="Select an existing syllabus"
     )
+    page_number = forms.IntegerField(required=True, help_text="Page number within the lesson")
 
     class Meta:
         model = Page
-        fields = ['existing_syllabus','existing_lesson', 'page_number', 'content']
-        widgets = {
-            "content": CKEditor5Widget(attrs={"class": "django_ckeditor_5"}, config_name="extends")
-        }
+        fields = ['existing_syllabus', 'existing_lesson', 'page_number', 'content']
 
     def __init__(self, *args, **kwargs):
-        super(PageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['page_number'].widget.attrs.update({'class': 'form-control'})
 
     def clean_content(self):
@@ -36,3 +34,9 @@ class PageEditForm(forms.ModelForm):
     class Meta:
         model = Page
         fields = ['content']
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content')
+        if not content:
+            raise forms.ValidationError('This field is required.')
+        return content

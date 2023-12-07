@@ -162,6 +162,17 @@ header {
   textarea {
     resize: none;
   }
+
+  button {
+    color: #ffffff;
+    width: 100px;
+    height: 34px;
+    border-radius: 5px;
+    background: #b650f4;
+    margin-left: auto;
+    cursor: pointer;
+    border: none;
+  }
 }
 
 .close {
@@ -177,4 +188,34 @@ header {
 
 .title {
   color:#0d0b1c;
+}
+
+//Esa editing...
+.select-course-input {
+  display: inline-block;
+  position: relative;
+}
+
+.select-course-input input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.select-course-input span {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 5px;
+  display: none;
+}
+
+.select-course-input input[type="text"]:focus + span {
+  display: block;
 }
