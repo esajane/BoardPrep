@@ -1,8 +1,10 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import Courselist from "../pages/Courselist";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import "../styles/class.scss";
+import "../styles/course-list-popup.scss";
 
 interface Class {
   classId: number;
@@ -35,7 +37,10 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [courseValue, setCourseValue] = useState("");
-  const [courses, setCourses] = useState([]);
+  const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [showCourselist, setShowCourselist] = useState(false);
+  const course = "Select Course";
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -51,8 +56,17 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
     fetchCourses();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCourseValue(e.target.value);
+  const toggleCourseList = () => {
+    setShowCourselist(!showCourselist);
+  };
+
+  const handleCourseSelect = (
+    selectedCourseId: string,
+    selectedTitle: string
+  ) => {
+    setCourseValue(selectedCourseId);
+    setSelectedCourseTitle(selectedTitle);
+    setShowCourselist(false);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -66,13 +80,12 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           console.error("Required fields are missing");
           return;
         }
-
         const response = await axios.post("http://127.0.0.1:8000/classes/", {
           className: name,
           classDescription: description,
           course: courseValue,
           teacher: user.token.id,
-          students: ["student1"],
+          students: ["stud"],
         });
 
         if (response.status === 201) {
@@ -84,19 +97,25 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           console.error("Required fields are missing");
           return;
         }
+
+        const postData = {
+          class_code: name,
+          student: user.token.id,
+        };
+        console.log("POST Data:", postData);
+
         const response = await axios.post(
           "http://127.0.0.1:8000/join-requests/",
-          {
-            class_code: name,
-            student: user.token.id,
-          }
+          postData
         );
+        console.log("Response:", response);
+
         if (response.status === 201) {
           closeModal();
         }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error in POST request:", err);
     }
   };
 
@@ -109,24 +128,36 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
             &times;
           </span>
         </div>
+
+        {showCourselist && (
+          <div className="flex-center">
+            <div className="course-list-popup">
+              <span className="popupclose" onClick={toggleCourseList}>
+                &times;
+              </span>
+              <Courselist onSelectCourse={handleCourseSelect} />
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {user.token.type === "T" ? (
             <>
               <input type="text" placeholder="Class Name" ref={nameRef} />
               <textarea placeholder="Class Description" ref={descriptionRef} />
-              <select value={courseValue} onChange={handleChange}>
-                <option value="">Select a course</option>
-                {courses.map((course: Course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_title}
-                  </option>
-                ))}
-              </select>
-              <button type="submit">Create Class</button>
+              <input
+                type="text"
+                placeholder="Select Course"
+                onClick={toggleCourseList}
+                readOnly
+                value={selectedCourseTitle || "Select Course"} // Show the selected course title in the input field
+              />
+              <button type="submit">Create Class</button>{" "}
+              {/* Create Class button */}
             </>
           ) : (
             <>
-              <input type="text" placeholder="Class Code" />
+              <input type="text" placeholder="Class Code" ref={nameRef} />
               <button type="submit">Join Class</button>
             </>
           )}
@@ -134,40 +165,5 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
       </div>
     </div>
   );
-
-  return (
-    <div id="modal" className="modal">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h1>{user.token.type === "T" ? "Create Class" : "Join Class"}</h1>
-          <span className="close" onClick={closeModal}>
-            &times;
-          </span>
-        </div>
-        <form onSubmit={handleSubmit}>
-          {user.token.type === "T" ? (
-            <>
-              <input type="text" placeholder="Class Name" ref={nameRef} />
-              <textarea placeholder="Class Description" ref={descriptionRef} />
-              <select value={courseValue} onChange={handleChange}>
-                <option value="">Select a course</option>
-                {courses.map((course: Course) => (
-                  <option key={course.course_id} value={course.course_id}>
-                    {course.course_title}
-                  </option>
-                ))}
-              </select>
-            </>
-          ) : (
-            <input type="text" placeholder="Class Code" ref={nameRef} />
-          )}
-          <button type="submit" className="card-button">
-            Create
-          </button>
-        </form>
-      </div>
-    </div>
-  );
 }
-
 export default ClassModal;

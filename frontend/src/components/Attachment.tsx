@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getFileData, getLinkData } from "../functions";
 import { FaEllipsisH, FaFile } from "react-icons/fa";
 import { MdOutlineFileOpen, MdDeleteOutline } from "react-icons/md";
 import { LuDownload } from "react-icons/lu";
 import "../styles/attachment.scss";
 import axios from "axios";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Attachments {
   id: number;
   file: string;
   link: string;
   user: string;
+  title: string;
+  favicon: string;
 }
 
 interface AttachmentProps {
@@ -18,16 +21,9 @@ interface AttachmentProps {
   setAttachments: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-interface Data {
-  url: string;
-  target_url: string;
-  title: string;
-  favicon: string;
-}
-
 function Attachment({ attachment, setAttachments }: AttachmentProps) {
+  const user = useAppSelector(selectUser);
   const [showMenu, setShowMenu] = useState(false);
-  const [data, setData] = useState<Data>();
   const menuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = (e: React.MouseEvent<HTMLElement>) => {
@@ -36,12 +32,6 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
   };
 
   useEffect(() => {
-    if (attachment.file === null) {
-      getLinkData(attachment.link).then((res) => setData(res));
-    } else {
-      setData(getFileData(attachment.file));
-    }
-
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowMenu(false);
@@ -66,7 +56,7 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.setAttribute("download", data?.title || "file.txt");
+      link.setAttribute("download", attachment.title || "file.txt");
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
@@ -107,14 +97,14 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
       <div className="left">
         <div>
           {attachment.file === null ? (
-            <img src={data?.favicon} alt="icon" width={25} height={25} />
+            <img src={attachment.favicon} alt="icon" width={25} height={25} />
           ) : (
             <FaFile size={20} />
           )}
         </div>
         <div className="url-link">
-          <div className="title">{data?.title}</div>
-          <div className="url">{data?.url}</div>
+          <div className="title">{attachment.title}</div>
+          <div className="url">{attachment.link}</div>
         </div>
       </div>
       <div className="menu" onClick={toggleMenu} ref={menuRef}>
@@ -130,9 +120,11 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
                 )}
                 {attachment.file === null ? "Open" : "Download"}
               </li>
-              <li onClick={handleDeleteAttachment}>
-                <MdDeleteOutline size={16} /> Delete
-              </li>
+              {user.token.id === attachment.user && (
+                <li onClick={handleDeleteAttachment}>
+                  <MdDeleteOutline size={16} /> Delete
+                </li>
+              )}
             </ul>
           </div>
         )}
