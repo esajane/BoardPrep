@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from Course import views
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, FileUploadViewSet, PageViewSet
 from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestViewSet, ActivityViewSet, SubmissionViewSet, AttachmentViewSet
-from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet
+from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet, submit_mocktest
 from User.views import StudentViewSet, TeacherViewSet
 from Course.views import success_view
 from Course.views import page_create_or_edit
@@ -22,16 +22,14 @@ router.register(r'classes', ClassViewSet, basename='class')
 router.register(r'posts', PostViewSet, basename='posts')
 router.register(r'comments', CommentViewSet, basename='comments')
 router.register(r'mocktest', MockTestViewSet, basename='mocktest')
-router.register(r'questions', MockQuestionsViewSet, basename='mockquestions')
-router.register(r'scores', MockTestScoresViewSet, basename='mocktestscores')
+router.register(r'questions', MockQuestionsViewSet, basename='questions')
+router.register(r'scores', MockTestScoresViewSet, basename='scores')
 router.register(r'student', StudentViewSet, basename='student')
 router.register(r'teacher', TeacherViewSet, basename='teacher')
 router.register(r'join-requests', JoinRequestViewSet, basename='join-requests')
 router.register(r'activities', ActivityViewSet, basename='activities')
 router.register(r'submissions', SubmissionViewSet, basename='submissions')
 router.register(r'attachments', AttachmentViewSet)
-router.register(r'pages', PageViewSet, basename='page')
-
 
 
 #pagkuha og indibidwal nga mga kurso
@@ -45,6 +43,10 @@ urlpatterns = [
     path('success/', success_view, name='success_page'),
     path('', include('User.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
+    path('create-lesson/', views.create_lesson, name='create_lesson'),
+    path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
+
+
     path('create-page/', views.create_page, name='create_page'),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),
     path('pages/<str:lesson_id>/', PageViewSet.as_view({'get': 'by_lesson'}), name='pages-by-lesson'),

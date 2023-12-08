@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef} from 'react';
 import axios from 'axios';
 import MockTestCard from '../components/Mocktestcard';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 import '../styles/mocktest.scss';
 
-// Define the structure of the question as it comes from the backend
 interface MocktestDetail {
   mocktestID: number;
   mocktestName: string;
   mocktestDescription: string;
-  // Add any other fields that are necessary
 }
 
 interface Question {
@@ -19,37 +20,41 @@ interface Question {
   choiceC: string;
   choiceD: string;
   subject: string;
-  // Add any other fields that are necessary
+  difficulty: string;
 }
 
 const Mocktest: React.FC = () => {
+  const user = useAppSelector(selectUser);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [mocktestDetail, setMocktestDetails] = useState<MocktestDetail | null>(null);
+  const [mocktest_id, setMocktestID] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(3600);
+  const [answers, setAnswers] = useState({});
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const navigate = useNavigate();
+
+  const { course_id } = useParams<{ course_id: string; }>();
 
   useEffect(() => {
-  // Fetch the details of the mock test
-  axios.get('http://127.0.0.1:8000/mocktest/') // Replace <mocktest_id> with the actual ID
-    .then(response => {
-      setMocktestDetails(response.data[0]);
-    })
-    .catch(error => {
-      console.error('There was an error fetching the mock test details', error);
-    });
+    if(course_id) {
+        axios.get(`http://127.0.0.1:8000/mocktest/?course_id=${course_id}`)
+        .then(response => {
+          if(response.data.length > 0) {
+            const fetchedMocktest = response.data[0];
+            setMocktestDetails(fetchedMocktest);
+            setMocktestID(fetchedMocktest.mocktestID);
+            setQuestions(fetchedMocktest.question);
+          } else {
+            console.error('No mocktest found for this course.');
+          }
+        })
+        .catch(error => {
+          console.error('There was an error fetching the mock test details.', error);
+        });
+    }
+  }, [course_id]);
 
-  // Fetch questions from the backend
-  axios.get('http://127.0.0.1:8000/questions/')
-    .then(response => {
-      setQuestions(response.data);
-    })
-    .catch(error => {
-      console.error('There was an error fetching the questions', error);
-    });
-}, []);
 
-
-  // Timer setup
   useEffect(() => {
     intervalId.current = setInterval(() => {
       setTimeRemaining((prevTime) => prevTime - 1);
@@ -73,22 +78,82 @@ const Mocktest: React.FC = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const handleAnswerSelected = (questionId: number, selectedAnswer: string) => {
+      setAnswers((prevAnswers) => {
+        const updatedAnswers = { ...prevAnswers, [questionId]: selectedAnswer };
+        console.log("Updated Answers: ", updatedAnswers);
+        return updatedAnswers;
+      });
+  };
+
+  const handleSubmit = async () => {
+      if (!mocktest_id || !mocktestDetail) {
+        console.error('No mocktest ID or mocktest detail provided.');
+        return;
+      }
+
+
+      if(!user.token.id) {
+        console.error('No token found.');
+        return;
+      }
+      console.log("Using token for request:", user.token.id);
+
+      try {
+        if(user.isAuth) {
+            const response = await axios.post(`http://127.0.0.1:8000/mocktest/${mocktest_id}/submit`,
+                {
+                    user_name: user.token.id,
+                    answers: answers
+                },
+            );
+            console.log("Response:", response.data);
+            navigate(`/course/${course_id}/mocktest/${mocktest_id}/results`, {
+               state: {
+                course_id: course_id,
+                mocktest_id: mocktest_id,
+                score: response.data.score,
+                total: response.data.total_questions,
+                mocktestName: response.data.mocktestName,
+                studentName: response.data.studentName,
+                dateOfMocktest: response.data.mocktestDateTaken,
+               }
+            });
+        }
+      } catch (error) {
+        console.error('There was an error submitting the mock test.', error);
+      }
+  };
+
   return (
     <div className="mock-test">
-      <h1>{mocktestDetail?.mocktestName || 'Loading test name...'}</h1>
-      <p className="subtitle">by BoardPrep Admin</p>
-      <div className="exam-timer">Time Remaining: {formatTime()}</div>
-      <div className="surround">
-          {questions.map((q, index) => (
-            <MockTestCard
-              key={q.id}
-              question={`${index + 1}. ${q.question}`}
-              choices={[q.choiceA, q.choiceB, q.choiceC, q.choiceD]}
-              subject={q.subject}
-            />
-          ))}
-      </div>
-      <button className="submit-button">SUBMIT</button>
+        {mocktestDetail ? (
+            <>
+            <h1>{mocktestDetail?.mocktestName || 'Loading Test Name..'}</h1>
+            <p className="subtitle">by BoardPrep Admin</p>
+            <div className="exam-timer"> Time Remaining: {formatTime()} </div>
+            <div className="surround">
+            {questions && questions.length > 0 ? (
+                questions.map((q, index) => (
+                <MockTestCard
+                    key={q.id}
+                    noOfQuestions={index + 1}
+                    question={q}
+                    difficulty={q.difficulty}
+                    choices={[q.choiceA, q.choiceB, q.choiceC, q.choiceD]}
+                    subject={q.subject}
+                    onAnswerSelected={handleAnswerSelected}
+                />
+                ))
+            ) : (
+            <p>No questions available.</p>
+            )}
+            </div>
+            </>
+        ) : (
+        <p>Loading test name...</p>
+        )}
+        <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
     </div>
   );
 };

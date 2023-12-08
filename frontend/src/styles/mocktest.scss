@@ -5,36 +5,36 @@
 }
 
 .mock-test {
-  background: #100D1F; // Main dark background color
-  color: #ffffff; // White text color
+  background: #100D1F;
+  color: #ffffff;
   padding: 40px;
-  min-height: 150vh;
+  min-height: auto;
 
   h1 {
-    font-size: 30px; // Large text for the main title
+    font-size: 30px;
     text-align: left;
+    margin-bottom: 5px;
   }
 
-  .subtitle { // Added subtitle styles
+  .subtitle {
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.5); // White with 50% opacity
+    color: rgba(255, 255, 255, 0.5);
     margin-bottom: 40px;
-    margin-top: -12px;
   }
 
   .exam-timer {
-    background: #B62AB9; // Purple background for the timer
+    background: #B62AB9;
     color: white;
     font-weight: bold;
     padding: 10px 20px;
     border-radius: 20px;
-    position: absolute; // Fixed position to keep it at the top
+    position: absolute;
     right: 40px;
-    top: 65px;
+    top: 55px;
   }
 
   .submit-button {
-    background: #B62AB9; // Purple color for the submit button
+    background: #B62AB9;
     color: white;
     font-weight: bold;
     border: none;
@@ -43,15 +43,13 @@
     font-size: 18px;
     cursor: pointer;
     display: block;
-    position: absolute;
-    right: 40px;
-    margin: 40px 0 0px 1272px; // Center the button
+    align-self: flex-end;
+    margin: 40px 0 0px 1272px;
     transition: background-color 0.3s;
 
     &:hover {
-      background: #FFFFFF; // Slightly lighter purple on hover
+      background: #FFFFFF;
       color: #B62AB9;
     }
   }
 }
-
