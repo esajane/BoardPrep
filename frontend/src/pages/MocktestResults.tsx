@@ -15,11 +15,12 @@ const MockTestResults = () => {
    totalScore: 0,
    dateOfMocktest: '',
   });
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const { state } = location;
   const { course_id, mocktest_id, classId } = useParams();
   const navigate = useNavigate();
-  const { score, total, mocktestName, studentName, dateOfMocktest } = state;
+  const { score, total, mocktestName, studentName, dateOfMocktest } = state || {};
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -36,29 +37,37 @@ const MockTestResults = () => {
     console.log('Score from state:', score);
     console.log('Total from state:', total);
 
-    if (mocktest_id && 'niggasecoya') {
+    if (mocktest_id && user.token.id) {
       axios.get(`http://127.0.0.1:8000/scores/?student_id=${user.token.id}&mocktest_id=${mocktest_id}`)
         .then((response) => {
           const resultData = response.data.length ? response.data[0] : null;
           console.log('Response Data:', resultData)
           if(resultData) {
-              setResult({
+              const updatedResult = {
                 studentName: resultData.studentName,
                 mocktestName: resultData.mocktestName,
                 score: resultData.score,
                 totalScore: resultData.totalQuestions,
                 dateOfMocktest: formatDate(resultData.mocktestDateTaken),
-              });
+              };
+              setResult(updatedResult);
+              console.log('Updated Result State:', updatedResult);
           } else {
              console.error('Score data is not available for this mock test.');
           }
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error('There was an error fetching the mock  test results', error);
+          setIsLoading(false);
         });
     }
-  }, [mocktestName, user.token.id, score, total]);
+  }, [mocktest_id, user.token.id]);
   console.log(result);
+
+  if(isLoading) {
+    return <div>Loading mock test results...</div>;
+  }
 
   return (
     <div className="mocktest-results-container">

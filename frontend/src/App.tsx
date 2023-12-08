@@ -5,6 +5,7 @@ import CourseDetails from "./pages/CourseDetails";
 import "./styles/testing.scss";
 import Syllabus from "./components/Syllabus";
 import MockTest from "./pages/Mocktest";
+import MockTestResult from "./pages/MocktestResults";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Classes from "./pages/Classes";
 import Classroom from "./pages/Classroom";
@@ -43,10 +44,18 @@ function App() {
           }
         />
         <Route
-          path="/mocktest/"
+          path="/course/:course_id/mocktest/"
           element={
             <PrivateRoute>
               <MockTest />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/course/:course_id/mocktest/:mocktest_id/results"
+          element={
+            <PrivateRoute>
+              <MockTestResult />
             </PrivateRoute>
           }
         />

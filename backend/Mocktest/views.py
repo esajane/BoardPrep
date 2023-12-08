@@ -1,15 +1,14 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from django.forms.models import model_to_dict
+from django.http import JsonResponse
 from .models import MockTest, MockQuestions, MockTestScores
 from User.models import Student, Teacher, User
 from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer
 
-# Create your views here.
 class MockTestViewSet(viewsets.ModelViewSet):
     queryset = MockTest.objects.none()
     serializer_class = MockTestSerializer
@@ -30,6 +29,9 @@ class MockQuestionsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = MockQuestions.objects.all()
         mocktest_id = self.request.query_params.get('mocktest_id')
+
+        if not mocktest_id or mocktest_id == 'undefined':
+            return MockQuestions.objects.none()
         # try:
         #     mocktest_id = int(mocktest_id)
         # except:
@@ -57,53 +59,61 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def submit_mocktest(request, mocktest_id):
     try:
-        print(f"User ID: {request.user.id}")
-        print(f"Authenticated: {request.user.is_authenticated}")
-        print(f"Received mocktest_id: {mocktest_id}")
+        user_name = request.data.get('user_name')
+        if not user_name:
+            return Response({'error': 'User name not provided.'}, status=400)
 
-        student = Student.objects.get(user_name='niggasecoya')
+        user = get_object_or_404(User, user_name=user_name)
+        student = get_object_or_404(Student, user_name=user.user_name)
         mocktest = get_object_or_404(MockTest, pk=mocktest_id)
+        mocktest_name = mocktest.mocktestName
         answers = request.data.get('answers')
 
-        correct_answers = MockQuestions.objects.filter(
-            mocktest=mocktest
-        ).values_list('id', 'correctAnswer')
+        correct_answers = MockQuestions.objects.filter(mocktest=mocktest).values_list('id', 'correctAnswer')
         correct_answers_dict = {str(question_id): correct for question_id, correct in correct_answers}
 
-        score = 0
-        for question_id, answer in answers.items():
-            if answer == correct_answers_dict.get(question_id):
-                score += 1
-
+        score = sum(answer == correct_answers_dict.get(str(question_id)) for question_id, answer in answers.items())
         total_questions = len(correct_answers)
 
-        mocktest_score = MockTestScores.objects.create(
+        MockTestScores.objects.update_or_create(
             mocktest_id=mocktest,
             student=student,
-            score=score,
-            totalQuestions=total_questions,
-            mocktestDateTaken=timezone.now()
+            defaults={
+                'score': score,
+                'totalQuestions': total_questions,
+                'mocktestDateTaken': timezone.now()
+            }
         )
-
-        student_dict = model_to_dict(student, fields=['first_name', 'last_name'])
-        student_name = f"{student_dict.get('first_name')} {student_dict.get('last_name')}"
-        mocktest_instance = MockTest.objects.get(mocktestID=mocktest_id)
-        mocktest_name = mocktest_instance.mocktestName
 
         response_data = {
             'score': score,
             'total_questions': total_questions,
             'mocktestName': mocktest_name,
-            'studentName': student_name,
-            'mocktestDateTaken': mocktest_score.mocktestDateTaken.strftime('month %d, %Y'),
+            'studentName': f"{user.first_name} {user.last_name}",
+            'mocktestDateTaken': timezone.now().strftime('%B %d, %Y'),
             'message': 'Mock test submitted successfully'
         }
 
-        return Response(response_data)
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
     except MockTest.DoesNotExist:
         return Response({'error': 'No MockTest matches the given query.'}, status=404)
-    except User.DoesNotExist:
-        return Response({'error': 'User does not exist,'}, status=404)
+    except Student.DoesNotExist:
+        return Response({'error': 'Student does not exist.'}, status=404)
+    except Exception as e:
+        print(f"Error: {e}")
+        print(f"Request data: {request.data}")
+        return Response({'error': str(e)}, status=400)
+
+@api_view(['GET'])
+def get_mocktest_by_course(request, course_id):
+    try:
+        print(f"Received course ID: {course_id}")
+
+        mocktest = MockTest.objects.get(course=course_id)
+        return JsonResponse({'mocktest_id': mocktest.mocktestID})
+    except MockTest.DoesNotExist:
+        return Response({'error': 'No MockTest found for the given course.'}, status=404)
     except Exception as e:
         print(f"Error: {e}")
         print(f"Request data: {request.data}")

@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from Course import views
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, FileUploadViewSet
 from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestViewSet, ActivityViewSet, SubmissionViewSet, AttachmentViewSet
-from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet
+from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet, submit_mocktest
 from User.views import StudentViewSet, TeacherViewSet
 from Course.views import success_view
 
@@ -43,6 +43,7 @@ urlpatterns = [
     path('', include('User.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
     path('create-lesson/', views.create_lesson, name='create_lesson'),
+    path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
 
 
 ]

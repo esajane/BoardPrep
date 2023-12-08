@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef} from 'react';
 import axios from 'axios';
 import MockTestCard from '../components/Mocktestcard';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 import '../styles/mocktest.scss';
 
 interface MocktestDetail {
@@ -18,28 +20,36 @@ interface Question {
   choiceC: string;
   choiceD: string;
   subject: string;
+  difficulty: string;
 }
 
 const Mocktest: React.FC = () => {
+  const user = useAppSelector(selectUser);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [mocktestDetail, setMocktestDetails] = useState<MocktestDetail | null>(null);
+  const [mocktest_id, setMocktestID] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(3600);
   const [answers, setAnswers] = useState({});
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  const { course_id, mocktest_id } = useParams<{ course_id: string; mocktest_id: string; }>();
+  const { course_id } = useParams<{ course_id: string; }>();
 
   useEffect(() => {
     if(course_id) {
         axios.get(`http://127.0.0.1:8000/mocktest/?course_id=${course_id}`)
         .then(response => {
-          console.log(response.data[0])
-          setMocktestDetails(response.data[0]);
-          setQuestions(response.data[0].question);
+          if(response.data.length > 0) {
+            const fetchedMocktest = response.data[0];
+            setMocktestDetails(fetchedMocktest);
+            setMocktestID(fetchedMocktest.mocktestID);
+            setQuestions(fetchedMocktest.question);
+          } else {
+            console.error('No mocktest found for this course.');
+          }
         })
         .catch(error => {
-          console.error('There was an error fetching the mock test details', error);
+          console.error('There was an error fetching the mock test details.', error);
         });
     }
   }, [course_id]);
@@ -69,32 +79,47 @@ const Mocktest: React.FC = () => {
   };
 
   const handleAnswerSelected = (questionId: number, selectedAnswer: string) => {
-      setAnswers((prevAnswers) => ({
-        ...prevAnswers,
-        [questionId]: selectedAnswer,
-      }));
+      setAnswers((prevAnswers) => {
+        const updatedAnswers = { ...prevAnswers, [questionId]: selectedAnswer };
+        console.log("Updated Answers: ", updatedAnswers);
+        return updatedAnswers;
+      });
   };
 
   const handleSubmit = async () => {
-      if (!mocktest_id) {
-        console.error('No mocktest_id provided');
+      if (!mocktest_id || !mocktestDetail) {
+        console.error('No mocktest ID or mocktest detail provided.');
         return;
       }
 
+
+      if(!user.token.id) {
+        console.error('No token found.');
+        return;
+      }
+      console.log("Using token for request:", user.token.id);
+
       try {
-        const response = await axios.post(`http://127.0.0.1:8000/mocktest/${mocktest_id}/submit/`, { answers });
-        console.log(response.data);
-        navigate(`/course/${course_id}/mocktest/${mocktest_id}/results`, {
-           state: {
-            course_id: course_id,
-            mocktest_id: mocktest_id,
-            score: response.data.score,
-            total: response.data.total_questions,
-            mocktestName: response.data.mocktestName,
-            studentName: response.data.studentName,
-            dateOfMocktest: response.data.mocktestDateTaken,
-           }
-        });
+        if(user.isAuth) {
+            const response = await axios.post(`http://127.0.0.1:8000/mocktest/${mocktest_id}/submit`,
+                {
+                    user_name: user.token.id,
+                    answers: answers
+                },
+            );
+            console.log("Response:", response.data);
+            navigate(`/course/${course_id}/mocktest/${mocktest_id}/results`, {
+               state: {
+                course_id: course_id,
+                mocktest_id: mocktest_id,
+                score: response.data.score,
+                total: response.data.total_questions,
+                mocktestName: response.data.mocktestName,
+                studentName: response.data.studentName,
+                dateOfMocktest: response.data.mocktestDateTaken,
+               }
+            });
+        }
       } catch (error) {
         console.error('There was an error submitting the mock test.', error);
       }
@@ -112,7 +137,9 @@ const Mocktest: React.FC = () => {
                 questions.map((q, index) => (
                 <MockTestCard
                     key={q.id}
+                    noOfQuestions={index + 1}
                     question={q}
+                    difficulty={q.difficulty}
                     choices={[q.choiceA, q.choiceB, q.choiceC, q.choiceD]}
                     subject={q.subject}
                     onAnswerSelected={handleAnswerSelected}
