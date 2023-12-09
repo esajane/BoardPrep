@@ -184,6 +184,32 @@ class SubmissionViewSet(viewsets.ModelViewSet):
                 queryset = queryset.none()
 
         return queryset
+    
+    @action(detail=True, methods=['post'], url_path='score-submission')
+    def score_submission(self, request, pk=None):
+        try:
+            submission = self.get_object()
+            score = request.data.get('score')
+            feedback = request.data.get('feedback')
+
+            if score is not None:
+                score = int(score)
+
+                activity = submission.activity
+                max_points = activity.points
+
+                if score >= 0  and score <= max_points:
+                    submission.score = score
+                    submission.feedback = feedback
+                    submission.is_returned = True
+                    submission.save()
+                    return Response(self.get_serializer(submission).data)
+                else:
+                    return Response({"error": "Invalid score"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Score is required"}, status=status.HTTP_400_BAD_REQUEST)
+        except Submission.DoesNotExist:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
 
     
 class AttachmentViewSet(viewsets.ModelViewSet):

@@ -5,7 +5,8 @@ from urllib.parse import urljoin
 from .models import Class, Post, Comment, JoinRequest, Activity, Submission, Attachment
 from Course.models import Course
 
-from User.models import Teacher
+from User.models import Teacher, Student
+from User.serializers import StudentSerializer
 
 
 class ClassSerializer(serializers.ModelSerializer):
@@ -69,12 +70,19 @@ class ActivitySerializer(serializers.ModelSerializer):
 
 class SubmissionSerializer(serializers.ModelSerializer):
     attachments_details = serializers.SerializerMethodField()
+    student_name = serializers.SerializerMethodField()
+    
     class Meta:
         model = Submission
         fields = '__all__'
     
     def get_attachments_details(self, obj):
         return AttachmentSerializer(obj.attachments.all(), many=True).data
+    
+    def get_student_name(self, obj):
+        student = obj.student
+        full_name = f"{student.first_name} {student.last_name}"
+        return full_name
 
 class AttachmentSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()

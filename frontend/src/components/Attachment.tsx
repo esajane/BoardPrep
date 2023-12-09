@@ -18,7 +18,7 @@ interface Attachments {
 
 interface AttachmentProps {
   attachment: Attachments;
-  setAttachments: React.Dispatch<React.SetStateAction<any[]>>;
+  setAttachments?: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 function Attachment({ attachment, setAttachments }: AttachmentProps) {
@@ -68,11 +68,12 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
   const deleteAttachment = async () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/attachments/${attachment.id}/`);
-      setAttachments((prevAttachments: Attachments[]) => {
-        return prevAttachments.filter(
-          (currAttachment) => currAttachment.id !== attachment.id
-        );
-      });
+      setAttachments &&
+        setAttachments((prevAttachments: Attachments[]) => {
+          return prevAttachments.filter(
+            (currAttachment) => currAttachment.id !== attachment.id
+          );
+        });
     } catch (err) {
       console.error(err);
     }

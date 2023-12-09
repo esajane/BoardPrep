@@ -100,6 +100,9 @@ class Submission(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     submission_text = models.TextField(blank=True)
     submission_date = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveIntegerField(blank=True)
+    is_returned = models.BooleanField(blank=True, default=False)
+    feedback = models.TextField(blank=True)
     attachments = models.ManyToManyField('Attachment', related_name='submissions', blank=True)
 
     def __str__(self):

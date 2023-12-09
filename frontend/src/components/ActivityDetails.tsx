@@ -9,6 +9,7 @@ import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import SmallAttachmentModal from "./SmallAttachmentModal";
 import axios from "axios";
+import SubmissionsModal from "./SubmissionsModal";
 
 interface Attachments {
   id: number;
@@ -39,6 +40,11 @@ interface Submission {
   submission_text: string;
   activity: number;
   student: string;
+  student_name: string;
+  submission_date: string;
+  score: number;
+  is_returned: boolean;
+  feedback: string;
   attachments: number[];
   attachments_details: Attachments[];
 }
@@ -56,6 +62,7 @@ function ActivityDetails({
 }: ActivityDetailsProps) {
   const user = useAppSelector(selectUser);
   const [modal, setModalOpen] = React.useState(false);
+  const [submissionModalOpen, setSubmissionModalOpen] = React.useState(false);
   const [isFile, setIsFile] = React.useState(false);
   const [attachments, setAttachments] = React.useState<Attachments[]>(
     activityDetails.attachments_details
@@ -63,6 +70,7 @@ function ActivityDetails({
   const [subAttachments, setSubAttachments] = React.useState<Attachments[]>([]);
   const [submissions, setSubmissions] = React.useState<Submission[]>([]);
   const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [studSubmission, setStudSubmission] = React.useState<Submission>();
   const statusColor =
     activityDetails.status === "In Progress"
       ? "orange"
@@ -74,13 +82,16 @@ function ActivityDetails({
     const fetchSubmissions = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/submissions/?student_id=${user.token.id}`
+          `http://127.0.0.1:8000/submissions/?${
+            user.token.type === "T" ? "activity_id" : "student_id"
+          }=${user.token.type === "T" ? activityDetails.id : user.token.id}`
         );
         setSubmissions(response.data);
         response.data.forEach((submission: Submission) => {
           if (submission.activity === activityDetails.id) {
             setIsSubmitted(true);
             setSubAttachments(submission.attachments_details);
+            setStudSubmission(submission);
           }
         });
       } catch (err) {
@@ -99,6 +110,14 @@ function ActivityDetails({
     setModalOpen(false);
   };
 
+  const openSubmissionModal = () => {
+    setSubmissionModalOpen(true);
+  };
+
+  const closeSubmissionModal = () => {
+    setSubmissionModalOpen(false);
+  };
+
   const handleBackClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     setActivityDetails(undefined);
@@ -109,7 +128,7 @@ function ActivityDetails({
     open: boolean
   ) => {
     e.stopPropagation();
-    if (isSubmitted) return;
+    if (isSubmitted || activityDetails.status === "Completed") return;
     setIsFile(open);
     openModal();
   };
@@ -123,7 +142,8 @@ function ActivityDetails({
         student: user.token.id,
         attachments: attachs,
       });
-      console.log(response.data);
+      setSubmissions([...submissions, response.data]);
+      setIsSubmitted(true);
     } catch (error) {
       console.error(error);
     }
@@ -131,7 +151,11 @@ function ActivityDetails({
 
   const handleSubmitClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
-    submitActivity();
+    if (user.token.type === "T") {
+      openSubmissionModal();
+    } else {
+      submitActivity();
+    }
   };
 
   return (
@@ -147,9 +171,16 @@ function ActivityDetails({
         <button
           className="activity-details--header__button"
           onClick={handleSubmitClick}
-          disabled={isSubmitted}
+          disabled={
+            user.token.type === "S" &&
+            (isSubmitted || activityDetails.status === "Completed")
+          }
         >
-          {isSubmitted ? "Submitted" : "Submit"}
+          {user.token.type === "T"
+            ? "See Submissions"
+            : isSubmitted
+            ? "Submitted"
+            : "Submit"}
         </button>
       </div>
       <div className="activity-details--title">
@@ -215,10 +246,30 @@ function ActivityDetails({
           )}
         </div>
       )}
+      {submissionModalOpen && (
+        <SubmissionsModal
+          closeSubmissionModal={closeSubmissionModal}
+          activityPoints={activityDetails.points}
+          submissions={submissions}
+          setSubmissions={setSubmissions}
+        />
+      )}
       <div className="activity-details--points">
         <div className="subheader">Points</div>
+        {user.token.type === "S" &&
+          isSubmitted &&
+          studSubmission?.score + " / "}
         {activityDetails.points > 0 ? activityDetails.points : "No"} points
       </div>
+      {user.token.type === "S" &&
+        isSubmitted &&
+        studSubmission?.feedback &&
+        studSubmission.feedback !== "" && (
+          <div className="activity-details--points">
+            <div className="subheader">Feedback</div>
+            {studSubmission.feedback}
+          </div>
+        )}
     </div>
   );
 }

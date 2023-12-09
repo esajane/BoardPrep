@@ -19,7 +19,7 @@
         }
     }
 
-    form {
+    .activity-form {
         display: flex;
         width: 400px;
         margin-top: 10px;
@@ -84,8 +84,8 @@
         }
     }
 
-    form input,
-    textarea, select {
+    .activity-form input,
+    .activity-form textarea, .activity-form select {
         font-family: "Montserrat", sans-serif;
         border-radius: 5px;
         padding: 20px;
@@ -103,7 +103,7 @@
         }
     }
 
-    textarea {
+    .activity-form textarea {
         resize: none;
         height: 200px;
     }
@@ -117,6 +117,11 @@
         margin-left: auto;
         cursor: pointer;
         border: none;
+        transition: all .3s ease;
+
+        &:hover {
+            background-color: #5e4dcd;
+        }
     }
 }
 

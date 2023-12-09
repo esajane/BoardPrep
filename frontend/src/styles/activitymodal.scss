@@ -116,6 +116,11 @@
         margin-left: auto;
         cursor: pointer;
         border: none;
+        transition: all .3s ease;
+
+        &:hover {
+            background-color: #5e4dcd;
+        }
     }
 }
 
