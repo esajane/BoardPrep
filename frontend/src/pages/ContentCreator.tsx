@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import SignupModal from '../components/SignUpModal';
-import SigninModal from '../components/SignInModal';
-import '../styles/user.scss';
+import { useState } from "react";
+import SignupModal from "../components/SignUpModal";
+import SigninModal from "../components/SignInModal";
+import "../styles/user.scss";
 
 const ContentCreator = () => {
   const [modalOpenSignin, setModalOpenSignin] = useState(false);
@@ -9,24 +9,24 @@ const ContentCreator = () => {
 
   const openModalSignin = () => {
     setModalOpenSignin(true);
-    console.log('Open Signin');
+    console.log("Open Signin");
   };
 
   const closeModalSignin = () => {
     setModalOpenSignin(false);
-    console.log('Close Signin');
+    console.log("Close Signin");
   };
 
   const openModalSignup = () => {
     // Logic for opening Signup modal
     setModalOpenSignup(true);
-    console.log('Open Signup');
+    console.log("Open Signup");
   };
 
   const closeModalSignup = () => {
     // Logic for opening Signup modal
     setModalOpenSignup(false);
-    console.log('Close Signup');
+    console.log("Close Signup");
   };
 
   return (
@@ -35,7 +35,7 @@ const ContentCreator = () => {
         <h1>
           <a href="/" className="homer">
             BoardPrep
-          </a>{' '}
+          </a>{" "}
           - ContentCreator
         </h1>
         <div>
@@ -43,15 +43,12 @@ const ContentCreator = () => {
             <button className="user-c" onClick={openModalSignin}>
               Signin
             </button>
-            <button className="user-c" onClick={openModalSignup}>
-              Signup
-            </button>
           </div>
-          {modalOpenSignup && (
-            <SignupModal closeModal={closeModalSignup} userType="content-creator" />
-          )}
           {modalOpenSignin && (
-            <SigninModal closeModal={closeModalSignin} userType="content-creator" />
+            <SigninModal
+              closeModal={closeModalSignin}
+              userType="content-creator"
+            />
           )}
         </div>
       </header>

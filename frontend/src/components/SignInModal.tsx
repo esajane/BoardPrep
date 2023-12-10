@@ -18,10 +18,12 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
 
   useEffect(() => {
     if (user.isAuth) {
-      navigate("/classes");
+      const targetRoute =
+        userType === "content-creator" ? "/content" : "/classes";
+      navigate(targetRoute);
       closeModal();
     }
-  }, [user, navigate, closeModal]);
+  }, [user, navigate, closeModal, userType]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,11 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
       <div className="modal-content">
         <div className="modal-header">
           <h1 className="title">
-            {userType === 'student' ? 'Signin Student' : userType === 'teacher' ? 'Signin Teacher' : 'Signin Content Creator'}
+            {userType === "student"
+              ? "Signin Student"
+              : userType === "teacher"
+              ? "Signin Teacher"
+              : "Signin Content Creator"}
           </h1>
           <span className="close title" onClick={closeModal}>
             &times;

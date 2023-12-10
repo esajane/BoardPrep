@@ -60,8 +60,6 @@ class Teacher(User):
 
 class ContentCreator(User):
     name = models.CharField(null=False, max_length=255, blank=False)
-    specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
-    institution_id = models.ForeignKey('Institution.Institution', on_delete=models.SET_NULL, blank=True, null=True, related_name='institutionID_content_creator')
 
     def __str__(self):
         return self.user_name

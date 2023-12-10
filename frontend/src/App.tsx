@@ -115,6 +115,7 @@ function App() {
             </PublicRoute>
           }
         />
+
         <Route
           path="/content-creator"
           element={
@@ -151,17 +152,6 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* <Route
-          path="/mocktest/:mocktestID/manage"
-          element={
-            <PublicRoute>
-              <Provider store={store}>
-                <MockTestManage />
-              </Provider>
-            </PublicRoute>
-          }
-        />
-      </Routes> */}
       </Routes>
     </Router>
   );
