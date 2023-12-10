@@ -105,6 +105,8 @@ function ActivityModal({
   };
 
   const addAttachment = async () => {
+    if (aType === "link" && !linkRef.current?.value)
+      return setError("Link is required");
     try {
       const formData = new FormData();
       if (aType === "file") {
@@ -261,20 +263,9 @@ function ActivityModal({
                 <label htmlFor="file">Link</label>
               </div>
               {aType === "file" ? (
-                <input
-                  type="file"
-                  id="file"
-                  onChange={handleFileChange}
-                  required
-                />
+                <input type="file" id="file" onChange={handleFileChange} />
               ) : (
-                <input
-                  type="text"
-                  id="link"
-                  placeholder="Link"
-                  ref={linkRef}
-                  required
-                />
+                <input type="text" id="link" placeholder="Link" ref={linkRef} />
               )}
               <div className="add-attachment" onClick={handleAddAttachment}>
                 <MdAttachFile />
