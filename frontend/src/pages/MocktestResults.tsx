@@ -4,7 +4,14 @@ import axios from 'axios';
 import '../styles/mocktestresults.scss';
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import PerformanceAssessment from '../components/PerformanceAssessment';
 
+type ScoreDetailsType = {
+  easy_count: number;
+  medium_count: number;
+  hard_count: number;
+  subjects_count: number;
+};
 
 const MockTestResults = () => {
   const user = useAppSelector(selectUser);
@@ -14,22 +21,37 @@ const MockTestResults = () => {
    score: 0,
    totalScore: 0,
    dateOfMocktest: '',
+   easyCount: 0,
+   mediumCount: 0,
+   hardCount: 0,
+   subjectsCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showAssessment, setShowAssessment] = useState(false);
   const location = useLocation();
   const { state } = location;
-  const { course_id, mocktest_id, classId } = useParams();
+  const { course_id, mocktest_id, id } = useParams();
   const navigate = useNavigate();
   const { score, total, mocktestName, studentName, dateOfMocktest } = state || {};
-
+  const isPremium = true;
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
   const handleBackToClass = () => {
-    navigate(`/classes/`);
+    const path = window.location.pathname;
+    console.log(path.split("/")[2]);
+    const classID = path.split("/")[2];
+    navigate(`/classes/${classID}`);
   };
+
+  const viewAssessmentHandler = () => {
+    setShowAssessment(true);
+  };
+
+//   const getUserDetails = () => {
+//     axios.get(`http://127.0.0.1:8080/students`)
 
   useEffect(() => {
     console.log('Mocktest Name:', mocktestName);
@@ -49,6 +71,10 @@ const MockTestResults = () => {
                 score: resultData.score,
                 totalScore: resultData.totalQuestions,
                 dateOfMocktest: formatDate(resultData.mocktestDateTaken),
+                easyCount: resultData.easy_count,
+                mediumCount: resultData.medium_count,
+                hardCount: resultData.hard_count,
+                subjectsCount: resultData.subjects_count
               };
               setResult(updatedResult);
               console.log('Updated Result State:', updatedResult);
@@ -83,9 +109,22 @@ const MockTestResults = () => {
         <hr className="messageBar"></hr>
       </div>
       <div className="buttons-container">
-          <button className="view-assessment-btn">VIEW ASSESSMENT</button>
+          { isPremium &&
+                <button className="view-assessment-btn" onClick={viewAssessmentHandler}>VIEW ASSESSMENT</button>
+          }
           <button className="back-to-class-btn" onClick={handleBackToClass}>BACK TO CLASS</button>
       </div>
+      {showAssessment && (
+        <PerformanceAssessment
+          score={score}
+          totalScore={total}
+          easyPercentage={(result.easyCount / total) * 100}
+          mediumPercentage={(result.mediumCount / total) * 100}
+          hardPercentage={(result.hardCount / total) * 100}
+          subjectsCount={result.subjectsCount}
+          onClose={() => setShowAssessment(false)}
+        />
+      )}
     </div>
   );
 };

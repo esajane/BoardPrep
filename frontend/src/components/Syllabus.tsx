@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/syllabus.scss";
 
@@ -21,6 +22,14 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
   const [fetchedContents, setFetchedContents] = useState<{
     [key: string]: string;
   }>({});
+
+const navigate=useNavigate();
+const onClickMockTest=() => {
+    const path = window.location.pathname;
+    console.log(path.split("/")[2]);
+    const classID = path.split("/")[2];
+    navigate(`/classes/${classID}/mocktest`);
+};
 
   const fetchLessonContent = async (lessonId: string) => {
     if (fetchedContents[lessonId]) {
@@ -63,6 +72,9 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
           <h2>{lesson.lesson_title}</h2>
         </div>
       ))}
+      <div className="title-container" tabIndex={0} onClick={onClickMockTest}>
+         <h2>Take Mock Test</h2>
+      </div>
     </div>
   );
 }

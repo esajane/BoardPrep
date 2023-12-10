@@ -85,7 +85,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           classDescription: description,
           course: courseValue,
           teacher: user.token.id,
-          students: ["stud"],
+          //students: ["student1"],
         });
 
         if (response.status === 201) {

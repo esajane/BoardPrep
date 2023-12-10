@@ -43,9 +43,10 @@ urlpatterns = [
     path('success/', success_view, name='success_page'),
     path('', include('User.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
-    path('create-lesson/', views.create_lesson, name='create_lesson'),
     path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
-
+    path('mocktest/<int:course_id>/', MockTestViewSet.as_view({'get': 'retrieve'}), name='mocktest-course'),
+    path('mocktest/<int:classID>/', MockTestViewSet.as_view({'get': 'retrieve'}), name='mocktest-class'),
+    path('questions/<int:question_id>/', MockQuestionsViewSet.as_view({'get': 'retrieve'}), name='question-detail'),
 
     path('create-page/', views.create_page, name='create_page'),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),

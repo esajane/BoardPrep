@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.db.models import Count, Case, When, Value, F
+from django.db.models.functions import Coalesce
+from django.db.models import Q
 from .models import MockTest, MockQuestions, MockTestScores
 from User.models import Student, Teacher, User
 from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer
@@ -15,12 +18,18 @@ class MockTestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = MockTest.objects.all()
-        course_id = self.request.query_params.get('course_id')
+        classID = self.request.query_params.get('classID')
+        courseID = self.request.query_params.get('courseID')
+
+        if classID:
+            queryset = queryset.filter(classID=classID)
+        if courseID:
+            queryset = queryset.filter(courseID=courseID)
         # try:
-        #     course_id = str(course_id)
+        #     classID = str(classID)
         # except:
         #     return queryset.none()
-        return queryset.filter(course_id=course_id)
+        return queryset
 
 class MockQuestionsViewSet(viewsets.ModelViewSet):
     queryset = MockQuestions.objects.none()
@@ -29,14 +38,17 @@ class MockQuestionsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = MockQuestions.objects.all()
         mocktest_id = self.request.query_params.get('mocktest_id')
+        question_id = self.request.query_params.get('question_id')
 
-        if not mocktest_id or mocktest_id == 'undefined':
-            return MockQuestions.objects.none()
+        if question_id:
+            queryset = queryset.filter(id=question_id)
+        if mocktest_id:
+            queryset = queryset.filter(mocktest=mocktest_id)
         # try:
         #     mocktest_id = int(mocktest_id)
         # except:
         #     return queryset.none()
-        return queryset.filter(mocktest_id=mocktest_id)
+        return queryset
 
 class MockTestScoresViewSet(viewsets.ModelViewSet):
     queryset = MockTestScores.objects.all()
@@ -46,10 +58,30 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
         queryset = MockTestScores.objects.all()
         student_id = self.request.query_params.get('student_id')
         mocktest_id = self.request.query_params.get('mocktest_id')
+
         if student_id:
             queryset = queryset.filter(student__user_name=student_id)
         if mocktest_id:
             queryset = queryset.filter(mocktest_id=mocktest_id)
+
+        queryset = queryset.annotate(
+            easy_count=Count('mocktest_id__mockquestions__id',
+                             filter=Q(mocktest_id__mockquestions__difficulty__name='Easy')),
+            medium_count=Count('mocktest_id__mockquestions__id',
+                               filter=Q(mocktest_id__mockquestions__difficulty__name='Medium')),
+            hard_count=Count('mocktest_id__mockquestions__id',
+                             filter=Q(mocktest_id__mockquestions__difficulty__name='Hard')),
+            easy_correct=Count('mocktest_id__mockquestions__id',
+                               filter=Q(mocktest_id__mockquestions__difficulty__name='Easy',
+                                        mocktest_id__mockquestions__correctAnswer=F('score'))),
+            medium_correct=Count('mocktest_id__mockquestions__id',
+                                 filter=Q(mocktest_id__mockquestions__difficulty__name='Medium',
+                                          mocktest_id__mockquestions__correctAnswer=F('score'))),
+            hard_correct=Count('mocktest_id__mockquestions__id',
+                               filter=Q(mocktest_id__mockquestions__difficulty__name='Hard',
+                                        mocktest_id__mockquestions__correctAnswer=F('score'))),
+            subjects_count=Count('mocktest_id__mockquestions__subject', distinct=True)
+        )
         # try:
         #     student_id = int(student_id)
         # except:
