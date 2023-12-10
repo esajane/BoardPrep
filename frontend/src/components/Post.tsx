@@ -1,53 +1,233 @@
-import React from 'react'
-import '../styles/post.scss'
-import { FaReply } from "react-icons/fa";
-import profileImage from '../assets/16.png'
+import React, { useEffect, useRef, useState } from "react";
+import "../styles/post.scss";
+import { FaReply, FaEllipsisV, FaSave } from "react-icons/fa";
+import { MdCancel } from "react-icons/md";
+import { IoChevronForwardOutline, IoChevronDownOutline } from "react-icons/io5";
+import profileImage from "../assets/16.png";
+import axios from "axios";
+import { convertToPHTime } from "../functions";
+import Reply from "./Reply";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface PostProps {
-  content: string,
-  createdAt: string,
+  post: Posts;
+  setPosts: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-function Post({ content, createdAt }: PostProps) {
-  const convertToPHTime = (timestamp: string) => {
-    const utcDate = new Date(timestamp);
-    const phTime = new Date(utcDate.getTime());
-    const formattedDate = phTime.toLocaleDateString('en-US', {
-        month: '2-digit',
-        day: '2-digit'
-    });
-    const formattedTime = phTime.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    });
-
-    return `${formattedDate} ${formattedTime}`;
+interface Posts {
+  id: number;
+  content: string;
+  created_at: string;
+  class_instance: number;
+  teacher: string;
+  teacher_name: string;
 }
+
+interface Comment {
+  id: number;
+  content: string;
+  created_at: string;
+  post: number;
+  user: string;
+  user_name: string;
+}
+
+function Post({ post, setPosts }: PostProps) {
+  const user = useAppSelector(selectUser);
+  const [showMenu, setShowMenu] = useState(false);
+  const replyRef = useRef<HTMLInputElement>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [showReplies, setShowReplies] = useState(false);
+  const [newContent, setNewContent] = useState(post.content);
+  const [content, setContent] = useState(post.content);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/comments/?post_id=${post.id}`
+        );
+        setComments(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchComments();
+  }, [post.id]);
+
+  const toggleMenu = () => setShowMenu(!showMenu);
+
+  const deletePost = async () => {
+    try {
+      await axios.delete(`http://localhost:8000/posts/${post.id}/`);
+      setPosts((posts: Posts[]) =>
+        posts.filter((currPost) => currPost.id !== post.id)
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeletePost = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    deletePost();
+  };
+
+  const handleReply = async () => {
+    try {
+      const reply = replyRef.current?.value;
+      if (reply) {
+        const response = await axios.post(`http://127.0.0.1:8000/comments/`, {
+          content: reply,
+          post: post.id,
+          user: user.token.id,
+        });
+        setComments([...comments, response.data]);
+        replyRef.current!.value = "";
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleReplyClick = (e: React.MouseEvent<SVGElement>) => {
+    e.preventDefault();
+    handleReply();
+  };
+
+  const handleShowReplies = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    setShowReplies(!showReplies);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key === "Enter") {
+      handleReply();
+    }
+  };
+
+  const saveEdit = async () => {
+    if (newContent === content) {
+      setIsEditing(false);
+      setError("");
+      return;
+    }
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/posts/${post.id}/update_content/`,
+        {
+          content: newContent,
+        }
+      );
+      setContent(newContent);
+      setIsEditing(false);
+      setError("");
+    } catch (err: any) {
+      setError(err.response.data.message);
+    }
+  };
+
+  const handleSaveEdit = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    saveEdit();
+  };
 
   return (
-    <div className='post-card'>
+    <div className="post-card">
       <div className="post-card--read">
         <div className="post-card--read--header">
-          <div className="post-card--read--header--pic">
-            <img src={profileImage} className="logo" alt="RILL" />
+          <div className="post-card--read--header--left">
+            <div className="post-card--read--header--left--pic">
+              <img src={profileImage} className="logo" alt="RILL" />
+            </div>
+            <div className="post-card--read--header--left--name">
+              {post.teacher_name}
+            </div>
+            <div className="post-card--read--header--left--time">
+              {convertToPHTime(post.created_at)}
+            </div>
           </div>
-          <div className="post-card--read--header--name">
-            Kobe Paras
-          </div>
-          <div className="post-card--read--header--time">
-            {convertToPHTime(createdAt)}
-          </div>
+          {post.teacher === user.token.id && (
+            <div className="post-card--read--header--menu" onClick={toggleMenu}>
+              <FaEllipsisV />
+              {showMenu && (
+                <div className="menu-dropdown">
+                  <ul>
+                    <li onClick={(e) => setIsEditing(true)}>Edit</li>
+                    <li onClick={handleDeletePost}>Delete</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <div className="post-card--read--body">
-          {content}
+        {isEditing ? (
+          <div className="text-container">
+            {error && <div className="error">Error: {error}</div>}
+            <textarea
+              value={newContent}
+              onChange={(e) => setNewContent(e.target.value)}
+              required
+            />
+            <div className="actions">
+              <div className="save" onClick={handleSaveEdit}>
+                <FaSave /> Save
+              </div>
+              <div
+                className="cancel"
+                onClick={(e) => {
+                  setNewContent(content);
+                  setIsEditing(false);
+                  setError("");
+                }}
+              >
+                <MdCancel /> Cancel
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="post-card--read--body">{content}</div>
+        )}
+        <div className="post-card--read--replies">
+          {comments.length > 0 && (
+            <div
+              className="post-card--read--replies__view"
+              onClick={handleShowReplies}
+            >
+              View replies{" "}
+              {showReplies ? (
+                <IoChevronDownOutline />
+              ) : (
+                <IoChevronForwardOutline />
+              )}
+            </div>
+          )}
+          {showReplies &&
+            comments.map((comment) => (
+              <Reply
+                key={comment.id}
+                comment={comment}
+                setComments={setComments}
+              />
+            ))}
         </div>
       </div>
       <div className="post-card--reply">
-        <FaReply /> <div className='post-card--reply--text'>Reply</div>
+        <FaReply onClick={handleReplyClick} />
+        <input
+          type="text"
+          className="post-card--reply--input"
+          placeholder="Reply"
+          ref={replyRef}
+          onKeyUp={handleKeyDown}
+        />
       </div>
     </div>
-  )
+  );
 }
 
-export default Post
+export default Post;

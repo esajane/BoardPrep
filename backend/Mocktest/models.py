@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class MockTest(models.Model):
     course = models.ForeignKey('Course.Course', on_delete=models.CASCADE, blank=True, null=True)
     mocktestID = models.BigAutoField(primary_key=True)
@@ -19,20 +18,33 @@ class MockQuestions(models.Model):
     choiceC = models.CharField(max_length=255, verbose_name="C")
     choiceD = models.CharField(max_length=255, verbose_name="D")
     subject = models.CharField(max_length=255)
-    correctAnswer = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], verbose_name="Correct Answer")
+    difficulty = models.ForeignKey('Difficulty', on_delete=models.CASCADE, null=True)
+    correctAnswer = models.CharField(max_length=255, verbose_name="Correct Answer")
 
     def __str__(self):
         return f"{self.question} - {self.subject}"
 
-class MockTestScores(models.Model):
-    mocktestScoreID = models.BigAutoField(primary_key=True)
-    mocktestId = models.ForeignKey('MockTest', on_delete=models.CASCADE)
-    student = models.ForeignKey('User.Student', on_delete=models.CASCADE)
-    score = models.FloatField(null=False)
-    mocktestDateTaken = models.DateField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ['mocktestId', 'student']
+class Difficulty(models.Model):
+    CHOICES = [
+        ('1', 'Easy'),
+        ('2', 'Medium'),
+        ('3', 'Hard'),
+    ]
+    name = models.CharField(max_length=255, choices=CHOICES, unique=True)
 
     def __str__(self):
-        return f"{self.studentID} - {self.mocktestId}"
+        return self.name
+
+class MockTestScores(models.Model):
+    mocktestScoreID = models.BigAutoField(primary_key=True)
+    mocktest_id = models.ForeignKey('MockTest', on_delete=models.CASCADE, related_name='mocktest_scores')
+    student = models.ForeignKey('User.Student', on_delete=models.CASCADE, related_name='student_scores')
+    score = models.FloatField(null=False)
+    mocktestDateTaken = models.DateField(auto_now_add=True)
+    totalQuestions = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ['mocktest_id', 'student']
+
+    def __str__(self):
+        return f"{self.student} - {self.mocktest_id}"

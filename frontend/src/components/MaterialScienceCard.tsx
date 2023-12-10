@@ -1,4 +1,4 @@
-import "../styles/testing.css";
+import "../styles/testing.scss";
 import image from "../assets/materialscience.png";
 import React from "react";
 

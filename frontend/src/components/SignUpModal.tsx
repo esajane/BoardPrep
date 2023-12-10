@@ -1,45 +1,47 @@
-import { useState } from 'react';
-import axios from 'axios';
-import '../styles/class.scss';
+import { useState, useEffect } from "react";
+import "../styles/class.scss";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { selectUser, signUp } from "../redux/slices/authSlice";
 
 interface SignupModalProps {
   closeModal: () => void;
-  userType: 'student' | 'teacher';
+  userType: "student" | "teacher";
 }
 
 function SignupModal({ closeModal, userType }: SignupModalProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [specialization, setSpecialization] = useState('');
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [email, setEmail] = useState("");
+  const [specialization, setSpecialization] = useState("");
+  const navigate = useNavigate();
 
-  console.log(username);
-  console.log(firstname);
-  console.log(lastname);
-  console.log(password);
-  console.log(email);
-  console.log(specialization);
+  useEffect(() => {
+    if (user.isAuth) {
+      navigate("/classes");
+      closeModal();
+    }
+  }, [user, closeModal, navigate]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/${userType}/`, {
-        userName: username,
-        password: password,
-        firstName: firstname,
-        lastName: lastname,
-        email: email,
-        specialization: specialization,
-      });
-      if (response.status === 201) {
-        closeModal();
-        console.log('Success Fully Registered');
-      } else {
-        console.log(response);
-      }
+      await dispatch(
+        signUp({
+          username,
+          password,
+          firstname,
+          lastname,
+          email,
+          specialization,
+          userType,
+        })
+      );
     } catch (err) {
       console.log(err);
     }
@@ -49,7 +51,9 @@ function SignupModal({ closeModal, userType }: SignupModalProps) {
     <div id="modal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h1 className="title">{userType === 'student' ? 'Signup Student' : 'Signup Teacher'}</h1>
+          <h1 className="title">
+            {userType === "student" ? "Signup Student" : "Signup Teacher"}
+          </h1>
           <span className="close title" onClick={closeModal}>
             &times;
           </span>

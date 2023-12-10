@@ -1,14 +1,20 @@
-import React, { FormEvent, useRef } from 'react'
-import axios from 'axios';
-import '../styles/class.scss'
+import React, { FormEvent, useEffect, useRef, useState } from "react";
+import axios from "axios";
+import Courselist from "../pages/Courselist";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
+import "../styles/class.scss";
+import "../styles/course-list-popup.scss";
 
 interface Class {
-  classId: number,
-  className: string,
-  classDescription: string,
-  course: string,
-  students: string[],
-  classCode: string,
+  classId: number;
+  className: string;
+  classDescription: string;
+  course: string;
+  image: string;
+  teacher_name: string;
+  students: string[];
+  classCode: string;
 }
 
 interface ClassModalProps {
@@ -17,52 +23,147 @@ interface ClassModalProps {
   setClasses: (classes: Class[]) => void;
 }
 
+interface Course {
+  course_id: string;
+  syllabus: number;
+  course_title: string;
+  short_description: string;
+  long_description: string;
+  image: string;
+}
+
 function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
-  const nameRef = useRef<HTMLInputElement>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement>(null)
-  const courseRef = useRef<HTMLInputElement>(null)
+  const user = useAppSelector(selectUser);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [courseValue, setCourseValue] = useState("");
+  const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [showCourselist, setShowCourselist] = useState(false);
+  const course = "Select Course";
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/course/details/"
+        );
+        setCourses(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  const toggleCourseList = () => {
+    setShowCourselist(!showCourselist);
+  };
+
+  const handleCourseSelect = (
+    selectedCourseId: string,
+    selectedTitle: string
+  ) => {
+    setCourseValue(selectedCourseId);
+    setSelectedCourseTitle(selectedTitle);
+    setShowCourselist(false);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const name = nameRef.current?.value
-    const description = descriptionRef.current?.value
-    const course = courseRef.current?.value
+    e.preventDefault();
+    const name = nameRef.current?.value;
+    const description = descriptionRef.current?.value;
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/classes/", {
-        className: name,
-        classDescription: description,
-        course: course, // TODO: replace with actual course
-        teacher: 'teacher1' // TODO: replace with actual teacher
-      })
-      console.log(response);
-      if (response.status === 201) {
-        closeModal()
-        setClasses([...classes, response.data])
+      if (user.token.type === "T") {
+        if (!name || !description) {
+          console.error("Required fields are missing");
+          return;
+        }
+        const response = await axios.post("http://127.0.0.1:8000/classes/", {
+          className: name,
+          classDescription: description,
+          course: courseValue,
+          teacher: user.token.id,
+          students: [],
+        });
+
+        if (response.status === 201) {
+          closeModal();
+          setClasses([...classes, response.data]);
+        }
       } else {
-        console.log(response)
+        if (!name) {
+          console.error("Required fields are missing");
+          return;
+        }
+
+        const postData = {
+          class_code: name,
+          student: user.token.id,
+        };
+        console.log("POST Data:", postData);
+
+        const response = await axios.post(
+          "http://127.0.0.1:8000/join-requests/",
+          postData
+        );
+        console.log("Response:", response);
+
+        if (response.status === 201) {
+          closeModal();
+        }
       }
-    } catch(err) {
-      console.error(err)
+    } catch (err) {
+      console.error("Error in POST request:", err);
     }
-  }
+  };
 
   return (
     <div id="modal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
-          <h1>Create Class</h1>
-          <span className="close" onClick={closeModal}>&times;</span>
+          <h1>{user.token.type === "T" ? "Create Class" : "Join Class"}</h1>
+          <span className="close" onClick={closeModal}>
+            &times;
+          </span>
         </div>
+
+        {showCourselist && (
+          <div className="flex-center">
+            <div className="course-list-popup">
+              <span className="popupclose" onClick={toggleCourseList}>
+                &times;
+              </span>
+              <Courselist onSelectCourse={handleCourseSelect} />
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
-          <input type="text"placeholder='Class Name' ref={nameRef} />
-          <textarea placeholder='Class Description' ref={descriptionRef} />
-          <input type="text" placeholder='Course' ref={courseRef} />
-          <button type="submit" className="card-button">Create</button>
+          {user.token.type === "T" ? (
+            <>
+              <input type="text" placeholder="Class Name" ref={nameRef} />
+              <textarea placeholder="Class Description" ref={descriptionRef} />
+              <input
+                type="text"
+                placeholder="Select Course"
+                onClick={toggleCourseList}
+                readOnly
+                value={selectedCourseTitle || "Select Course"} // Show the selected course title in the input field
+              />
+              <button type="submit">Create Class</button>{" "}
+              {/* Create Class button */}
+            </>
+          ) : (
+            <>
+              <input type="text" placeholder="Class Code" ref={nameRef} />
+              <button type="submit">Join Class</button>
+            </>
+          )}
         </form>
       </div>
     </div>
-  )
+  );
 }
-
-export default ClassModal
+export default ClassModal;

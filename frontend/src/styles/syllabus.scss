@@ -8,75 +8,52 @@
 
 }
 
-.syllabus-main{
-
-    .syllabus-lhs{
-        @include float; 
-        border-radius: 20px;
-        transform: translate(10%, 180%);
-        width: 40%;
-        height: 400px;
-
-        h1{
-            transform: translate(-80px, -80px);
-            font-size: 80px;
-        }
-
-        p{
-            transform: translate(-30px, -160px);
-            font-size: 25px;
-            color: aliceblue;
-        }
-
-        button{
-            @include button;
-            transform: translate(15px, -170px);
-        }
-        
-    }
+.syllabus-main {
 
     .syllabus-container {
-        @include float;
-        margin-top: 55%;
-        margin-left: 55%;
         border-radius: 20px;
-        width: 40%;
-        height: 850px;
+        width: 100%;
+        height: 101%;
         border: 1px solid white;
         background-color: #302E45;
-        overflow: hidden; 
+        overflow: hidden;
+
+        &.collapsed {
+            width: 0; 
+            padding: 0; 
+            overflow: hidden; 
+        }
     
             &:hover {
-                transform: translateX(-10px);
+                transform: translateY(-10px);
                 transition: 0.5s; // Smooth transition for the hover effect
             }
 
         }
 
-        .lesson-container{
-            margin-top: 30px;
+        .title-container{
+            font-family: "Montserrat", sans-serif;
+            margin-top: 5px;
             transform: translate(5.5%, 20%);
             width: 90%;
-            height: 85px;
+            height: 60px;
             background-color: #080420;
             border-radius: 15px;
             margin-bottom: 20px;
 
             h2{
-                padding-top: 25px;
-                font-size: 25px;
+                padding-top: 20px;
+                font-size: 20px;
                 color: #f5f4f4;
                 text-align: center;
             }
-
             &:hover {
                 transition: 0.5s;
                 background-color: #7D67FF;
                 color: #000;
             }
-            
         }
-    
+
         p {
             color: $p_color;
             padding-left: 10%;
@@ -84,7 +61,6 @@
             position: relative;
             z-index: 2;
         }
-
     h1 {
         transform: translate(-40%, -200%);    
         font-family: Arial, Helvetica, sans-serif;
@@ -94,45 +70,3 @@
 }
 
 
-/*.syllabus-container {
-    @include float;
-    margin-top: 10%;
-    margin-left: 74%;
-    border-radius: 20px;
-    width: 25%;
-    height: 575px;
-    border: 1px solid white;
-    background-color: $dashboard_bg;
-    overflow: hidden; 
-
-    
-    &:hover {
-        transform: translateX(-10px);
-        transition: 0.5s; // Smooth transition for the hover effect
-    }*/
-    
-    // // Gradient background similar to the card
-    // &::before {
-    //     content: '';
-    //     position: absolute;
-    //     top: 0;
-    //     left: 0;
-    //     width: 100%;
-    //     height: 100%;
-    //     background: linear-gradient(to right, rgb(134, 239, 172), rgb(59, 130, 246), rgb(147, 51, 234));
-    //     border-radius: 5%;
-    //     z-index: 1;
-    // }
-
-    // // Blur effect
-    // &::after {
-    //     content: '';
-    //     position: absolute;
-    //     top: 0;
-    //     left: 0;
-    //     width: 100%;
-    //     height: 100%;
-    //     background: linear-gradient(to right, rgb(134, 239, 172), rgb(59, 130, 246), rgb(147, 51, 234));
-    //     filter: blur(50px);
-    //     z-index: 0;
-    // }

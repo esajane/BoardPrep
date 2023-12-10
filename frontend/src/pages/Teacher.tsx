@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import SignupModal from '../components/SignUpModal';
 import SigninModal from '../components/SignInModal';
-import '../styles/home.scss';
+import teacher from '../assets/teacher.png';
+import '../styles/user.scss';
 
 const Teacher = () => {
   const [modalOpenSignin, setModalOpenSignin] = useState(false);
@@ -32,20 +33,44 @@ const Teacher = () => {
   return (
     <div className="background">
       <header>
-        <h1>BoardPrep - Teacher</h1>
+        <h1>
+          <a href="/" className="homer">
+            BoardPrep
+          </a>{' '}
+          - Teacher
+        </h1>
         <div>
-          <button className="button" onClick={openModalSignin}>
-            Signin
-          </button>
-          <button className="button" onClick={openModalSignup}>
-            Signup
-          </button>
+          <div className="user">
+            <button className="user-c" onClick={openModalSignin}>
+              Signin
+            </button>
+            <button className="user-c" onClick={openModalSignup}>
+              Signup
+            </button>
+          </div>
           {modalOpenSignup && (
             <SignupModal closeModal={closeModalSignup} userType="teacher" />
           )}
-          {modalOpenSignin && <SigninModal closeModal={closeModalSignin} userType="teacher" />}
+          {modalOpenSignin && (
+            <SigninModal closeModal={closeModalSignin} userType="teacher" />
+          )}
         </div>
       </header>
+      <div className="content">
+        <div className="ct">
+          <h3 className="ct-title">Empower Your Teaching Experience</h3>
+          <p className="ct-p">
+            As an educator joining BoardPrep, elevate your teaching with
+            insightful<br/> analytics and tools. Track student progress, customize
+            lessons, and<br/> collaborate seamlessly. Our app facilitates tailored
+            guidance for each student's success.
+          </p>
+        </div>
+        <div className="ani-user">
+          <img src={teacher} alt="boardprep" className="bp-img-user" />
+          <div className="cardo-user dalisay-user"></div>
+        </div>
+      </div>
     </div>
   );
 };
