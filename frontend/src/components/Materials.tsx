@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import Syllabus from "./Syllabus";

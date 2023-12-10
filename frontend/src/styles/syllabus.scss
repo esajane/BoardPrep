@@ -9,14 +9,18 @@
 }
 
 .syllabus-main {
+    // Enables vertical scrolling if content overflows // Set a maximum height for the syllabus area
+    width: 700px; // Adjust the width as necessary
+    padding: 10px; // Optional padding for internal spacing
+    overflow: hidden;
+    background-color: #302E45;
+    border: 1px solid white;
+    border-radius: 20px;
 
     .syllabus-container {
-        border-radius: 20px;
         width: 100%;
-        height: 101%;
-        border: 1px solid white;
-        background-color: #302E45;
-        overflow: hidden;
+ 
+      
 
         &.collapsed {
             width: 0; 

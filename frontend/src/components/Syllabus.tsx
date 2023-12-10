@@ -32,23 +32,25 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
     setLoadingContent(true);
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/lessons/${lessonId}/`
+        `http://127.0.0.1:8000/pages/${lessonId}/1`
       );
       const newContent = response.data.content;
       setCurrentLessonContent(newContent);
       setFetchedContents({ ...fetchedContents, [lessonId]: newContent });
       onLessonClick(newContent);
-    } catch (error) {
-      console.error("Error fetching lesson content", error);
-      setError("Failed to load lesson content");
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        // No page found for this lesson, prepare to create a new page
+        setCurrentLessonContent(""); // Set empty content for new page
+        onLessonClick(""); // Pass empty content to parent component
+      } else {
+        console.error("Error fetching lesson content", error);
+        setError("Failed to load lesson content");
+      }
     } finally {
       setLoadingContent(false);
     }
   };
-
-  if (lessons.length === 0) {
-    return <div>No lessons available.</div>;
-  }
 
   return (
     <div className="syllabus-container">

@@ -1,5 +1,6 @@
 import React from "react";
-import DOMPurify from "dompurify"; // Import the DOMPurify library
+import DOMPurify from "dompurify";
+import { marked } from "marked";
 import "../styles/lessons.scss";
 import "../styles/ckeditor-content.scss";
 
@@ -8,8 +9,13 @@ interface LessonContentProps {
 }
 
 const LessonContent: React.FC<LessonContentProps> = ({ content }) => {
-  // Sanitize the HTML content before rendering it
-  const sanitizedHTML = DOMPurify.sanitize(content);
+  // Convert Markdown to HTML
+  const markdownToHtml = (markdownContent: string): string => {
+    return marked(markdownContent) as string; // Type assertion
+  };
+
+  // Sanitize the HTML content
+  const sanitizedHTML = DOMPurify.sanitize(markdownToHtml(content));
 
   return (
     <div
