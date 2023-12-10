@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import "../styles/smallattachmentmodal.scss";
+import ErrorCard from "./ErrorCard";
 
 interface SmallAttachmentModalProps {
   closeModal: () => void;
@@ -17,6 +18,7 @@ function SmallAttachmentModal({
 }: SmallAttachmentModalProps) {
   const user = useAppSelector(selectUser);
   const [file, setFile] = useState<File | null>();
+  const [error, setError] = useState<string>("");
   const linkRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,8 +67,9 @@ function SmallAttachmentModal({
         ]);
       }
       closeModal();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const data = err.response.data;
+      setError(data["link"][0]);
     }
   };
 
@@ -83,13 +86,25 @@ function SmallAttachmentModal({
             &times;
           </span>
         </div>
+        {error && <ErrorCard message={error} />}
         <form className="activity-form" onSubmit={handleSubmit}>
           <div className="half">
             <div className="right-half">
               {isFile ? (
-                <input type="file" id="file" onChange={handleFileChange} />
+                <input
+                  type="file"
+                  id="file"
+                  onChange={handleFileChange}
+                  required
+                />
               ) : (
-                <input type="text" id="link" placeholder="Link" ref={linkRef} />
+                <input
+                  type="text"
+                  id="link"
+                  placeholder="Link"
+                  ref={linkRef}
+                  required
+                />
               )}
             </div>
           </div>

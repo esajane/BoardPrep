@@ -5,6 +5,8 @@ import axios from "axios";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import Attachment from "./Attachment";
+import ErrorCard from "./ErrorCard";
+import { link } from "fs";
 
 interface ActivityModalProps {
   closeModal: () => void;
@@ -45,6 +47,8 @@ function ActivityModal({
   const [aType, setAType] = useState("file");
   const [file, setFile] = useState<File | null>();
   const [attachments, setAttachments] = useState<Attachments[]>([]);
+  const [error, setError] = useState<string>("");
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const startRef = useRef<HTMLInputElement>(null);
@@ -75,12 +79,18 @@ function ActivityModal({
       teacher: user.token.id,
       attachments: attachs,
     };
-    const response = await axios.post(
-      "http://127.0.0.1:8000/activities/",
-      data
-    );
-    setActivities((prevActivities) => [...prevActivities, response.data]);
-    closeModal();
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/activities/",
+        data
+      );
+      setActivities((prevActivities) => [...prevActivities, response.data]);
+      closeModal();
+    } catch (err: any) {
+      const data = err.response.data;
+      const error = data.match(/(?<=exception_value">).*(?=<\/pre>)/);
+      setError(error[0]);
+    }
   };
 
   const handleChangeAType = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +121,7 @@ function ActivityModal({
             }
           );
           setAttachments([...attachments, response.data]);
+          setFile(null);
         }
       } else {
         formData.append("link", linkRef.current?.value as string);
@@ -125,9 +136,11 @@ function ActivityModal({
           }
         );
         setAttachments([...attachments, response.data]);
+        linkRef.current!.value = "";
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const data = err.response.data;
+      setError(data["link"][0]);
     }
   };
 
@@ -136,16 +149,48 @@ function ActivityModal({
     addAttachment();
   };
 
+  const handleCloseClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    if (
+      isFormDirty &&
+      !window.confirm(
+        "You have unsaved changes. Are you sure you want to close?"
+      )
+    )
+      return;
+    if (attachments.length > 0) {
+      attachments.forEach(async (attachment) => {
+        try {
+          await axios.delete(
+            `http://127.0.0.1:8000/attachments/${attachment.id}/`
+          );
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+    closeModal();
+  };
+
+  const handleFormChange = () => {
+    setIsFormDirty(true);
+  };
+
   return (
     <div id="modal" className="modal">
       <div className="activity-modal">
         <div className="modal-header">
           <div className="h1">Create Activity</div>
-          <span className="close" onClick={closeModal}>
+          <span className="close" onClick={handleCloseClick}>
             &times;
           </span>
         </div>
-        <form className="activity-form" onSubmit={handleSubmit}>
+        {error && <ErrorCard message={error} />}
+        <form
+          className="activity-form"
+          onSubmit={handleSubmit}
+          onChange={handleFormChange}
+        >
           <div className="half">
             <div className="left-half">
               <label htmlFor="title">Activity Title</label>
@@ -154,12 +199,14 @@ function ActivityModal({
                 id="title"
                 placeholder="Activity Title"
                 ref={titleRef}
+                required
               />
               <label htmlFor="content">Activity Content</label>
               <textarea
                 placeholder="Activity Content"
                 id="content"
                 ref={descriptionRef}
+                required
               />
               <label htmlFor="start">Start Date</label>
               <input
@@ -168,7 +215,9 @@ function ActivityModal({
                 placeholder="Start Date"
                 onFocus={(e) => (e.target.type = "datetime-local")}
                 onBlur={(e) => (e.target.type = "text")}
+                min={new Date().toISOString().slice(0, 16)}
                 ref={startRef}
+                required
               />
             </div>
             <div className="right-half">
@@ -180,6 +229,7 @@ function ActivityModal({
                 onFocus={(e) => (e.target.type = "datetime-local")}
                 onBlur={(e) => (e.target.type = "text")}
                 ref={endRef}
+                required
               />
               <label htmlFor="points">Points</label>
               <input
@@ -187,6 +237,7 @@ function ActivityModal({
                 id="points"
                 placeholder="Points"
                 ref={pointsRef}
+                required
               />
               <label htmlFor="attachments">Attachments</label>
               <div id="attachments">
@@ -210,9 +261,20 @@ function ActivityModal({
                 <label htmlFor="file">Link</label>
               </div>
               {aType === "file" ? (
-                <input type="file" id="file" onChange={handleFileChange} />
+                <input
+                  type="file"
+                  id="file"
+                  onChange={handleFileChange}
+                  required
+                />
               ) : (
-                <input type="text" id="link" placeholder="Link" ref={linkRef} />
+                <input
+                  type="text"
+                  id="link"
+                  placeholder="Link"
+                  ref={linkRef}
+                  required
+                />
               )}
               <div className="add-attachment" onClick={handleAddAttachment}>
                 <MdAttachFile />

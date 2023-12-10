@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaEllipsisH, FaFile } from "react-icons/fa";
+import { FaEllipsisH, FaFile, FaFileImage } from "react-icons/fa";
 import { MdOutlineFileOpen, MdDeleteOutline } from "react-icons/md";
 import { LuDownload } from "react-icons/lu";
 import "../styles/attachment.scss";
@@ -18,7 +18,7 @@ interface Attachments {
 
 interface AttachmentProps {
   attachment: Attachments;
-  setAttachments: React.Dispatch<React.SetStateAction<any[]>>;
+  setAttachments?: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 function Attachment({ attachment, setAttachments }: AttachmentProps) {
@@ -68,11 +68,12 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
   const deleteAttachment = async () => {
     try {
       await axios.delete(`http://127.0.0.1:8000/attachments/${attachment.id}/`);
-      setAttachments((prevAttachments: Attachments[]) => {
-        return prevAttachments.filter(
-          (currAttachment) => currAttachment.id !== attachment.id
-        );
-      });
+      setAttachments &&
+        setAttachments((prevAttachments: Attachments[]) => {
+          return prevAttachments.filter(
+            (currAttachment) => currAttachment.id !== attachment.id
+          );
+        });
     } catch (err) {
       console.error(err);
     }
@@ -97,7 +98,11 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
       <div className="left">
         <div>
           {attachment.file === null ? (
-            <img src={attachment.favicon} alt="icon" width={25} height={25} />
+            attachment.favicon === "No favicon found" ? (
+              <FaFileImage size={20} />
+            ) : (
+              <img src={attachment.favicon} alt="icon" width={25} height={25} />
+            )
           ) : (
             <FaFile size={20} />
           )}

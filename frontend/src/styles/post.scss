@@ -12,8 +12,54 @@
   &--read {
     width: 100%;
     height: auto;
-    //background-color: rgba($color: #B650F4, $alpha: .2);
     padding: 20px;
+
+    .text-container {
+      margin-left: 50px;
+
+      .error {
+        color: rgb(255, 81, 81);
+        font-size: 14px;
+      }
+  
+      textarea {
+        font-family: 'Montserrat', sans-serif;
+        resize: none;
+        min-height: 50px;
+        min-width: 95%;
+        padding: 10px 20px;
+        color: #fff;
+        border: 1px solid #B650F4;
+        border-radius: 6px;
+        background-color: transparent;
+        animation: spread 0.3s ease-in-out forwards;
+  
+        &:focus, &:focus-visible {
+          border-color: #5e4dcd;
+          outline: none;
+        }
+      }
+
+      .actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        font-size: 14px;
+        color: #B650F4;
+
+        .save, .cancel {
+          display: flex;
+          gap: 5px;
+          align-items: center;
+          cursor: pointer;
+
+          &:hover {
+            color: #5e4dcd;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
 
     &--header {
       display: flex;

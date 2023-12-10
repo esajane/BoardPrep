@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import profileImage from "../assets/16.png";
 import "../styles/reply.scss";
 import { convertToPHTime } from "../functions";
-import { FaEllipsisV } from "react-icons/fa";
+import { FaEllipsisV, FaSave } from "react-icons/fa";
 import axios from "axios";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import { MdCancel } from "react-icons/md";
 
 interface Comment {
   id: number;
@@ -25,6 +26,10 @@ function Reply({ comment, setComments }: ReplyProps) {
   const user = useAppSelector(selectUser);
   const [showMenu, setShowMenu] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newContent, setNewContent] = useState(comment.content);
+  const [content, setContent] = useState(comment.content);
+  const [error, setError] = useState("");
 
   const toggleMenu = () => setShowMenu(!showMenu);
 
@@ -54,6 +59,32 @@ function Reply({ comment, setComments }: ReplyProps) {
     setHovered(false);
   };
 
+  const saveEdit = async () => {
+    if (newContent === content) {
+      setIsEditing(false);
+      setError("");
+      return;
+    }
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/comments/${comment.id}/update_content/`,
+        {
+          content: newContent,
+        }
+      );
+      setContent(newContent);
+      setIsEditing(false);
+      setError("");
+    } catch (err: any) {
+      setError(err.response.data.message);
+    }
+  };
+
+  const handleSaveEdit = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    saveEdit();
+  };
+
   return (
     <div
       className="reply"
@@ -76,6 +107,7 @@ function Reply({ comment, setComments }: ReplyProps) {
             {showMenu && (
               <div className="menu-dropdown">
                 <ul>
+                  <li onClick={(e) => setIsEditing(true)}>Edit</li>
                   <li onClick={handleDeleteComment}>Delete</li>
                 </ul>
               </div>
@@ -83,7 +115,33 @@ function Reply({ comment, setComments }: ReplyProps) {
           </div>
         )}
       </div>
-      <div className="reply--body">{comment.content}</div>
+      {isEditing ? (
+        <div className="text-container">
+          {error && <div className="error">Error: {error}</div>}
+          <textarea
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            required
+          />
+          <div className="actions">
+            <div className="save" onClick={handleSaveEdit}>
+              <FaSave /> Save
+            </div>
+            <div
+              className="cancel"
+              onClick={(e) => {
+                setNewContent(content);
+                setIsEditing(false);
+                setError("");
+              }}
+            >
+              <MdCancel /> Cancel
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="reply--body">{content}</div>
+      )}
     </div>
   );
 }

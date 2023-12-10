@@ -1,10 +1,22 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat');
 
+.activity-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  max-height: 575px;
+  min-height: 575px;
+
+  .bottomd {
+    margin-top: 5px;
+    border-top: 1px solid #302c4e;
+  }
+}
+
 .activities-tab {
   display: block;
   width: 100%;
-  min-height: 200px;
-  max-height: 800px;
   overflow: auto;
 
   &--center {
@@ -19,6 +31,7 @@
       margin-top: 20px;
       height: 54px;
       padding: 0.75rem 1.5rem;
+      margin-left: 24.75vw;
       background-color: #B650F4;
       color: #ffffff;
       font-size: .9rem;
