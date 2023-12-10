@@ -9,9 +9,10 @@
 
   .syllabus-main {
     position: relative;
-    margin-top: 5%;
+    margin-top: 4%;
     margin-right: 2%;
     margin-left: 1%;
+    margin-bottom: 1%;
     transition: margin-left 0.3s, width 0.3s ease;
     flex: 0 0 10%; // Make sure to set flex-basis to the width for consistency
     min-width: 200px;
@@ -30,18 +31,37 @@
   }
 
   .lesson-content-container {
-    flex: 1 1 90%; // Set flex-basis to 80%, allowing it to grow
-    border-radius: 10px;;
+    flex: 1 1 90%;
+    border-radius: 10px;
     margin-top: 5%;
     margin-right: 5%;
     margin-bottom: 5%;
     padding: 50px;
-    transition: margin 0.3s ease, flex-basis 0.3s ease; // Smooth transition for flex-basis and margin changes
+    transition: margin 0.3s ease, flex-basis 0.3s ease;
+    box-shadow: 11px 5px 9px 0px rgba(230,104,230,1), -1px -1px 10px rgb(144, 129, 129);
+    overflow: auto; /* Add this to handle overflowing content */
 
-    box-shadow: 15px 15px 30px rgb(112, 0, 78),
-             -15px -15px 30px rgb(60, 60, 60);
+    .ck-content {
+      margin-top: 30px;
+        max-width: 100%; /* Ensure CKEditor content does not exceed the container */
+        overflow: hidden; /* Hide the overflow or use 'auto' if you want scrollbars */
+        /* Other styles as needed */
+        @if color == hsl(0, 0%, 0%) { // Check if the color is black
+          color: #fff; // Change text color to white
+        }
+         
+    }
+
+    .pagination {
+      position: absolute; // Position it relative to lesson-content-container
+      bottom: 10px; // Adjust as needed to position at the bottom
+      left: 50%;
+      transform: translateX(-50%); // Center horizontally
+    }
 
 
+
+    
   }
 
   &.collapsed .lesson-content-container {
@@ -49,6 +69,27 @@
     margin-left: 20px; // Remove the margin when sidebar is collapsed
   }
 }
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: center;
+  li {
+    margin: 0 5px;
+    a {
+      cursor: pointer;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    &.active a {
+      background-color: #007bff;
+      color: white;
+    }
+  }
+}
+
 
 .checkbox {
   display: none;
@@ -58,8 +99,8 @@
   position: absolute;
   margin-top: 6%;
   margin-left: 5%;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -70,7 +111,7 @@
   transition: right 0.2s ease;
 
   .materials-page:not(.collapsed) & {
-    margin-top: 5%; // Adjust this to fit the inside edge of syllabus-main
+    margin-top: 5.5%; // Adjust this to fit the inside edge of syllabus-main
     margin-left: 2%;
   }
 }

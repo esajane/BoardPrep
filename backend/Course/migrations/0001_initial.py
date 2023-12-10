@@ -32,6 +32,14 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
+            name='Lesson',
+            fields=[
+                ('lesson_id', models.CharField(max_length=10, primary_key=True, serialize=False)),
+                ('lesson_title', models.CharField(max_length=200)),
+                ('order', models.IntegerField(help_text='Order of the lesson in the syllabus')),
+            ],
+        ),
+        migrations.CreateModel(
             name='Syllabus',
             fields=[
                 ('syllabus_id', models.CharField(max_length=10, primary_key=True, serialize=False)),
@@ -39,13 +47,20 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Lesson',
+            name='Page',
             fields=[
-                ('lesson_id', models.CharField(max_length=10, primary_key=True, serialize=False)),
-                ('lesson_title', models.CharField(max_length=200)),
-                ('order', models.IntegerField(help_text='Order of the lesson in the syllabus')),
-                ('content', django_ckeditor_5.fields.CKEditor5Field(verbose_name='Text')),
-                ('syllabus', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lessons', to='Course.syllabus')),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('page_number', models.IntegerField(help_text='Page number within the lesson')),
+                ('content', django_ckeditor_5.fields.CKEditor5Field(verbose_name='Content')),
+                ('lesson', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pages', to='Course.lesson')),
             ],
+            options={
+                'ordering': ['page_number'],
+            },
+        ),
+        migrations.AddField(
+            model_name='lesson',
+            name='syllabus',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lessons', to='Course.syllabus'),
         ),
     ]
