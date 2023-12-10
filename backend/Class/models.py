@@ -11,7 +11,7 @@ class Class(models.Model):
     classDescription = models.TextField()
     course = models.ForeignKey('Course.Course', on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    students = models.ManyToManyField(Student, related_name='classes')
+    students = models.ManyToManyField(Student, related_name='classes', blank=True)
 
     def __str__(self):
         return self.className
