@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('User', '0002_user_is_premium'),
     ]
 
     operations = [
