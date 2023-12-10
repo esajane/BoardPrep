@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="93c17476-29df-43de-b32c-888e99a7a487" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/ForumModalComment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/ForumModalComment.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/src/components/ForumModalLike.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/ForumModalLike.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +35,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "users",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
