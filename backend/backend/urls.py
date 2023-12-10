@@ -41,6 +41,7 @@ urlpatterns = [
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('success/', success_view, name='success_page'),
     path('', include('User.urls')),
+    path('', include('Discussion.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
     path('create-lesson/', views.create_lesson, name='create_lesson'),
 

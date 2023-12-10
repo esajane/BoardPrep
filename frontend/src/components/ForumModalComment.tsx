@@ -4,19 +4,50 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import ForumCommentCard from './ForumCommentCard';
+import axios from 'axios';
 
 interface ForumModalCommentProps {
+  key: number;
+  id: number;
   closeModal: () => void;
 }
 
-function ForumModalComment({ closeModal }: ForumModalCommentProps) {
+function ForumModalComment({ key, id, closeModal }: ForumModalCommentProps) {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const [comment, setComment] = useState('');
+  const [comments, setComments] = useState<any[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getComment();
+    console.log('key', id);
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    try {
+      const res = await axios.post('http://127.0.0.1:8000/create/comment/', {
+        post: id,
+        author: user.token.id,
+        content: comment,
+      });
+      console.log(res.data);
+      closeModal();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getComment = async () => {
+    try {
+      const res = await axios.get(`http://127.0.0.1:8000/get/comment/?post=${id}`);
+      console.log('getting comments');
+      console.log(res.data);
+      setComments(res.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -29,10 +60,11 @@ function ForumModalComment({ closeModal }: ForumModalCommentProps) {
           </span>
         </div>
         <div className="comment-cards">
-          <ForumCommentCard />
-          <ForumCommentCard />
-          <ForumCommentCard />
-          <ForumCommentCard />
+        {
+          comments.map((comment: any) => (
+            <ForumCommentCard key={comment.id} author={comment.author} dateCreate={comment.created_at} content={comment.content} />
+          ))
+        }
         </div>
         <form onSubmit={handleSubmit}>
           <textarea

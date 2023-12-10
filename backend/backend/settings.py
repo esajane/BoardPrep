@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'Institution',
     'Class',
     'Mocktest',
+    'Discussion',
     'rest_framework',
 
     'django_ckeditor_5',
