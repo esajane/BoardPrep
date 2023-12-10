@@ -1,15 +1,16 @@
+
 from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
-from Course import views
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, FileUploadViewSet, PageViewSet
 from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestViewSet, ActivityViewSet, SubmissionViewSet, AttachmentViewSet
 from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet, submit_mocktest
 from User.views import StudentViewSet, TeacherViewSet
-from Course.views import success_view
-from Course.views import page_create_or_edit
+from Course import views
+
+
 
 router = routers.DefaultRouter()
 router.register(r'courses', CourseListViewSet, basename='course')
@@ -30,6 +31,7 @@ router.register(r'join-requests', JoinRequestViewSet, basename='join-requests')
 router.register(r'activities', ActivityViewSet, basename='activities')
 router.register(r'submissions', SubmissionViewSet, basename='submissions')
 router.register(r'attachments', AttachmentViewSet)
+router.register(r'pages', PageViewSet, basename='page')
 
 
 #pagkuha og indibidwal nga mga kurso
@@ -40,19 +42,13 @@ urlpatterns = [
     path('lessons/by_syllabus/<str:syllabus_id>/', LessonViewSet.as_view({'get': 'by_syllabus'}), name='lessons-by-syllabus'),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('success/', success_view, name='success_page'),
     path('', include('User.urls')),
+    path('', include('Discussion.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
-    #path('create-lesson/', views.create_lesson, name='create_lesson'),
     path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
-
-
-    path('create-page/', views.create_page, name='create_page'),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),
-    path('pages/<str:lesson_id>/', PageViewSet.as_view({'get': 'by_lesson'}), name='pages-by-lesson'),
-    path('lessons/page/new/', page_create_or_edit, name='create_page'),
-    # URL pattern for editing an existing page
-    path('lessons/<str:lesson_id>/page/<int:page_number>/edit/', page_create_or_edit, name='edit_page'),
+    path('media/uploads/', views.upload_image, name='upload_image'),
+    path('pages/<str:lesson_id>/<int:page_number>/', PageViewSet.as_view({'get': 'by_lesson_and_page', 'put': 'by_lesson_and_page', 'delete': 'by_lesson_and_page'}), name='page-detail'),
 ]
 
 if settings.DEBUG:

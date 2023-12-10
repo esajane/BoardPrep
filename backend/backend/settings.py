@@ -30,8 +30,7 @@ SECRET_KEY = 'django-insecure-e3(mmbpply@-wr4_9=pu$yls02(rpopoly!&r4m3jdst5o!4!2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -49,6 +48,7 @@ INSTALLED_APPS = [
     'Institution',
     'Class',
     'Mocktest',
+    'Discussion',
     'rest_framework',
 
     'django_ckeditor_5',
@@ -82,6 +82,7 @@ CORS_ALLOWED_ORIGINS = [
     # ... other allowed origins ...
 ]
 
+
 ROOT_URLCONF = 'backend.urls'
 
 STATIC_URL = 'static/'
@@ -90,6 +91,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_IMAGE_BACKEND = "pillow"
 SITE_URL = 'http://localhost:8000'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 
 TEMPLATES = [
     {
@@ -163,6 +166,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
 
 
 

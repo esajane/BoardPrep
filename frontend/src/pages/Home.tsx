@@ -1,16 +1,20 @@
-import '../styles/home.scss';
-import home from '../assets/home.png';
-import { useNavigate } from 'react-router-dom';
+import "../styles/home.scss";
+import home from "../assets/home.png";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
 
   const studentHandler = () => {
-    navigate('/student');
+    navigate("/student");
   };
 
   const teacherHandler = () => {
-    navigate('/teacher');
+    navigate("/teacher");
+  };
+
+  const contentHandler = () => {
+    navigate("/content-creator");
   };
 
   return (
@@ -28,6 +32,9 @@ function Home() {
           <button className="user-c" onClick={teacherHandler}>
             Teacher
           </button>
+          <button className="user-c" onClick={contentHandler}>
+            ContentCreator
+          </button>
         </div>
       </header>
       <div className="content">
@@ -37,9 +44,11 @@ function Home() {
           </h3>
           <p className="ct-p">
             BoardPrep is your gateway to a tailored learning experience designed
-            to<br/> maximize your success. Explore interactive lessons, collaborate
-            seamlessly,<br/> and track your progress effortlessly. Join us in the
-            journey towards academic triumph!
+            to
+            <br /> maximize your success. Explore interactive lessons,
+            collaborate seamlessly,
+            <br /> and track your progress effortlessly. Join us in the journey
+            towards academic triumph!
           </p>
         </div>
         <div className="ani">
