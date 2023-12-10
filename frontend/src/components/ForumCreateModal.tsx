@@ -1,7 +1,6 @@
-import { useState, useEffect, SetStateAction, Dispatch } from 'react';
+import { useState } from 'react';
 import '../styles/class.scss';
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import axios from 'axios';
 
@@ -18,13 +17,11 @@ interface ForumCreateProps {
   setPosts: (classes: Posts[]) => void;
 }
 
-function ForumCreate({ closeModal }: ForumCreateProps) {
-  const dispatch = useAppDispatch();
+function ForumCreate({ closeModal, setPosts }: ForumCreateProps) {
   const user = useAppSelector(selectUser);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -36,6 +33,8 @@ function ForumCreate({ closeModal }: ForumCreateProps) {
         content,
         tags,
       });
+      const posts = await axios.get('http://127.0.0.1:8000/get/post/');
+      setPosts(posts.data);
       console.log(res.data);
       closeModal();
     } catch (err) {

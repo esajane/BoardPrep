@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react';
 import '../styles/forumcomment.scss';
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import ForumCommentCard from './ForumCommentCard';
 import axios from 'axios';
 
 interface ForumModalCommentProps {
-  key: number;
   id: number;
   closeModal: () => void;
 }
 
-function ForumModalComment({ key, id, closeModal }: ForumModalCommentProps) {
-  const dispatch = useAppDispatch();
+function ForumModalComment({ id, closeModal }: ForumModalCommentProps) {
   const user = useAppSelector(selectUser);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<any[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     getComment();

@@ -30,7 +30,7 @@ const ForumCommentCard = ({ author, dateCreate, content }: CommentProps) => {
   return (
     <div className="comment-forum-post">
       <div className="comment-forum-post-image">
-        <img className="comment-forum-image" src={boardprep}></img>
+        <img className="comment-forum-image" alt='forum img' src={boardprep}></img>
       </div>
       <div className="comment-forum-post-details">
         <div className="comment-forum-author-and-date">

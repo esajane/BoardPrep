@@ -29,7 +29,7 @@ const ForumLikeCard = ({author, dateCreate}: CommentProps) => {
   return (
     <div className="like-forum-post">
       <div className="like-forum-post-image">
-        <img className="like-forum-image" src={boardprep}></img>
+        <img className="like-forum-image" alt="forum img" src={boardprep}></img>
       </div>
       <div className="like-forum-post-details">
         <div className="like-forum-author-and-date">

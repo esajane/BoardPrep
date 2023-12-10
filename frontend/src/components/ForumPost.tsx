@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/forum.scss';
 import boardprep from '../assets/boardprep.png';
 import ForumModalComment from './ForumModalComment';
@@ -15,7 +15,6 @@ interface ForumPostProps {
 }
 
 const ForumPost = ({
-  key,
   id,
   author,
   dateCreate,
@@ -70,7 +69,7 @@ const ForumPost = ({
   return (
     <div className="forum-post">
       <div className="forum-post-image">
-        <img className="forum-image" src={boardprep}></img>
+        <img className="forum-image" alt='forum img' src={boardprep}></img>
       </div>
       <div className="forum-post-details">
         <div className="forum-author-and-date">
@@ -93,9 +92,9 @@ const ForumPost = ({
               Like
             </button>
             {modalOpenComment && (
-              <ForumModalComment key={key} id={id} closeModal={closeModalComment} />
+              <ForumModalComment key={id} id={id} closeModal={closeModalComment} />
             )}
-            {modalOpenLike && <ForumModalLike key={key} id={id} closeModal={closeModalLike} />}
+            {modalOpenLike && <ForumModalLike key={id} id={id} closeModal={closeModalLike} />}
           </div>
         </div>
       </div>

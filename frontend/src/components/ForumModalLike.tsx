@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../styles/forumlike.scss';
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import ForumLikeCard from './ForumLikeCard';
 import axios from 'axios';
@@ -12,11 +11,8 @@ interface ForumModalCommentProps {
 }
 
 function ForumModalLike({ id, closeModal }: ForumModalCommentProps) {
-  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
-  const [comment, setComment] = useState('');
   const [count, setCount] = useState(0);
-  const navigate = useNavigate();
   const [likes, setLikes] = useState<any[]>([]);
 
   useEffect(() => {
@@ -42,7 +38,7 @@ function ForumModalLike({ id, closeModal }: ForumModalCommentProps) {
       const res = await axios.get(`http://127.0.0.1:8000/get/like/?post=${id}`);
       console.log('getting likes');
 
-      
+
       setLikes(res.data);
       setCount(res.data.length);
     } catch (err) {

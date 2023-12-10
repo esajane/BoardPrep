@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import ForumPost from '../components/ForumPost';
 import '../styles/forum.scss'
 import ForumCreateModal from '../components/ForumCreateModal';
-import { useAppSelector } from "../redux/hooks";
-import { selectUser } from "../redux/slices/authSlice";
 import axios from 'axios';
 
 interface Posts {
@@ -15,7 +13,6 @@ interface Posts {
 }
 
 const Forum = () => {
-  const user = useAppSelector(selectUser);
   const [post, setPosts] = useState<Posts[]>([]);
   const [createPost, setCreatePost] = useState(false);
 
