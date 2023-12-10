@@ -8,6 +8,7 @@ class User(models.Model):
     USER_TYPE = [
         ('S', 'Student'),
         ('T', 'Teacher'),
+        ('C', 'Content Creator'),
     ]
 
     user_name = models.CharField(primary_key=True, null=False, max_length=255, blank=False)
@@ -56,3 +57,15 @@ class Teacher(User):
     def save(self, *args, **kwargs):
         self.user_type = 'T'
         super(Teacher, self).save(*args, **kwargs)
+
+class ContentCreator(User):
+    name = models.CharField(null=False, max_length=255, blank=False)
+    specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
+    institution_id = models.ForeignKey('Institution.Institution', on_delete=models.SET_NULL, blank=True, null=True, related_name='institutionID_content_creator')
+
+    def __str__(self):
+        return self.user_name
+
+    def save(self, *args, **kwargs):
+        self.user_type = 'C'
+        super(ContentCreator, self).save(*args, **kwargs)

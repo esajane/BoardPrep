@@ -6,7 +6,7 @@ import { selectUser, signIn } from "../redux/slices/authSlice";
 
 interface SigninModalProps {
   closeModal: () => void;
-  userType: "student" | "teacher";
+  userType: "student" | "teacher" | "content-creator";
 }
 
 function SigninModal({ closeModal, userType }: SigninModalProps) {
@@ -37,7 +37,7 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
       <div className="modal-content">
         <div className="modal-header">
           <h1 className="title">
-            {userType === 'student' ? 'Signin Student' : 'Signin Teacher'}
+            {userType === 'student' ? 'Signin Student' : userType === 'teacher' ? 'Signin Teacher' : 'Signin Content Creator'}
           </h1>
           <span className="close title" onClick={closeModal}>
             &times;

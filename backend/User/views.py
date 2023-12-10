@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import StudentSerializer, TeacherSerializer, UserSerializer
-from .models import Student, Teacher, User, Specialization
+from .serializers import StudentSerializer, TeacherSerializer, UserSerializer, ContentCreatorSerializer
+from .models import Student, Teacher, User, Specialization, ContentCreator
 import jwt, datetime
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -163,3 +163,41 @@ class UserView(APIView):
         serializer = StudentSerializer(student, many=True)
         return Response(serializer.data)
 
+class ContentCreatorLogin(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        try:
+            content_creator = ContentCreator.objects.get(user_name=username)
+        except ContentCreator.DoesNotExist:
+            return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
+
+        if password == content_creator.password:
+            # Correctly combine the message and the serialized data into one response
+            response_data = {'message': 'Login Successfully', **ContentCreatorSerializer(content_creator).data}
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
+
+class ContentCreatorRegister(APIView):
+    def post(self, request):
+        print(request.data)
+        serializer = ContentCreatorSerializer(data=request.data)
+        if serializer.is_valid():
+            content_creator = serializer.save()
+            payload = {
+                'id': content_creator.user_name,
+                'type': 'C',
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                'iat': datetime.datetime.utcnow()
+            }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            response = Response()
+            response.set_cookie(key='jwt', value=token, httponly=True)
+            response.data = {
+                'jwt': token
+            }
+            return response
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
