@@ -143,6 +143,7 @@ header {
   border-radius: 14px;
   width: 80%;
   max-width: 400px;
+  z-index: 1000;
 
   form {
     display: flex;
@@ -219,4 +220,26 @@ header {
 
 .select-course-input input[type="text"]:focus + span {
   display: block;
+}
+
+.form-radio-buttons {
+  display: flex;
+  flex-direction: row;
+
+  .radio-label {
+    display: flex;
+    margin-right: 48px;;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+
+    input[type="radio"] {
+      margin-right: 10px;
+    }
+  }
+}
+
+input[type="radio"]:checked + label {
+  font-weight: bold;
+  color: #007bff; 
 }

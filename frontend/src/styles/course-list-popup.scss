@@ -13,14 +13,13 @@
 /* Adjust your .course-list-popup */
 .course-list-popup {
   position: static; /* Changed from fixed to static */
-  width: 70vw;
-  height: 500px; /* Example fixed height */
+  width: 70vw !important;/* Example fixed height */
   background-color: #0d0b1c;
-  border: 1px solid #ccc;
+  border: 1px solid #c9a9a9;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1001;
   border-radius: 50px;
-  overflow-y: hidden;
+  overflow: hidden;
 
   // ... other styles ...
 

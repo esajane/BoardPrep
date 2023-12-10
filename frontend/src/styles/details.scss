@@ -1,18 +1,342 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+@import './toggle.scss';
 
-.details-container{
-    background-color: #1C1B29;
-    overflow: hidden;
-    
+body {
 
-    .img{
-        height: 1450px;
-        width: 1080px;
-        opacity: 30%;
-        position: relative; /* Add this line */
-        left: -225px;
-    }
-
-    title{
-        font-style: oblique;
-    }
+ overflow: auto;
+  width: 100%;
+  height: 100%;
+  background-color: #0d0b1c;
 }
+
+.course-page {
+  margin-top: 20px;
+  display: flex;
+  height: 100%;
+  position: relative;
+  background-color: #0d0b1c;
+  overflow-y: hidden;
+
+
+  .syllabus-main {
+    position: relative;
+    margin-top: 4%;
+    margin-right: 2%;
+    margin-left: 1%;
+    margin-bottom: 1%;
+    transition: margin-left 0.3s, width 0.3s ease;
+    flex: 0 0 10%; // Make sure to set flex-basis to the width for consistency
+    min-width: 200px;
+    z-index: 10; // Corrected z-index without %
+
+    .syllabus-container {
+      padding-top: 60px; // Padding to prevent content from hiding behind the toggle
+      transition: margin 0.3s ease;
+      
+    }
+
+    &.collapsed {
+      margin-left: -200px; // Collapse the sidebar
+      width: 0; // Collapse to width of the toggle button
+      flex-basis: 0;
+    }
+
+    
+  }
+
+  .lesson-content-container {
+    flex: 1 1 90%;
+    width: 900px;
+    height: fit-content;
+    border-radius: 10px;
+    margin-top: 5%;
+    margin-right: 5%;
+    margin-bottom: 10%;
+    padding: 50px;
+    transition: margin 0.3s ease, flex-basis 0.3s ease;
+    box-shadow: 11px 5px 9px 0px rgb(225, 131, 225), -1px -1px 10px rgb(144, 129, 129);
+    overflow: hidden;
+    background-color: #fefcff;  
+
+    .lesson-content-container img {
+      max-width: 100%;
+      height: auto;
+  }
+
+  .ck-editor__editable {
+    max-height: 400px;
+}
+
+  .ck.ck-editor__editable{
+    min-height: 300px;
+    max-height: 400px;
+    max-width: 1000px;
+    overflow-y: auto;
+  }
+
+  .ck.ck-toolbar {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap onto the next line */
+    max-width: 100%; /* Adjust width as needed */
+    justify-content: flex-start; /* Aligns items to the start */
+    overflow: hidden;
+}
+
+.ck.ck-toolbar .ck-toolbar__item {
+    margin-bottom: 5px; /* Adds a small space between rows */
+    overflow: hidden;
+}
+
+
+  .ck-editor__editable imgae {
+    max-width: 100%;
+    height: auto;
+  }
+    .pagination {
+      position: absolute; // Position it relative to lesson-content-container
+      bottom: 10px; // Adjust as needed to position at the bottom
+      left: 50%;
+      transform: translateX(-50%);
+      overflow: hidden;
+      color:#b650f4
+       // Center horizontally
+    }
+    .pagination {
+      display: flex;
+      list-style: none;
+      overflow: hidden;
+      padding: 0;
+      justify-content: center;
+      li {
+        margin: 0 5px;
+        overflow: hidden;
+        
+        a {
+          cursor: pointer;
+          padding: 5px 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+        &.active a {
+          background-color: #007bff;
+          color: white;
+        }
+      }
+    }
+
+  }
+
+  &.collapsed .lesson-content-container {
+    flex: 1; // Take up all available space when syllabus-main is collapsed
+    margin-left: 20px; // Remove the margin when sidebar is collapsed
+  }
+}
+
+
+
+
+.checkbox {
+  display: none;
+}
+
+.toggle {
+  position: absolute;
+  margin-top: 6%;
+  margin-left: 5%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 11; // Above the syllabus-main
+  transition: right 0.2s ease;
+
+  .materials-page:not(.collapsed) & {
+    margin-top: 5.5%; // Adjust this to fit the inside edge of syllabus-main
+    margin-left: 2%;
+  }
+}
+
+  // This will move the toggle button inside the syllabus container when expande
+
+.bars {
+  width: 100%;
+  height: 4px;
+  background-color: rgb(176, 92, 255);
+  border-radius: 4px;
+  transition-duration: .5s;
+}
+
+#bar2 {
+  transition-duration: .8s;
+}
+
+#bar1, #bar3 {
+  width: 70%;
+}
+
+.checkbox:not(:checked) + .toggle .bars {
+  position: absolute;
+  transition-duration: .5s;
+}
+
+.checkbox:not(:checked) + .toggle #bar2 {
+  transform: scaleX(0);
+}
+
+.checkbox:not(:checked) + .toggle #bar1 {
+  width: 100%;
+  transform: rotate(45deg);
+}
+
+.checkbox:not(:checked) + .toggle #bar3 {
+  width: 100%;
+  transform: rotate(-45deg);
+}
+
+.checkbox:not(:checked) + .toggle {
+  transform: rotate(180deg);
+}
+
+  
+  // ... Rest of your existing styles
+  
+
+.course-details {
+  font-family: 'Montserrat', sans-serif;
+  background: #0d0b1c;
+  color: white;
+  width: 100%;
+  height: 100vh;
+
+  .header-course {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 5%;
+    border-bottom: 1px solid #B650F4;
+
+    .course-title {
+      h1 {
+        color: #ffffff;
+      }
+    }
+
+    .course-nav {
+      ul {
+        list-style: none;
+        display: flex;
+        gap: 30px;
+
+        li {
+          cursor: pointer;
+          padding: 10px;
+          border-bottom: 2px solid transparent;
+
+          &:hover,
+          &.active {
+            border-color: #B650F4;
+          }
+        }
+      }
+    }
+  }
+
+  .admin-dashboard-background {
+    width: 100vw;
+    height: 100vh;
+    background: #0d0b1c;
+    overflow-y: auto;
+  }
+
+  .admin-header {
+    background-color:#0d0b1c;
+    color: #ffffff;
+    display: flex;
+    width: 90%;
+    margin: auto;
+    padding-top: 50px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  
+.create-course-btn {
+  color: #ffffff;
+  font-size: 25px;
+  width: 100px;
+  height: 20px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid white;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #fff;
+    color: #201c1c;
+  }
+}
+
+  .btn {
+    color: #ffffff;
+    font-size: 25px;
+    width: 200px;
+    height: 100px;
+    border-radius: 14px;
+    background: transparent;
+    border: 1px solid white;
+    transition: all 0.3s ease;
+  
+    &:hover {
+      background-color: #fff;
+      color: #201c1c;
+    }
+  }
+
+  .content-area {
+    display: flex;
+    padding: 20px 5%;
+
+    .sidebar {
+      flex-basis: 20%;
+      padding-right: 20px;
+
+      // Styles for your sidebar components like Syllabus
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding-left: 20px;
+
+      // Styles for the main content area
+    }
+  }
+
+  
+}
+
+
+.btnDets {
+    color: #ffffff;
+    width: 100px;
+    height: 34px;
+    border-radius: 5px;
+    background: #b650f4;
+    margin-left: auto;
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+    margin: 5px;
+  }
+
+  .m{
+    background-color:#0d0b1c
+  }
+
+
+  
+
+// Add any additional styles needed for your CourseDetails page

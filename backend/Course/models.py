@@ -35,6 +35,7 @@ class Page(models.Model):
 
     class Meta:
         ordering = ['page_number']
+        unique_together = ('lesson', 'page_number')
 
     def __str__(self):
         return f"Page {self.page_number} - {self.lesson.lesson_title}"

@@ -299,6 +299,8 @@ margin-left: -15px;
     text-align: center;
     margin: 0.9em auto;
     min-width: 50px;
+    max-width: 100%;
+  height: auto;
 }
 /* @ckeditor/ckeditor5-image/theme/image.css */
 .ck-content .image img {
