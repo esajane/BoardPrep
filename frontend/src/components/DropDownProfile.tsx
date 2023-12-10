@@ -36,10 +36,15 @@ const DropDownProfile = () => {
     }
   };
 
+  const handlePayment = () => {
+    navigate("/payment");
+  }
+
   return (
     <div className="flex flex-col dropDownProfile">
       <ul className="items">
         <li className="item">Profile</li>
+        <li className="item" onClick={handlePayment}>Upgrade</li>
         <li className="item">Settings</li>
         <li className="item" onClick={handleLogout}>
           Logout

@@ -18,6 +18,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import { setUserFromLocalStorage } from "./redux/slices/authSlice";
 import { useAppDispatch } from "./redux/hooks";
+import Payment from "./pages/Payment";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -81,6 +82,14 @@ function App() {
           element={
             <PrivateRoute>
               <Forum />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <PrivateRoute>
+              <Payment />
             </PrivateRoute>
           }
         />
