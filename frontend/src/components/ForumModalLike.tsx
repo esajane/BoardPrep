@@ -4,20 +4,50 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import ForumLikeCard from './ForumLikeCard';
+import axios from 'axios';
 
 interface ForumModalCommentProps {
+  id: number;
   closeModal: () => void;
 }
 
-function ForumModalLike({ closeModal }: ForumModalCommentProps) {
+function ForumModalLike({ id, closeModal }: ForumModalCommentProps) {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const [comment, setComment] = useState('');
   const [count, setCount] = useState(0);
   const navigate = useNavigate();
+  const [likes, setLikes] = useState<any[]>([]);
+
+  useEffect(() => {
+    getLikes();
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    try {
+      const res = await axios.post('http://127.0.0.1:8000/create/like/', {
+        post: id,
+        user: user.token.id,
+      });
+      console.log(res.data);
+      closeModal();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getLikes = async () => {
+    try {
+      const res = await axios.get(`http://127.0.0.1:8000/get/like/?post=${id}`);
+      console.log('getting likes');
+
+      
+      setLikes(res.data);
+      setCount(res.data.length);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -30,17 +60,15 @@ function ForumModalLike({ closeModal }: ForumModalCommentProps) {
           </span>
         </div>
         <div className="like-cards">
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
-          <ForumLikeCard />
+          {likes.map((like) => (
+            <ForumLikeCard
+              key={like.id}
+              author={like.user}
+              dateCreate={like.created_at}
+            />
+          ))}
         </div>
-        <button type="submit" className="like-card-button">
+        <button type="submit" className="like-card-button" onClick={handleSubmit}>
           Like
         </button>
       </div>

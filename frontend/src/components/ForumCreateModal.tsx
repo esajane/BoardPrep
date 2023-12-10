@@ -1,11 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction, Dispatch } from 'react';
 import '../styles/class.scss';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
+import axios from 'axios';
+
+interface Posts {
+  author: string;
+  dateCreate: string;
+  title: string;
+  content: string;
+  tags: string;
+}
 
 interface ForumCreateProps {
   closeModal: () => void;
+  setPosts: (classes: Posts[]) => void;
 }
 
 function ForumCreate({ closeModal }: ForumCreateProps) {
@@ -18,6 +28,19 @@ function ForumCreate({ closeModal }: ForumCreateProps) {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    try {
+      const res = await axios.post('http://127.0.0.1:8000/create/post/', {
+        post: user.token.id,
+        author: user.token.id,
+        title,
+        content,
+        tags,
+      });
+      console.log(res.data);
+      closeModal();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (

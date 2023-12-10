@@ -4,9 +4,46 @@ import boardprep from '../assets/boardprep.png';
 import ForumModalComment from './ForumModalComment';
 import ForumModalLike from './ForumModalLike';
 
-const ForumPost = () => {
+interface ForumPostProps {
+  key: number;
+  id: number;
+  author: string;
+  dateCreate: string;
+  title: string;
+  content: string;
+  tags: string;
+}
+
+const ForumPost = ({
+  key,
+  id,
+  author,
+  dateCreate,
+  title,
+  content,
+  tags,
+}: ForumPostProps) => {
   const [modalOpenComment, setModalOpenComment] = useState(false);
   const [modalOpenLike, setModalOpenLike] = useState(false);
+
+  const tagso = Array.from(tags.split(','));
+
+  const date = new Date(dateCreate);
+
+  function formatDate(date: Date) {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    const minutes = ('0' + date.getMinutes()).slice(-2);
+
+    return `${month}/${day}/${year}, ${hours}:${minutes} ${ampm}`;
+  }
 
   const openModalComment = () => {
     setModalOpenComment(true);
@@ -37,24 +74,16 @@ const ForumPost = () => {
       </div>
       <div className="forum-post-details">
         <div className="forum-author-and-date">
-          <span className="forum-post-author">Author: Joe Ed Secoya</span>
-          <span className="forum-post-date">11/30/2023, 12:31 PM</span>
+          <span className="forum-post-author">Author: {author}</span>
+          <span className="forum-post-date">{formatDate(date)}</span>
         </div>
-        <span className="forum-post-title">How To Hack Using HTML</span>
-        <div className="forum-post-content">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
-        </div>
+        <span className="forum-post-title">{title}</span>
+        <div className="forum-post-content">{content}</div>
         <div className="forum-post-tags-buttons">
           <div>
-            <span className="forum-post-tags">HAcker</span>
-            <span className="forum-post-tags">HAcker</span>
-            <span className="forum-post-tags">HAcker</span>
+            {tagso.map((tag: any) => (
+              <span className="forum-post-tags">{tag}</span>
+            ))}
           </div>
           <div className="forum-buttons">
             <button className="forum-button" onClick={openModalComment}>
@@ -64,11 +93,9 @@ const ForumPost = () => {
               Like
             </button>
             {modalOpenComment && (
-              <ForumModalComment closeModal={closeModalComment} />
+              <ForumModalComment key={key} id={id} closeModal={closeModalComment} />
             )}
-            {modalOpenLike && (
-              <ForumModalLike closeModal={closeModalLike}/>
-            )}
+            {modalOpenLike && <ForumModalLike key={key} id={id} closeModal={closeModalLike} />}
           </div>
         </div>
       </div>
