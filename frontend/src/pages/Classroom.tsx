@@ -9,6 +9,7 @@ import Materials from "../components/Materials";
 import ActivitiesTab from "../components/ActivitiesTab";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import DropDownProfile from "../components/DropDownProfile";
 
 interface Class {
   classId: number;
@@ -33,6 +34,7 @@ function Classroom() {
   const [classItem, setClass] = useState<Class>();
   const [activeLink, setActiveLink] = useState("Posts");
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+  const [openProfile, setOpenProfile] = useState(false);
   const navigate = useNavigate();
 
   const fetchClass = async () => {
@@ -145,7 +147,8 @@ function Classroom() {
           </nav>
         </div>
         <div className="profile-pic2">
-          <img src={profileImage} className="logo" alt="RILL" />
+          <img src={profileImage} className="logo" alt="RILL" onClick={() => setOpenProfile((prev) => !prev)}/>
+          {openProfile && <DropDownProfile />}
         </div>
       </div>
       <div className="class-content">{renderTab()}</div>
