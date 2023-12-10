@@ -71,6 +71,9 @@ function ActivityDetails({
   const [submissions, setSubmissions] = React.useState<Submission[]>([]);
   const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [studSubmission, setStudSubmission] = React.useState<Submission>();
+  const [isClosed, setIsClosed] = React.useState(
+    activityDetails.status === "In Progress" ? false : true
+  );
   const statusColor =
     activityDetails.status === "In Progress"
       ? "orange"
@@ -128,17 +131,22 @@ function ActivityDetails({
     open: boolean
   ) => {
     e.stopPropagation();
-    if (isSubmitted || activityDetails.status === "Completed") return;
+    if (isSubmitted || isClosed) return;
     setIsFile(open);
     openModal();
   };
 
   const submitActivity = async () => {
+    if (new Date() > new Date(activityDetails.due_date)) {
+      setIsClosed(true);
+      return;
+    }
     try {
       const attachs = subAttachments.map((attachment) => attachment.id);
       const response = await axios.post("http://127.0.0.1:8000/submissions/", {
         submission_text: "test",
         activity: activityDetails.id,
+        score: 0,
         student: user.token.id,
         attachments: attachs,
       });
@@ -171,10 +179,7 @@ function ActivityDetails({
         <button
           className="activity-details--header__button"
           onClick={handleSubmitClick}
-          disabled={
-            user.token.type === "S" &&
-            (isSubmitted || activityDetails.status === "Completed")
-          }
+          disabled={user.token.type === "S" && (isSubmitted || isClosed)}
         >
           {user.token.type === "T"
             ? "See Submissions"
@@ -183,93 +188,98 @@ function ActivityDetails({
             : "Submit"}
         </button>
       </div>
-      <div className="activity-details--title">
-        <div className="flexify">
-          <h2>{activityDetails.title}</h2>{" "}
-          <span className="status" style={{ backgroundColor: statusColor }}>
-            {activityDetails.status}
-          </span>
+      <div className="scroller">
+        <div className="activity-details--title">
+          <div className="flexify">
+            <h2>{activityDetails.title}</h2>{" "}
+            <span className="status" style={{ backgroundColor: statusColor }}>
+              {activityDetails.status}
+            </span>
+          </div>
+          <div className="due_date">
+            Due {dueDateify(activityDetails.due_date)}
+          </div>
         </div>
-        <div className="due_date">
-          Due {dueDateify(activityDetails.due_date)}
+        <div className="activity-details--instructions">
+          <div className="subheader">Instructions</div>
+          <div className="activity-details--instructions__content">
+            {activityDetails.content}
+          </div>
         </div>
-      </div>
-      <div className="activity-details--instructions">
-        <div className="subheader">Instructions</div>
-        <div className="activity-details--instructions__content">
-          {activityDetails.content}
+        <div className="activity-details--attachments">
+          {activityDetails.attachments_details.length > 0 && (
+            <>
+              <div className="subheader">Attachments</div>
+              {attachments.map((attachment) => (
+                <Attachment
+                  key={attachment.id}
+                  attachment={attachment}
+                  setAttachments={setAttachments}
+                />
+              ))}
+            </>
+          )}
         </div>
-      </div>
-      <div className="activity-details--attachments">
-        {activityDetails.attachments_details.length > 0 && (
-          <>
-            <div className="subheader">Attachments</div>
-            {attachments.map((attachment) => (
+        {user.token.type === "S" && (
+          <div className="activity-details--work-area">
+            <div className="subheader">Work Area</div>
+            {subAttachments.map((attachment) => (
               <Attachment
                 key={attachment.id}
                 attachment={attachment}
                 setAttachments={setAttachments}
               />
             ))}
-          </>
+            <div
+              className="attach-file"
+              onClick={(e) => handleModalClick(e, true)}
+              style={{ color: isClosed || isSubmitted ? "grey" : "#b650f4" }}
+            >
+              <MdAttachFile />
+              Add Attachment
+            </div>
+            <div
+              className="attach-link"
+              onClick={(e) => handleModalClick(e, false)}
+              style={{ color: isClosed || isSubmitted ? "grey" : "#b650f4" }}
+            >
+              <GoPlus /> Add Link
+            </div>
+            {modal && (
+              <SmallAttachmentModal
+                closeModal={closeModal}
+                setSubAttachments={setSubAttachments}
+                isFile={isFile}
+              />
+            )}
+          </div>
         )}
-      </div>
-      {user.token.type === "S" && (
-        <div className="activity-details--work-area">
-          <div className="subheader">Work Area</div>
-          {subAttachments.map((attachment) => (
-            <Attachment
-              key={attachment.id}
-              attachment={attachment}
-              setAttachments={setAttachments}
-            />
-          ))}
-          <div
-            className="attach-file"
-            onClick={(e) => handleModalClick(e, true)}
-          >
-            <MdAttachFile />
-            Add Attachment
-          </div>
-          <div
-            className="attach-link"
-            onClick={(e) => handleModalClick(e, false)}
-          >
-            <GoPlus /> Add Link
-          </div>
-          {modal && (
-            <SmallAttachmentModal
-              closeModal={closeModal}
-              setSubAttachments={setSubAttachments}
-              isFile={isFile}
-            />
-          )}
+        {submissionModalOpen && (
+          <SubmissionsModal
+            closeSubmissionModal={closeSubmissionModal}
+            activityPoints={activityDetails.points}
+            submissions={submissions}
+            setSubmissions={setSubmissions}
+          />
+        )}
+        <div className="activity-details--points">
+          <div className="subheader">Points</div>
+          {user.token.type === "S" &&
+            isSubmitted &&
+            studSubmission?.is_returned &&
+            studSubmission?.score + " / "}
+          {activityDetails.points > 0 ? activityDetails.points : "No"} points
         </div>
-      )}
-      {submissionModalOpen && (
-        <SubmissionsModal
-          closeSubmissionModal={closeSubmissionModal}
-          activityPoints={activityDetails.points}
-          submissions={submissions}
-          setSubmissions={setSubmissions}
-        />
-      )}
-      <div className="activity-details--points">
-        <div className="subheader">Points</div>
         {user.token.type === "S" &&
           isSubmitted &&
-          studSubmission?.score + " / "}
-        {activityDetails.points > 0 ? activityDetails.points : "No"} points
+          studSubmission?.feedback &&
+          studSubmission.feedback !== "" && (
+            <div className="activity-details--points">
+              <div className="subheader">Feedback</div>
+              {studSubmission.feedback}
+            </div>
+          )}
       </div>
-      {user.token.type === "S" &&
-        isSubmitted &&
-        studSubmission?.feedback &&
-        studSubmission.feedback !== "" && (
-          <div className="activity-details--points">
-            <div className="subheader">Feedback</div>
-            {studSubmission.feedback}
-          </div>
-        )}
     </div>
   );
 }

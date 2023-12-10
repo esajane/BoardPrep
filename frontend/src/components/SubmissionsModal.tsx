@@ -48,15 +48,17 @@ function SubmissionsModal({
           </span>
         </div>
         <div className="submission-container">
-          {submissions.map((submission) => (
-            <>
+          {submissions.length > 0 ? (
+            submissions.map((submission) => (
               <SubmissionCard
                 submission={submission}
                 activityPoints={activityPoints}
                 setCurrentSubmissions={setSubmissions}
               />
-            </>
-          ))}
+            ))
+          ) : (
+            <div className="no-submissions">No submissions yet.</div>
+          )}
         </div>
       </div>
     </div>

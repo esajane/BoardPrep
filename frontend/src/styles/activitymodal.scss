@@ -54,6 +54,10 @@
                     background: transparent;
                     max-height: 60px;
                     overflow: auto;
+
+                    .attachment {
+                        width: 99%;
+                    }
                 }
 
                 .add-attachment {

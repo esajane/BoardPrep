@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaEllipsisH, FaFile } from "react-icons/fa";
+import { FaEllipsisH, FaFile, FaFileImage } from "react-icons/fa";
 import { MdOutlineFileOpen, MdDeleteOutline } from "react-icons/md";
 import { LuDownload } from "react-icons/lu";
 import "../styles/attachment.scss";
@@ -98,7 +98,11 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
       <div className="left">
         <div>
           {attachment.file === null ? (
-            <img src={attachment.favicon} alt="icon" width={25} height={25} />
+            attachment.favicon === "No favicon found" ? (
+              <FaFileImage size={20} />
+            ) : (
+              <img src={attachment.favicon} alt="icon" width={25} height={25} />
+            )
           ) : (
             <FaFile size={20} />
           )}
