@@ -98,6 +98,7 @@ function Classroom() {
             students={classItem.students}
             teacher={classItem.teacher}
             fetchClass={fetchClass}
+            classItem={classItem}
           />
         );
       case "Materials":
