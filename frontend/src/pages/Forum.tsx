@@ -1,29 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ForumPost from '../components/ForumPost';
 import '../styles/forum.scss'
 import ForumCreateModal from '../components/ForumCreateModal';
-import { useAppSelector } from "../redux/hooks";
-// import { selectUser } from "../redux/slices/authSlice";
 import axios from 'axios';
 
+interface Posts {
+  author: string;
+  dateCreate: string;
+  title: string;
+  content: string;
+  tags: string;
+}
+
 const Forum = () => {
-  // const user = useAppSelector(selectUser);
-  const [post, setPosts] = useState([]);
+  const [post, setPosts] = useState<Posts[]>([]);
   const [createPost, setCreatePost] = useState(false);
 
+  useEffect(() => {
+    getPosts();
+  }, []);
 
+  const getPosts = async () => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      console.log(res.data);
+      setPosts(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-  // const fetchPosts = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://127.0.0.1:8000/classes/`
-  //     );
-  //     setPosts(response.data);
-  //   }
-  //   catch (err) {
-  //     console.error(err);
-  //   }
-  // }
+  const handleNewButton = async () => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      console.log(res.data);
+      const sortedPost = res.data.sort((a: any, b: any) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      setPosts(sortedPost);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleTopButton = async () => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+
+      const posts = res.data;
+
+      const fetchLikesPromises = posts.map(async (post: any) => {
+        try {
+          const likesRes = await axios.get(`http://127.0.0.1:8000/get/like/?post=${post.id}`);
+          const likesCount = likesRes.data.length;
+          return { ...post, likesCount };
+        } catch (err) {
+          console.log(err);
+          return { ...post, likesCount: 0 };
+        }
+      });
+
+      const postsWithLikes = await Promise.all(fetchLikesPromises);
+
+      const sortedPosts = postsWithLikes.sort((a, b) => b.likesCount - a.likesCount);
+
+      console.log(sortedPosts);
+      setPosts(sortedPosts);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleHotButton = async () => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      const posts = res.data;
+
+      const fetchCommentsPromises = posts.map(async (post: any) => {
+        try {
+          const commentsRes = await axios.get(`http://127.0.0.1:8000/get/comment/?post=${post.id}`);
+          const commentsCount = commentsRes.data.length;
+          return { ...post, commentsCount };
+        } catch (err) {
+          console.log(err);
+          return { ...post, commentsCount: 0 };
+        }
+      });
+
+      const postsWithComments = await Promise.all(fetchCommentsPromises);
+
+      const sortedPosts = postsWithComments.sort((a, b) => b.commentsCount - a.commentsCount);
+
+      console.log(sortedPosts);
+      setPosts(sortedPosts);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   const openCreatePost = () => {
     setCreatePost(true);
@@ -39,19 +112,21 @@ const Forum = () => {
     <div className="background">
       <header>
         <div className='form-pili'>
-          <button className="form-pili-item">New</button>
-          <button className="form-pili-item">Top</button>
-          <button className="form-pili-item">Hot</button>
+          <button className="form-pili-item" onClick={handleNewButton}>New</button>
+          <button className="form-pili-item" onClick={handleTopButton}>Top</button>
+          <button className="form-pili-item" onClick={handleHotButton}>Hot</button>
         </div>
         <div>
           <button className="user-c" onClick={openCreatePost}>Create Post</button>
         </div>
         {createPost && (
-            <ForumCreateModal closeModal={closeCreatePost} />
+            <ForumCreateModal setPosts={setPosts} closeModal={closeCreatePost} />
           )}
       </header>
-      <div>
-        <ForumPost />
+      <div className='forum-posta-anay'>
+        {post.map((post: any) => (
+          <ForumPost key={post.id} id={post.id} author={post.author} dateCreate={post.created_at} title={post.title} content={post.content} tags={post.tags} />
+        ))}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import os
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -11,6 +12,7 @@ from django.db.models import Q
 from .models import MockTest, MockQuestions, MockTestScores
 from User.models import Student, Teacher, User
 from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer
+from openai import OpenAI
 
 class MockTestViewSet(viewsets.ModelViewSet):
     queryset = MockTest.objects.none()
@@ -91,6 +93,11 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def submit_mocktest(request, mocktest_id):
     try:
+        client = OpenAI()
+        client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+        )
+
         user_name = request.data.get('user_name')
         if not user_name:
             return Response({'error': 'User name not provided.'}, status=400)
@@ -107,19 +114,51 @@ def submit_mocktest(request, mocktest_id):
         score = sum(answer == correct_answers_dict.get(str(question_id)) for question_id, answer in answers.items())
         total_questions = len(correct_answers)
 
+        correct_answers_list = []
+        wrong_answers_list = []
+
+        for question_id, submitted_answer in answers.items():
+            correct_answer = correct_answers_dict.get(str(question_id))
+            question_text = MockQuestions.objects.get(id=question_id).question
+
+            if submitted_answer == correct_answer:
+                correct_answers_list.append({"question": question_text, "submittedAnswer": submitted_answer,"correctAnswer": correct_answer})
+            else:
+                wrong_answers_list.append({"question": question_text, "submittedAnswer": submitted_answer, "correctAnswer": correct_answer})
+
+        correct_answers_paragraph = "Here are the questions where the user got the correct answer:\n"
+        for item in correct_answers_list:
+            correct_answers_paragraph += f"Question: {item['question']} - Submitted Answer: {item['submittedAnswer']}\n"
+
+        wrong_answers_paragraph = "Here are the questions where the user got the wrong answer:\n"
+        for item in wrong_answers_list:
+            wrong_answers_paragraph += f"Question: {item['question']} - Submitted Answer: {item['submittedAnswer']}, Correct Answer: {item['correctAnswer']}\n"
+
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an excellent engineer, tasked with providing constructive feedback on mock test performances."},
+                {"role": "user", "content": f"{correct_answers_paragraph}\n\n{wrong_answers_paragraph}\n\nBased on this, can you provide some feedback and suggestions for improvement, like what subjects to focus on, which field i excel, and some strategies?"}
+            ]
+        )
+
+        feedback = completion.choices[0].message
+
         MockTestScores.objects.update_or_create(
             mocktest_id=mocktest,
             student=student,
             defaults={
                 'score': score,
                 'totalQuestions': total_questions,
-                'mocktestDateTaken': timezone.now()
+                'mocktestDateTaken': timezone.now(),
+                'feedback': feedback
             }
         )
 
         response_data = {
             'score': score,
             'total_questions': total_questions,
+            'feedback': feedback,
             'mocktestName': mocktest_name,
             'studentName': f"{user.first_name} {user.last_name}",
             'mocktestDateTaken': timezone.now().strftime('%B %d, %Y'),

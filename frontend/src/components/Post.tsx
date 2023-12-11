@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../styles/post.scss";
-import { FaReply, FaEllipsisV } from "react-icons/fa";
+import { FaReply, FaEllipsisV, FaSave } from "react-icons/fa";
+import { MdCancel } from "react-icons/md";
 import { IoChevronForwardOutline, IoChevronDownOutline } from "react-icons/io5";
 import profileImage from "../assets/16.png";
 import axios from "axios";
@@ -38,6 +39,10 @@ function Post({ post, setPosts }: PostProps) {
   const replyRef = useRef<HTMLInputElement>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [showReplies, setShowReplies] = useState(false);
+  const [newContent, setNewContent] = useState(post.content);
+  const [content, setContent] = useState(post.content);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -105,6 +110,32 @@ function Post({ post, setPosts }: PostProps) {
     }
   };
 
+  const saveEdit = async () => {
+    if (newContent === content) {
+      setIsEditing(false);
+      setError("");
+      return;
+    }
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/posts/${post.id}/update_content/`,
+        {
+          content: newContent,
+        }
+      );
+      setContent(newContent);
+      setIsEditing(false);
+      setError("");
+    } catch (err: any) {
+      setError(err.response.data.message);
+    }
+  };
+
+  const handleSaveEdit = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    saveEdit();
+  };
+
   return (
     <div className="post-card">
       <div className="post-card--read">
@@ -126,6 +157,7 @@ function Post({ post, setPosts }: PostProps) {
               {showMenu && (
                 <div className="menu-dropdown">
                   <ul>
+                    <li onClick={(e) => setIsEditing(true)}>Edit</li>
                     <li onClick={handleDeletePost}>Delete</li>
                   </ul>
                 </div>
@@ -133,7 +165,33 @@ function Post({ post, setPosts }: PostProps) {
             </div>
           )}
         </div>
-        <div className="post-card--read--body">{post.content}</div>
+        {isEditing ? (
+          <div className="text-container">
+            {error && <div className="error">Error: {error}</div>}
+            <textarea
+              value={newContent}
+              onChange={(e) => setNewContent(e.target.value)}
+              required
+            />
+            <div className="actions">
+              <div className="save" onClick={handleSaveEdit}>
+                <FaSave /> Save
+              </div>
+              <div
+                className="cancel"
+                onClick={(e) => {
+                  setNewContent(content);
+                  setIsEditing(false);
+                  setError("");
+                }}
+              >
+                <MdCancel /> Cancel
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="post-card--read--body">{content}</div>
+        )}
         <div className="post-card--read--replies">
           {comments.length > 0 && (
             <div

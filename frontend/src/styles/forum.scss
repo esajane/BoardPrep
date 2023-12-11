@@ -135,3 +135,8 @@ body {
   cursor: pointer;
   outline: none;
 }
+
+.forum-posta-anay {
+  overflow-y: auto;
+  max-height: 90%;
+}

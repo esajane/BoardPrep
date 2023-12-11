@@ -52,11 +52,19 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Post.objects.all()
         class_id = self.request.query_params.get('class_id')
-        try:
-            class_id = int(class_id)
-        except:
-            return queryset.none()
-        return queryset.filter(class_instance_id=class_id)
+        pk = self.kwargs.get('pk')
+
+        if pk:
+            return queryset.filter(pk=pk)
+
+        if class_id:
+            try:
+                class_id = int(class_id)
+                return queryset.filter(class_instance_id=class_id)
+            except ValueError:
+                pass
+
+        return queryset
     
     def destroy(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
@@ -65,11 +73,22 @@ class PostViewSet(viewsets.ModelViewSet):
         except Post.DoesNotExist:
             return Response({'message': 'Post Not Found!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        #if request.user.id != post.teacher_id:
-        #    return Response({'message': 'Unauthorized!'}, status=status.HTTP_401_UNAUTHORIZED)
-
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['post'])
+    def update_content(self, request, pk=None):
+        try:
+            post = self.get_object()
+        except Post.DoesNotExist:
+            return Response({'message': 'Post Not Found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        content = request.data.get('content')
+        if content:
+            post.content = content
+            post.save()
+            return Response({'message': 'Post updated successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -78,11 +97,19 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Comment.objects.all()
         post_id = self.request.query_params.get('post_id')
-        try:
-            post_id = int(post_id)
-        except:
-            return queryset.none()
-        return queryset.filter(post_id=post_id)
+        pk = self.kwargs.get('pk')
+
+        if pk:
+            return queryset.filter(pk=pk)
+
+        if post_id:
+            try:
+                post_id = int(post_id)
+                return queryset.filter(post_id=post_id)
+            except ValueError:
+                return queryset.none()
+
+        return queryset
     
     def destroy(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
@@ -91,11 +118,22 @@ class CommentViewSet(viewsets.ModelViewSet):
         except Comment.DoesNotExist:
             return Response({'message': 'Comment Not Found!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        #if request.user.id != comment.teacher_id:
-        #    return Response({'message': 'Unauthorized!'}, status=status.HTTP_401_UNAUTHORIZED)
-
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['post'])
+    def update_content(self, request, pk=None):
+        try:
+            comment = self.get_object()
+        except Comment.DoesNotExist:
+            return Response({'message': 'Comment Not Found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        content = request.data.get('content')
+        if content:
+            comment.content = content
+            comment.save()
+            return Response({'message': 'Comment updated successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 class JoinRequestViewSet(viewsets.ModelViewSet):
     serializer_class = JoinRequestSerializer
@@ -184,6 +222,32 @@ class SubmissionViewSet(viewsets.ModelViewSet):
                 queryset = queryset.none()
 
         return queryset
+    
+    @action(detail=True, methods=['post'], url_path='score-submission')
+    def score_submission(self, request, pk=None):
+        try:
+            submission = self.get_object()
+            score = request.data.get('score')
+            feedback = request.data.get('feedback')
+
+            if score is not None:
+                score = int(score)
+
+                activity = submission.activity
+                max_points = activity.points
+
+                if score >= 0  and score <= max_points:
+                    submission.score = score
+                    submission.feedback = feedback
+                    submission.is_returned = True
+                    submission.save()
+                    return Response(self.get_serializer(submission).data)
+                else:
+                    return Response({"error": "Invalid score"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Score is required"}, status=status.HTTP_400_BAD_REQUEST)
+        except Submission.DoesNotExist:
+            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
 
     
 class AttachmentViewSet(viewsets.ModelViewSet):

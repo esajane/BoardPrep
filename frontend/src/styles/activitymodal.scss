@@ -54,6 +54,10 @@
                     background: transparent;
                     max-height: 60px;
                     overflow: auto;
+
+                    .attachment {
+                        width: 99%;
+                    }
                 }
 
                 .add-attachment {
@@ -116,6 +120,11 @@
         margin-left: auto;
         cursor: pointer;
         border: none;
+        transition: all .3s ease;
+
+        &:hover {
+            background-color: #5e4dcd;
+        }
     }
 }
 

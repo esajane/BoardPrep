@@ -7,6 +7,7 @@ import { IoCreateOutline } from "react-icons/io5";
 import ActivityModal from "./ActivityModal";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import Loader from "./Loader";
 
 interface Attachments {
   id: number;
@@ -41,14 +42,17 @@ function ActivitiesTab({ classId }: ActivitiesTabProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activityDetails, setActivityDetails] = useState<Activity>();
   const [modalOpen, setModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchActivities = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get(
           `http://127.0.0.1:8000/activities/?class_id=${classId}`
         );
         setActivities(await response.data);
+        setIsLoading(false);
       } catch (err) {
         console.error(err);
       }
@@ -66,38 +70,47 @@ function ActivitiesTab({ classId }: ActivitiesTabProps) {
   };
 
   return (
-    <div className="activities-tab">
-      <div className="activities-tab--center">
-        {activityDetails ? (
-          <ActivityDetails
-            activityDetails={activityDetails}
-            setActivityDetails={setActivityDetails}
-          />
-        ) : activities.length > 0 ? (
-          activities.map((activity) => (
-            <ActivityRow
-              key={activity.id}
-              activity={activity}
+    <div className="activity-container">
+      <div className="activities-tab">
+        <div className="activities-tab--center">
+          {isLoading ? (
+            <>
+              <Loader />
+              <div>Loading Activities...</div>
+            </>
+          ) : activityDetails ? (
+            <ActivityDetails
+              activityDetails={activityDetails}
               setActivityDetails={setActivityDetails}
             />
-          ))
-        ) : (
-          <div>No activities yet.</div>
-        )}
-        {!activityDetails && user.token.type === "T" && (
+          ) : activities.length > 0 ? (
+            activities.map((activity) => (
+              <ActivityRow
+                key={activity.id}
+                activity={activity}
+                setActivityDetails={setActivityDetails}
+              />
+            ))
+          ) : (
+            <div>No activities yet.</div>
+          )}
+          {modalOpen && (
+            <ActivityModal
+              classId={classId}
+              closeModal={closeModal}
+              setActivities={setActivities}
+            />
+          )}
+        </div>
+      </div>
+      {!activityDetails && user.token.type === "T" && (
+        <div className="bottomd">
           <button className="activities-tab--center--add" onClick={openModal}>
             <IoCreateOutline />
             Create Activity
           </button>
-        )}
-        {modalOpen && (
-          <ActivityModal
-            classId={classId}
-            closeModal={closeModal}
-            setActivities={setActivities}
-          />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -85,7 +85,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           classDescription: description,
           course: courseValue,
           teacher: user.token.id,
-          //students: ["student1"],
+          students: [],
         });
 
         if (response.status === 201) {
@@ -150,10 +150,9 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
                 placeholder="Select Course"
                 onClick={toggleCourseList}
                 readOnly
-                value={selectedCourseTitle || "Select Course"} // Show the selected course title in the input field
+                value={selectedCourseTitle || "Select Course"}
               />
               <button type="submit">Create Class</button>{" "}
-              {/* Create Class button */}
             </>
           ) : (
             <>
