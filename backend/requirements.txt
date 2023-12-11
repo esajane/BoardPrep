@@ -3,3 +3,4 @@ openai
 django-environ
 PyJWT
 djangorestframework-simplejwt
+stripe
