@@ -47,6 +47,8 @@ urlpatterns = [
     #path('create-lesson/', views.create_lesson, name='create_lesson'),
     path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
 
+    #path for payment and subscriptions
+    path('', include('Subscription.urls')),
 
     path('create-page/', views.create_page, name='create_page'),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),

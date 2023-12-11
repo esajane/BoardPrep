@@ -128,6 +128,7 @@ DATABASES = {
     }
 }
 
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_51OKTa5IqhJdy9d5WdauhRZMnPyLF69FK634SNfovUNs3iYUSzEJ3v1abIk9tqJYAIWf15ydGhhumWZr70HPJx6dQ00gRsv52xj')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
