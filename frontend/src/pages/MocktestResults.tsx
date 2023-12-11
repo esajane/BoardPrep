@@ -89,7 +89,6 @@ const MockTestResults = () => {
         });
     }
   }, [mocktest_id, user.token.id]);
-  console.log(result);
 
   if(isLoading) {
     return <div>Loading mock test results...</div>;
