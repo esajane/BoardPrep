@@ -52,22 +52,6 @@ function App() {
           }
         /> */}
         <Route
-          path="/course/:course_id/mocktest/"
-          element={
-            <PrivateRoute>
-              <MockTest />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/course/:course_id/mocktest/:mocktest_id/results"
-          element={
-            <PrivateRoute>
-              <MockTestResult />
-            </PrivateRoute>
-          }
-        />
-        <Route
           path="/classes"
           element={
             <PrivateRoute>
@@ -80,6 +64,22 @@ function App() {
           element={
             <PrivateRoute>
               <Classroom />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/classes/:classID/mocktest"
+          element={
+            <PrivateRoute>
+              <MockTest />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/classes/:classID/mocktest/:mocktest_id/results"
+          element={
+            <PrivateRoute>
+              <MockTestResult />
             </PrivateRoute>
           }
         />
