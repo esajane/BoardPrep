@@ -1,6 +1,7 @@
 from django.db import models
 
 class MockTest(models.Model):
+    classID = models.ForeignKey('Class.Class', on_delete=models.CASCADE, blank=True, null=True)
     course = models.ForeignKey('Course.Course', on_delete=models.CASCADE, blank=True, null=True)
     mocktestID = models.BigAutoField(primary_key=True)
     mocktestName = models.CharField(max_length=200)
@@ -11,7 +12,7 @@ class MockTest(models.Model):
         return self.mocktestName
 
 class MockQuestions(models.Model):
-    mocktest = models.ForeignKey(MockTest, on_delete=models.CASCADE)
+    mocktest = models.ForeignKey(MockTest, on_delete=models.CASCADE, related_name='mockquestions')
     question = models.TextField(max_length=512)
     choiceA = models.CharField(max_length=255, verbose_name="A")
     choiceB = models.CharField(max_length=255, verbose_name="B")
@@ -40,6 +41,7 @@ class MockTestScores(models.Model):
     mocktest_id = models.ForeignKey('MockTest', on_delete=models.CASCADE, related_name='mocktest_scores')
     student = models.ForeignKey('User.Student', on_delete=models.CASCADE, related_name='student_scores')
     score = models.FloatField(null=False)
+    feedback = models.TextField(null=False)
     mocktestDateTaken = models.DateField(auto_now_add=True)
     totalQuestions = models.IntegerField(default=0)
 

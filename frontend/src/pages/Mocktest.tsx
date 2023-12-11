@@ -33,17 +33,16 @@ const Mocktest: React.FC = () => {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  const { course_id } = useParams<{ course_id: string; }>();
+  const { course_id, classID } = useParams<{ course_id: string; classID: string }>();
 
   useEffect(() => {
-    if(course_id) {
-        axios.get(`http://127.0.0.1:8000/mocktest/?course_id=${course_id}`)
+    if(classID) {
+        axios.get(`http://127.0.0.1:8000/mocktest/?classID=${classID}`)
         .then(response => {
           if(response.data.length > 0) {
             const fetchedMocktest = response.data[0];
             setMocktestDetails(fetchedMocktest);
             setMocktestID(fetchedMocktest.mocktestID);
-            setQuestions(fetchedMocktest.question);
           } else {
             console.error('No mocktest found for this course.');
           }
@@ -52,7 +51,24 @@ const Mocktest: React.FC = () => {
           console.error('There was an error fetching the mock test details.', error);
         });
     }
-  }, [course_id]);
+  }, [classID]);
+
+  useEffect(() => {
+    if(mocktest_id) {
+        axios.get(`http://127.0.0.1:8000/questions/?mocktest_id=${mocktest_id}`)
+        .then(response => {
+          if(response.data.length > 0) {
+            const fetchedMocktest = response.data[0];
+            setQuestions(response.data);
+          } else {
+            console.error('No mocktest found for this course.');
+          }
+        })
+        .catch(error => {
+          console.error('There was an error fetching the mock test details.', error);
+        });
+    }
+  }, [mocktest_id]);
 
 
   useEffect(() => {
@@ -92,7 +108,6 @@ const Mocktest: React.FC = () => {
         return;
       }
 
-
       if(!user.token.id) {
         console.error('No token found.');
         return;
@@ -108,14 +123,15 @@ const Mocktest: React.FC = () => {
                 },
             );
             console.log("Response:", response.data);
-            navigate(`/course/${course_id}/mocktest/${mocktest_id}/results`, {
+            navigate(`/classes/${classID}/mocktest/${mocktest_id}/results`, {
                state: {
-                course_id: course_id,
+                classID: classID,
                 mocktest_id: mocktest_id,
                 score: response.data.score,
                 total: response.data.total_questions,
                 mocktestName: response.data.mocktestName,
                 studentName: response.data.studentName,
+                feedback: response.data.feedback,
                 dateOfMocktest: response.data.mocktestDateTaken,
                }
             });
@@ -148,12 +164,13 @@ const Mocktest: React.FC = () => {
             ) : (
             <p>No questions available.</p>
             )}
+            <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
             </div>
             </>
         ) : (
         <p>Loading test name...</p>
         )}
-        <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
+
     </div>
   );
 };

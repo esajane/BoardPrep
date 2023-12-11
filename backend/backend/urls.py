@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
@@ -31,7 +30,6 @@ router.register(r'join-requests', JoinRequestViewSet, basename='join-requests')
 router.register(r'activities', ActivityViewSet, basename='activities')
 router.register(r'submissions', SubmissionViewSet, basename='submissions')
 router.register(r'attachments', AttachmentViewSet)
-router.register(r'pages', PageViewSet, basename='page')
 
 
 #pagkuha og indibidwal nga mga kurso
@@ -46,6 +44,12 @@ urlpatterns = [
     path('', include('Discussion.urls')),
     re_path(r'^syllabi/(?P<course_id>[^/.]+)/$', SyllabusViewSet.as_view({'get': 'by_course'})),
     path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
+    path('mocktest/<int:course_id>/', MockTestViewSet.as_view({'get': 'retrieve'}), name='mocktest-course'),
+    path('mocktest/<int:classID>/', MockTestViewSet.as_view({'get': 'retrieve'}), name='mocktest-class'),
+    path('questions/<int:question_id>/', MockQuestionsViewSet.as_view({'get': 'retrieve'}), name='question-detail'),
+
+    #path for payment and subscriptions
+    path('', include('Subscription.urls')),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),
     path('media/uploads/', views.upload_image, name='upload_image'),
     path('pages/<str:lesson_id>/<int:page_number>/', PageViewSet.as_view({'get': 'by_lesson_and_page', 'put': 'by_lesson_and_page', 'delete': 'by_lesson_and_page'}), name='page-detail'),
