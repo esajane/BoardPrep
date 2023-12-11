@@ -138,18 +138,17 @@ function CourseDetails() {
       const response = await axios.get(
         `http://127.0.0.1:8000/pages/${lessonId}/`
       );
-      console.log("Pages data:", response.data);
+      console.log("Pages data:", response.data); // Log the response data
+
       if (response.data.length === 0) {
-        // No pages found for the lesson
-        setPages([{ page_number: 1, content: "", syllabus: syllabusId }]); // Set a default empty page
+        setPages([{ page_number: 1, content: "", syllabus: syllabusId }]);
         setCurrentPage(0);
-        setEditorContent(""); // Set empty content for the editor
-        setIsNewPage(true); // Indicate that this is a new page
+        setEditorContent("");
+        setIsNewPage(true);
       } else {
-        // Pages found, set them in the state
         setPages(response.data);
         setCurrentPage(0);
-        setEditorContent(response.data[0].content); // Set the content of the first page
+        setEditorContent(response.data[0].content);
         setIsNewPage(false);
       }
     } catch (error) {
@@ -171,6 +170,7 @@ function CourseDetails() {
 
   const handlePageClick = async (event: { selected: number }) => {
     const newPageIndex = event.selected;
+    console.log("Page clicked, selected index:", newPageIndex);
     setCurrentPage(newPageIndex);
     setIsNewPage(true); // Assume a new page initially
 
@@ -204,17 +204,24 @@ function CourseDetails() {
       return;
     }
 
-    const isNew = pages.length === 0 || isNewPage;
-    let pageId = isNew
-      ? pages.length > 0
-        ? Math.max(...pages.map((p) => p.page_number)) + 1
-        : 1
-      : currentPage + 1;
+    let pageId: number;
+    if (isNewPage) {
+      if (
+        pages.length === 0 ||
+        (pages.length === 1 && pages[0].content === "")
+      ) {
+        pageId = 1;
+      } else {
+        pageId = Math.max(...pages.map((p) => p.page_number)) + 1;
+      }
+    } else {
+      pageId = currentPage + 1;
+    }
 
     const apiUrl = `http://127.0.0.1:8000/pages/${currentLesson}/${
-      isNew ? "" : pageId + "/"
+      isNewPage ? "" : pageId + "/"
     }`;
-    const method = isNew ? "post" : "put";
+    const method = isNewPage ? "post" : "put";
 
     try {
       const payload = {
@@ -227,7 +234,7 @@ function CourseDetails() {
       const response = await axios[method](apiUrl, payload);
 
       if (response.status === 200 || response.status === 201) {
-        const newPages = isNew
+        const newPages = isNewPage
           ? [...pages, payload]
           : pages.map((p) =>
               p.page_number === pageId ? { ...p, content: editorContent } : p
@@ -239,10 +246,15 @@ function CourseDetails() {
     } catch (error) {
       console.error("Error saving page content:", error);
     }
+    console.log("isNewPage:", isNewPage); // Log the value of isNewPage
+    console.log("Pages length:", pages.length); // Log the length of pages
+    console.log("Current page:", currentPage); // Log the current page index
+    console.log("Computed pageId:", pageId); // Log the computed pageId
   };
 
   const handleNewPage = () => {
     setIsNewPage(true);
+    console.log("Creating a new page, pages length:", pages.length);
     setEditorContent("");
     setCurrentPage(pages.length); // Sets to the next new page index
   };
@@ -289,10 +301,9 @@ function CourseDetails() {
         "|",
         "sourceEditing",
         "htmlEmbed",
-        "|", // Break starts here
+        "|",
         "pageBreak",
         "codeBlock",
-        // Additional toolbar items...
       ],
     },
     language: "en",
@@ -301,7 +312,10 @@ function CourseDetails() {
         "imageTextAlternative",
         "imageStyle:inline",
         "imageStyle:block",
-        "imageStyle:side",
+        "imageStyle:alignLeft",
+        "imageStyle:alignRight",
+        "imageStyle:alignRightBlock",
+        "imageStyle:alignLeftBlock",
         "linkImage",
       ],
     },
