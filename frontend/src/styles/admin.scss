@@ -20,7 +20,7 @@
   padding-top: 50px;
   align-items: center;
 
-  
+
 .create-course-btn {
   margin-left: 20%;
   color: #ffffff;
@@ -89,3 +89,7 @@
   }
 }
 
+.admin-header {
+  overflow: hidden;
+  display: flex;
+}

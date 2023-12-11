@@ -20,6 +20,7 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
     if (user.isAuth) {
       const targetRoute =
         userType === "content-creator" ? "/content" : "/classes";
+      console.log(targetRoute);
       navigate(targetRoute);
       closeModal();
     }
@@ -29,6 +30,7 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
     e.preventDefault();
     try {
       await dispatch(signIn({ username, password }));
+      if(userType === "content-creator") navigate('/content');
     } catch (err) {
       console.log(err);
     }
@@ -42,8 +44,8 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
             {userType === "student"
               ? "Signin Student"
               : userType === "teacher"
-              ? "Signin Teacher"
-              : "Signin Content Creator"}
+                ? "Signin Teacher"
+                : "Signin Creator"}
           </h1>
           <span className="close title" onClick={closeModal}>
             &times;
