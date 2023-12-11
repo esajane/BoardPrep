@@ -1,0 +1,5 @@
+bs4
+openai
+django-environ
+PyJWT
+djangorestframework-simplejwt
