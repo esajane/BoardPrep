@@ -50,9 +50,6 @@ urlpatterns = [
 
     #path for payment and subscriptions
     path('', include('Subscription.urls')),
-
-    path('create-page/', views.create_page, name='create_page'),
-    # path('create-page/', views.create_page, name='create_page'),
     path('lessons/<str:lesson_id>/pages/', LessonViewSet.as_view({'get': 'get_lesson_pages'}), name='lesson-pages'),
     path('media/uploads/', views.upload_image, name='upload_image'),
     path('pages/<str:lesson_id>/<int:page_number>/', PageViewSet.as_view({'get': 'by_lesson_and_page', 'put': 'by_lesson_and_page', 'delete': 'by_lesson_and_page'}), name='page-detail'),

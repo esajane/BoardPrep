@@ -131,6 +131,7 @@ const Mocktest: React.FC = () => {
                 total: response.data.total_questions,
                 mocktestName: response.data.mocktestName,
                 studentName: response.data.studentName,
+                feedback: response.data.feedback,
                 dateOfMocktest: response.data.mocktestDateTaken,
                }
             });
@@ -163,12 +164,13 @@ const Mocktest: React.FC = () => {
             ) : (
             <p>No questions available.</p>
             )}
+            <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
             </div>
             </>
         ) : (
         <p>Loading test name...</p>
         )}
-        <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
+
     </div>
   );
 };

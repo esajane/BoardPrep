@@ -11,6 +11,7 @@ type ScoreDetailsType = {
   medium_count: number;
   hard_count: number;
   subjects_count: number;
+  feedback: string;
 };
 
 const MockTestResults = () => {
@@ -25,6 +26,7 @@ const MockTestResults = () => {
    mediumCount: 0,
    hardCount: 0,
    subjectsCount: 0,
+   feedback: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [showAssessment, setShowAssessment] = useState(false);
@@ -74,7 +76,8 @@ const MockTestResults = () => {
                 easyCount: resultData.easy_count,
                 mediumCount: resultData.medium_count,
                 hardCount: resultData.hard_count,
-                subjectsCount: resultData.subjects_count
+                subjectsCount: resultData.subjects_count,
+                feedback: resultData.feedback,
               };
               setResult(updatedResult);
               console.log('Updated Result State:', updatedResult);
@@ -121,6 +124,7 @@ const MockTestResults = () => {
           mediumPercentage={(result.mediumCount / total) * 100}
           hardPercentage={(result.hardCount / total) * 100}
           subjectsCount={result.subjectsCount}
+          feedback={result.feedback}
           onClose={() => setShowAssessment(false)}
         />
       )}

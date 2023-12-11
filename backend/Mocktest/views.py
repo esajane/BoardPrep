@@ -1,4 +1,4 @@
-import os
+import os, environ
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -10,9 +10,11 @@ from django.db.models import Count, Case, When, Value, F
 from django.db.models.functions import Coalesce
 from django.db.models import Q
 from .models import MockTest, MockQuestions, MockTestScores
-from User.models import Student, Teacher, User
+from User.models import Student, Teacher, User, Specialization
 from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer
 from openai import OpenAI
+
+
 
 class MockTestViewSet(viewsets.ModelViewSet):
     queryset = MockTest.objects.none()
@@ -93,10 +95,15 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def submit_mocktest(request, mocktest_id):
     try:
-        client = OpenAI()
-        client = OpenAI(
-            api_key=os.environ.get("OPENAI_API_KEY"),
+        env = environ.Env(
+            DEBUG=(bool, False)
         )
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+        client = OpenAI(
+            api_key=env('OPENAI_API_KEY'),
+        )
+
 
         user_name = request.data.get('user_name')
         if not user_name:
@@ -107,6 +114,8 @@ def submit_mocktest(request, mocktest_id):
         mocktest = get_object_or_404(MockTest, pk=mocktest_id)
         mocktest_name = mocktest.mocktestName
         answers = request.data.get('answers')
+        specialization_name = student.specialization.name
+        student_name = student.first_name + " " + student.last_name
 
         correct_answers = MockQuestions.objects.filter(mocktest=mocktest).values_list('id', 'correctAnswer')
         correct_answers_dict = {str(question_id): correct for question_id, correct in correct_answers}
@@ -120,29 +129,36 @@ def submit_mocktest(request, mocktest_id):
         for question_id, submitted_answer in answers.items():
             correct_answer = correct_answers_dict.get(str(question_id))
             question_text = MockQuestions.objects.get(id=question_id).question
+            subject_text = MockQuestions.objects.get(id=question_id).subject
 
             if submitted_answer == correct_answer:
-                correct_answers_list.append({"question": question_text, "submittedAnswer": submitted_answer,"correctAnswer": correct_answer})
+                correct_answers_list.append({"question": question_text, "submittedAnswer": submitted_answer,"correctAnswer": correct_answer, "subject": subject_text})
             else:
-                wrong_answers_list.append({"question": question_text, "submittedAnswer": submitted_answer, "correctAnswer": correct_answer})
+                wrong_answers_list.append({"question": question_text, "submittedAnswer": submitted_answer, "correctAnswer": correct_answer, "subject": subject_text})
 
-        correct_answers_paragraph = "Here are the questions where the user got the correct answer:\n"
+        if correct_answers_list.__len__() > 0:
+            correct_answers_paragraph = "Here are the questions where I got the correct answer:\n"
+        else:
+            correct_answers_paragraph = "I got all the questions wrong.\n"
         for item in correct_answers_list:
-            correct_answers_paragraph += f"Question: {item['question']} - Submitted Answer: {item['submittedAnswer']}\n"
+            correct_answers_paragraph += f"Question: {item['question']} - Submitted Answer: {item['submittedAnswer']}, Subject: {item['subject']}\n"
 
-        wrong_answers_paragraph = "Here are the questions where the user got the wrong answer:\n"
+        if wrong_answers_list.__len__() > 0:
+            wrong_answers_paragraph = "Here are the questions where I got the wrong answer:\n"
+        else:
+            wrong_answers_paragraph = "I got all the questions correct.\n"
         for item in wrong_answers_list:
-            wrong_answers_paragraph += f"Question: {item['question']} - Submitted Answer: {item['submittedAnswer']}, Correct Answer: {item['correctAnswer']}\n"
+            wrong_answers_paragraph += f"Question: {item['question']} - Submitted Answer: {item['submittedAnswer']}, Correct Answer: {item['correctAnswer']}, Subject: {item['subject']}\n"
 
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an excellent engineer, tasked with providing constructive feedback on mock test performances."},
-                {"role": "user", "content": f"{correct_answers_paragraph}\n\n{wrong_answers_paragraph}\n\nBased on this, can you provide some feedback and suggestions for improvement, like what subjects to focus on, which field i excel, and some strategies?"}
+                {"role": "system", "content": "You are Preppy, BoardPrep's Engineering Assistant and an excellent and critical engineer, tasked with providing constructive feedback on mock test performances of your students. In giving a feedback, you don't thank the student for sharing the details, instead you congratulate the student first for finishing the mock test, then you provide your feedbacks. After providing your feedbacks, you then put your signature at the end of your response"},
+                {"role": "user", "content": f"I am {student_name}, a {specialization_name} major, and here are the details of my test. {correct_answers_paragraph}\n\n{wrong_answers_paragraph}\n\nBased on these results, can you provide some feedback and suggestions for improvement, like what subjects to focus on, which field i excel, and some strategies? Address me directly, and don't put any placeholders as this will be displayed directly in unformatted text form."}
             ]
         )
 
-        feedback = completion.choices[0].message
+        feedback = completion.choices[0].message.content
 
         MockTestScores.objects.update_or_create(
             mocktest_id=mocktest,
