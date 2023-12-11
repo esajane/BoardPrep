@@ -6,6 +6,8 @@ import CourseModal from "../components/CourseModal"; // Import the CourseModal c
 import "../styles/admin.scss";
 import Searchbar from "../components/SearchBar";
 import { AxiosResponse } from "axios";
+import DropDownProfile from "../components/DropDownProfile";
+import profileImage from "../assets/16.png";
 
 interface Course {
   course_id: string;
@@ -19,6 +21,7 @@ const AdminDashboard: React.FC = () => {
   const [isCreateCourseModalOpen, setIsCreateCourseModalOpen] = useState(false);
   const navigate = useNavigate();
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [openProfile, setOpenProfile] = useState(false);
 
   useEffect(() => {
     fetchCourses();
@@ -65,9 +68,21 @@ const AdminDashboard: React.FC = () => {
   };
   return (
     <div className="admin-dashboard-background">
-      <div className="search">
-        <Searchbar onSearch={handleSearch} />
+      <div className="admin-header">
+        <div className="search">
+          <Searchbar onSearch={handleSearch} />
+        </div>
+        <div className="profile-pic2">
+            <img
+              src={profileImage}
+              className="logo"
+              alt="RILL"
+              onClick={() => setOpenProfile((prev) => !prev)}
+            />
+            {openProfile && <DropDownProfile />}
+        </div>
       </div>
+
       <header className="admin-header">
         <h1>Course Management</h1>
         <button className="create-course-btn" onClick={handleCreateCourse}>

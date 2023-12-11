@@ -33,7 +33,7 @@ function Home() {
             Teacher
           </button>
           <button className="user-c" onClick={contentHandler}>
-            ContentCreator
+            Creator
           </button>
         </div>
       </header>
