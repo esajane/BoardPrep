@@ -9,6 +9,7 @@ interface PerformanceAssessmentProps {
   easyPercentage: number;
   mediumPercentage: number;
   hardPercentage: number;
+  feedback: string;
 }
 
 const PerformanceAssessment: React.FC<PerformanceAssessmentProps> = ({
@@ -19,6 +20,7 @@ const PerformanceAssessment: React.FC<PerformanceAssessmentProps> = ({
   easyPercentage,
   mediumPercentage,
   hardPercentage,
+  feedback,
 }) => {
   console.log("Subjects prop in PerformanceAssessment:", subjectsCount);
   const percentage = (score / totalScore) * 100;
@@ -76,10 +78,12 @@ const PerformanceAssessment: React.FC<PerformanceAssessmentProps> = ({
             <h2 className="feedbackTitle">Preppy's Feedback: </h2>
             <hr className="dividerFeedback"></hr>
             <br></br>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+             {feedback.split('\n').map((line, index) => (
+                <span key={index}>
+                    {line}
+                    <br />
+                </span>
+            ))}
           </p>
         </div>
         <div className="buttonDesign">

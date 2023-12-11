@@ -21,7 +21,6 @@
     color: #fff;
     width: 85%;
     height: 85%;
-    overflow: auto;
 
     .assessment-header {
       display: flex;
@@ -182,6 +181,9 @@
       background-color: rgba(#B650F4, 0.2);
       border-radius: 10px;
       width: 70%;
+      max-height: 80%;
+      overflow: auto;
+
 
       .feedback {
         text-align: justify;

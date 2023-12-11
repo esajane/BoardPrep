@@ -11,6 +11,15 @@
   min-height: auto;
   overflow: auto;
 
+  .surround {
+      background: #130F26;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.3);
+      max-height: 640px;
+      overflow: auto;
+    }
+
   h1 {
     font-size: 30px;
     text-align: left;
@@ -45,7 +54,7 @@
     cursor: pointer;
     display: block;
     align-self: flex-end;
-    margin: 40px 0 0px 1272px;
+    margin: 40px 0 0px 1217px;
     transition: background-color 0.3s;
 
     &:hover {
