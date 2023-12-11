@@ -63,6 +63,7 @@ body {
   height: 100vh;
   color: white;
   display: flex;
+  overflow: hidden;
 }
 .ct {
   position: relative;
@@ -95,6 +96,7 @@ body {
   background: transparent;
   border: 1px solid white;
   transition: all 0.3s ease;
+  overflow: hidden;
   cursor: pointer;
 
 
@@ -114,6 +116,7 @@ h1 {
   width: 800px;
   height: 600px;
   left: 250px;
+  overflow: hidden;
 }
 
 .bp-img {
