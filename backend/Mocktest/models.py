@@ -40,6 +40,7 @@ class MockTestScores(models.Model):
     mocktest_id = models.ForeignKey('MockTest', on_delete=models.CASCADE, related_name='mocktest_scores')
     student = models.ForeignKey('User.Student', on_delete=models.CASCADE, related_name='student_scores')
     score = models.FloatField(null=False)
+    feedback = models.TextField(null=False)
     mocktestDateTaken = models.DateField(auto_now_add=True)
     totalQuestions = models.IntegerField(default=0)
 
