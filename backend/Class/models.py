@@ -1,3 +1,4 @@
+from datetime import timedelta
 import uuid
 from django.db import models
 from django.utils import timezone
@@ -83,12 +84,21 @@ class Activity(models.Model):
         return self.title
     
     def save(self, *args, **kwargs):
+        if kwargs.get('update_fields') == ['status']:
+            super(Activity, self).save(*args, **kwargs)
+            return
+
+        current = timezone.now()
+        self.start_date -= timedelta(hours=8)
+        self.due_date -= timedelta(hours=8)
+
         if not self.pk:
-            self.created_at = timezone.now()
-            self.start_date = self.start_date.replace(hour=self.start_date.hour - 8)
-            self.due_date = self.due_date.replace(hour=self.due_date.hour - 8)
-        if self.created_at >= self.start_date:
-            raise ValueError("Not a valid start date")
+            self.created_at = current
+
+        if current >= self.start_date:
+            self.start_date = current
+        if current >= self.due_date:
+            raise ValueError("Due date must be later than current date")
         if self.start_date >= self.due_date:
             raise ValueError("Start date must be earlier than due date")
         

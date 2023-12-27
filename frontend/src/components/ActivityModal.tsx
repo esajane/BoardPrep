@@ -1,17 +1,20 @@
 import React, { useRef, useState } from "react";
 import "../styles/activitymodal.scss";
 import { MdAttachFile } from "react-icons/md";
-import axios from "axios";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import Attachment from "./Attachment";
 import ErrorCard from "./ErrorCard";
-import { link } from "fs";
+import axiosInstance from "../axiosInstance";
 
 interface ActivityModalProps {
   closeModal: () => void;
-  classId: number;
-  setActivities: React.Dispatch<React.SetStateAction<Activity[]>>;
+  classId?: number;
+  setActivities?: React.Dispatch<React.SetStateAction<Activity[]>>;
+  activity?: Activity;
+  setActivityDetails?: React.Dispatch<
+    React.SetStateAction<Activity | undefined>
+  >;
 }
 
 interface Attachments {
@@ -42,6 +45,8 @@ function ActivityModal({
   closeModal,
   classId,
   setActivities,
+  activity,
+  setActivityDetails,
 }: ActivityModalProps) {
   const user = useAppSelector(selectUser);
   const [aType, setAType] = useState("file");
@@ -49,11 +54,27 @@ function ActivityModal({
   const [attachments, setAttachments] = useState<Attachments[]>([]);
   const [error, setError] = useState<string>("");
   const [isFormDirty, setIsFormDirty] = useState(false);
-  const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const startRef = useRef<HTMLInputElement>(null);
-  const endRef = useRef<HTMLInputElement>(null);
-  const pointsRef = useRef<HTMLInputElement>(null);
+  const [title, setTitle] = useState<string>(activity ? activity.title : "");
+  const [description, setDescription] = useState<string>(
+    activity ? activity.content : ""
+  );
+
+  const formatDateTimeForBackend = (datetime: string) => {
+    if (!datetime) return "";
+    const dateObj = new Date(datetime);
+    dateObj.setHours(dateObj.getHours() + 8);
+    const formattedDate = dateObj.toISOString().slice(0, 16);
+
+    return formattedDate;
+  };
+
+  const [start, setStart] = useState<string>(
+    formatDateTimeForBackend(activity ? activity.start_date : "")
+  );
+  const [endDate, setEnd] = useState<string>(
+    formatDateTimeForBackend(activity ? activity.due_date : "")
+  );
+  const [points, setPoints] = useState<number>(activity ? activity.points : 0);
   const linkRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,17 +83,12 @@ function ActivityModal({
   };
 
   const createActivity = async () => {
-    const title = titleRef.current?.value;
-    const description = descriptionRef.current?.value;
-    const start = startRef.current?.value;
-    const end = endRef.current?.value;
-    const points = pointsRef.current?.value;
     const attachs = attachments.map((attachment) => attachment.id);
     const data = {
       title,
       content: description,
       start_date: start,
-      due_date: end,
+      due_date: endDate,
       status: "Not Started",
       points,
       class_instance: classId,
@@ -80,14 +96,25 @@ function ActivityModal({
       attachments: attachs,
     };
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/activities/",
-        data
-      );
-      setActivities((prevActivities) => [...prevActivities, response.data]);
+      if (activity) {
+        const response = await axiosInstance.put(
+          `/activities/${activity.id}/`,
+          data
+        );
+        if (setActivityDetails) {
+          setActivityDetails(response.data);
+        }
+      } else {
+        const response = await axiosInstance.post("/activities/", data);
+        if (setActivities)
+          setActivities((prevActivities) => [...prevActivities, response.data]);
+      }
       closeModal();
     } catch (err: any) {
       const data = err.response.data;
+      if (data.error) {
+        setError(data.error);
+      }
       const error = data.match(/(?<=exception_value">).*(?=<\/pre>)/);
       setError(error[0]);
     }
@@ -113,30 +140,22 @@ function ActivityModal({
         if (file) {
           formData.append("file", file);
           formData.append("user", user.token.id);
-          const response = await axios.post(
-            "http://127.0.0.1:8000/attachments/",
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
+          const response = await axiosInstance.post("/attachments/", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
           setAttachments([...attachments, response.data]);
           setFile(null);
         }
       } else {
         formData.append("link", linkRef.current?.value as string);
         formData.append("user", user.token.id);
-        const response = await axios.post(
-          "http://127.0.0.1:8000/attachments/",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axiosInstance.post("/attachments/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         setAttachments([...attachments, response.data]);
         linkRef.current!.value = "";
       }
@@ -163,9 +182,7 @@ function ActivityModal({
     if (attachments.length > 0) {
       attachments.forEach(async (attachment) => {
         try {
-          await axios.delete(
-            `http://127.0.0.1:8000/attachments/${attachment.id}/`
-          );
+          await axiosInstance.delete(`/attachments/${attachment.id}/`);
         } catch (err) {
           console.error(err);
         }
@@ -200,14 +217,16 @@ function ActivityModal({
                 type="text"
                 id="title"
                 placeholder="Activity Title"
-                ref={titleRef}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required
               />
               <label htmlFor="content">Activity Content</label>
               <textarea
                 placeholder="Activity Content"
                 id="content"
-                ref={descriptionRef}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 required
               />
               <label htmlFor="start">Start Date</label>
@@ -218,19 +237,21 @@ function ActivityModal({
                 onFocus={(e) => (e.target.type = "datetime-local")}
                 onBlur={(e) => (e.target.type = "text")}
                 min={new Date().toISOString().slice(0, 16)}
-                ref={startRef}
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
                 required
               />
             </div>
             <div className="right-half">
               <label htmlFor="end">End Date</label>
               <input
-                type="date"
+                type="text"
                 id="end"
                 placeholder="End Date"
                 onFocus={(e) => (e.target.type = "datetime-local")}
                 onBlur={(e) => (e.target.type = "text")}
-                ref={endRef}
+                value={endDate}
+                onChange={(e) => setEnd(e.target.value)}
                 required
               />
               <label htmlFor="points">Points</label>
@@ -238,7 +259,8 @@ function ActivityModal({
                 type="number"
                 id="points"
                 placeholder="Points"
-                ref={pointsRef}
+                value={points}
+                onChange={(e) => setPoints(Number(e.target.value))}
                 required
               />
               <label htmlFor="attachments">Attachments</label>
@@ -273,7 +295,9 @@ function ActivityModal({
               </div>
             </div>
           </div>
-          <button type="submit">Create Activity</button>
+          <button type="submit">
+            {activity ? "Update Activity" : "Create Activity"}
+          </button>
         </form>
       </div>
     </div>

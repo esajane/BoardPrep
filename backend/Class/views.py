@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.http import StreamingHttpResponse
+from django.db.models import Case, When, Value, IntegerField, F
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -193,12 +194,38 @@ class ActivityViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(class_instance_id=class_id)
             except ValueError:
                 queryset = queryset.none()
+
+        status_ordering = Case(
+            When(status='In Progress', then=Value(1)),
+            When(status='Not Started', then=Value(2)),
+            When(status='Completed', then=Value(3)),
+            default=Value(4),
+            output_field=IntegerField()
+        )
+
+        queryset = queryset.annotate(
+            status_order=status_ordering,
+        ).order_by('status_order', 'due_date')
+
         return queryset
     
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         self.update_activity_statuses(queryset)
         return super(ActivityViewSet, self).list(request, *args, **kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            serializer.save()
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data)
     
 class SubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = SubmissionSerializer
