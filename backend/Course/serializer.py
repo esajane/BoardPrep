@@ -1,13 +1,10 @@
 from rest_framework import serializers
 from bs4 import BeautifulSoup
 from django.conf import settings
-from Course.models import Course, Syllabus, Lesson, Page, FileUpload
+from Course.models import Course, Syllabus, Lesson,  Page, FileUpload
+from datetime import datetime
+import time
 
-
-class CourseListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ['course_id', 'course_title', 'short_description', 'image']
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -22,6 +19,24 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = "__all__"
+        read_only_fields = ('lesson_id',)  # Set lesson_id as read-only
+
+    def create(self, validated_data):
+        lesson_id = self.generate_lesson_id()
+        order = validated_data.get('order')
+        syllabus_id = validated_data.get('syllabus')
+
+        # Check if any existing lesson has the same order
+        existing_lesson = Lesson.objects.filter(syllabus=syllabus_id, order=order).first()
+
+        if existing_lesson:
+            # Increment the order of the existing lesson and any subsequent lessons
+            lessons_to_update = Lesson.objects.filter(syllabus=syllabus_id, order__gte=order)
+            for lesson in lessons_to_update:
+                lesson.order += 1
+                lesson.save()
+
+        return Lesson.objects.create(lesson_id=lesson_id, **validated_data)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -35,8 +50,25 @@ class LessonSerializer(serializers.ModelSerializer):
                     img['src'] = settings.SITE_URL + img['src']
 
             data['content'] = str(soup)
-
         return data
+
+    @staticmethod
+    def generate_lesson_id():
+        # Using current time in milliseconds, converted to base 36
+        timestamp = int(time.time() * 1000)
+        lesson_id = base36_encode(timestamp)
+        return lesson_id[:7]  # Truncate to 5 characters
+
+def base36_encode(number):
+    assert number >= 0, 'Positive integer required'
+    if number == 0:
+        return '0'
+    base36 = ''
+    while number != 0:
+        number, i = divmod(number, 36)
+        base36 = '0123456789abcdefghijklmnopqrstuvwxyz'[i] + base36
+    return base36
+
 
 
 # If using a FileUpload model
@@ -54,10 +86,37 @@ class SyllabusSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class CourseListSerializer(serializers.ModelSerializer):
+    syllabus = SyllabusSerializer(read_only=True)
+    class Meta:
+        model = Course
+        fields = ['course_id', 'course_title', 'short_description', 'image', 'syllabus', 'is_published']
+
+    def create(self, validated_data):
+        course = Course.objects.create(**validated_data)
+        syllabus_id = generate_syllabus_id(course)  # Use the function
+        Syllabus.objects.create(course=course, syllabus_id=syllabus_id)
+        return course
+
+
+def generate_syllabus_id(course):
+    # Example implementation
+    timestamp = datetime.now().strftime("%H%M%S")  # HHMMSS format
+    syllabus_id = (course.course_id[:4] + timestamp)[:10]  # Ensure it's only 10 characters
+    return syllabus_id
+
 class CourseDetailSerializer(serializers.ModelSerializer):
     syllabus = SyllabusSerializer(read_only=True)
 
     class Meta:
         model = Course
         fields = '__all__'
+
+    def create(self, validated_data):
+        course = Course.objects.create(**validated_data)
+        syllabus_id = generate_syllabus_id(course)  # Use the function
+        Syllabus.objects.create(course=course, syllabus_id=syllabus_id)
+        return course
+
 

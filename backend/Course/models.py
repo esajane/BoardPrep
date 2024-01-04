@@ -7,6 +7,7 @@ class Course(models.Model):
     short_description = models.CharField(max_length=500)
     long_description = models.TextField()
     image = models.ImageField(upload_to='images/', default='default.png')
+    is_published = models.BooleanField(default=False)  # New field
 
     def __str__(self):
         return self.course_title
