@@ -9,6 +9,7 @@ interface Course {
   course_title: string;
   short_description: string;
   image: string;
+  is_published: boolean;
 }
 
 interface CourseListProps {
@@ -22,8 +23,11 @@ function CourseList({ onSelectCourse }: CourseListProps) {
   const fetchCourses = async () => {
     try {
       const response = await axios.get("http://127.0.0.1:8000/courses/");
-      setCourses(response.data);
-      setFilteredCourses(response.data);
+      const publishedCourses = response.data.filter(
+        (course: Course) => course.is_published
+      );
+      setCourses(publishedCourses);
+      setFilteredCourses(publishedCourses);
     } catch (error) {
       console.error("Error fetching courses:", error);
       // Handle error (show message or UI element)

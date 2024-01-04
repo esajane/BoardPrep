@@ -25,11 +25,11 @@ interface ClassModalProps {
 
 interface Course {
   course_id: string;
-  syllabus: number;
   course_title: string;
   short_description: string;
   long_description: string;
   image: string;
+  is_published: boolean;
 }
 
 function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
@@ -45,14 +45,16 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/course/details/"
+        const response = await axios.get("http://127.0.0.1:8000/courses/");
+        const filteredCourses = response.data.filter(
+          (course: Course) => course.is_published
         );
-        setCourses(response.data);
-      } catch (err) {
-        console.error(err);
+        setCourses(filteredCourses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
       }
     };
+
     fetchCourses();
   }, []);
 
