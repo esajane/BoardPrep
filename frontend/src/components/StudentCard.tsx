@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { IoMdCheckmark, IoMdClose } from "react-icons/io";
-
 import "../styles/studentcard.scss";
 import profileImage from "../assets/16.png";
+import { FaEllipsisH } from "react-icons/fa";
+import axiosInstance from "../axiosInstance";
 
 interface Student {
   user_name: string;
@@ -38,13 +38,12 @@ function StudentCard({
   const [acceptColor, setAcceptColor] = useState("#08d46c");
   const [rejectColor, setRejectColor] = useState("#e04434");
   const [isAccepted, setIsAccepted] = useState(is_accepted);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/student/${studentId}/`
-        );
+        const response = await axiosInstance.get(`/student/${studentId}/`);
         setStudent(response.data);
       } catch (err) {
         console.error(err);
@@ -56,12 +55,9 @@ function StudentCard({
 
   const handleAccept = async () => {
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/classes/${classId}/accept-join-request/`,
-        {
-          join_request_id: requestId,
-        }
-      );
+      await axiosInstance.post(`/classes/${classId}/accept-join-request/`, {
+        join_request_id: requestId,
+      });
       setIsAccepted(true);
       if (fetchClass) {
         fetchClass();
@@ -85,6 +81,21 @@ function StudentCard({
 
   const handleRejectLeave = () => {
     setRejectColor("#e04434");
+  };
+
+  const toggleMenu = () => setShowMenu(!showMenu);
+
+  const handleRemoveStudent = async () => {
+    try {
+      await axiosInstance.post(`/classes/${classId}/remove-student/`, {
+        student: student?.user_name,
+      });
+      if (fetchClass) {
+        fetchClass();
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -120,6 +131,21 @@ function StudentCard({
           </div>
         )}
       </td>
+      {isAccepted ? (
+        <td className="ellipsis">
+          <FaEllipsisH style={{ cursor: "pointer" }} onClick={toggleMenu} />
+          {showMenu && (
+            <div className="menu-dropdown">
+              <ul>
+                <li>Statistics</li>
+                <li onClick={handleRemoveStudent}>Remove</li>
+              </ul>
+            </div>
+          )}
+        </td>
+      ) : (
+        <td></td>
+      )}
     </tr>
   );
 }
