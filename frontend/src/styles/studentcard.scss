@@ -59,3 +59,37 @@
     }
   }
 }
+
+.ellipsis {
+  position: relative;
+  .menu-dropdown {
+    position: absolute;
+    right: 0;
+    background-color: #180c24;
+    border: 1px solid rgb(170, 170, 170);
+    color: white;
+    border-radius: 4px;
+    padding: 5px 0;
+    z-index: 1000;
+  
+    ul {
+      list-style: none;
+      padding: 0 5px;
+      margin: 0;
+  
+      li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 3px;
+        font-size: 14px;
+        padding: 8px 15px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #33174e;
+        }
+      }
+    }
+  }
+}

@@ -47,6 +47,21 @@ class ClassViewSet(viewsets.ModelViewSet):
         except JoinRequest.DoesNotExist:
             return Response({'message': 'Invalid join request'}, status=status.HTTP_400_BAD_REQUEST)
         
+    @action(detail=True, methods=['post'], url_path='remove-student')
+    def remove_student(self, request, pk=None):
+        student = request.data.get('student')
+        try:
+            class_instance = Class.objects.get(pk=pk)
+            student = Student.objects.get(user_name=student)
+        except (Class.DoesNotExist, Student.DoesNotExist):
+            return Response({'error': 'Invalid class ID or student ID'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        class_instance.students.remove(student)
+        join_request = JoinRequest.objects.filter(class_instance=class_instance, student=student, is_accepted=True)
+        if join_request.exists():
+            join_request.delete()
+        return Response({'message': 'Student removed successfully'}, status=status.HTTP_200_OK)
+        
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
