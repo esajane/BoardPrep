@@ -137,7 +137,7 @@ function StudentCard({
           {showMenu && (
             <div className="menu-dropdown">
               <ul>
-                <li>Statistics</li>
+                <li>View Performance</li>
                 <li onClick={handleRemoveStudent}>Remove</li>
               </ul>
             </div>
