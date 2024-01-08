@@ -1,0 +1,8 @@
+bs4
+openai
+django-environ
+PyJWT
+djangorestframework-simplejwt
+stripe
+django_ckeditor_5
+django-ckeditor

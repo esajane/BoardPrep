@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.http import StreamingHttpResponse
-from django.db.models import Exists, OuterRef
+from django.db.models import Case, When, Value, IntegerField, F, Exists, OuterRef
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -49,6 +49,21 @@ class ClassViewSet(viewsets.ModelViewSet):
         except JoinRequest.DoesNotExist:
             return Response({'message': 'Invalid join request'}, status=status.HTTP_400_BAD_REQUEST)
         
+    @action(detail=True, methods=['post'], url_path='remove-student')
+    def remove_student(self, request, pk=None):
+        student = request.data.get('student')
+        try:
+            class_instance = Class.objects.get(pk=pk)
+            student = Student.objects.get(user_name=student)
+        except (Class.DoesNotExist, Student.DoesNotExist):
+            return Response({'error': 'Invalid class ID or student ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+        class_instance.students.remove(student)
+        join_request = JoinRequest.objects.filter(class_instance=class_instance, student=student, is_accepted=True)
+        if join_request.exists():
+            join_request.delete()
+        return Response({'message': 'Student removed successfully'}, status=status.HTTP_200_OK)
+
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
@@ -196,6 +211,19 @@ class ActivityViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(class_instance_id=class_id)
             except ValueError:
                 queryset = queryset.none()
+
+        status_ordering = Case(
+            When(status='In Progress', then=Value(1)),
+            When(status='Not Started', then=Value(2)),
+            When(status='Completed', then=Value(3)),
+            default=Value(4),
+            output_field=IntegerField()
+        )
+
+        queryset = queryset.annotate(
+            status_order=status_ordering,
+        ).order_by('status_order', 'due_date')
+
         return queryset
     
     def list(self, request, *args, **kwargs):
@@ -203,6 +231,19 @@ class ActivityViewSet(viewsets.ModelViewSet):
         self.update_activity_statuses(queryset)
         return super(ActivityViewSet, self).list(request, *args, **kwargs)
     
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            serializer.save()
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data)
+
 class SubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = SubmissionSerializer
 

@@ -85,6 +85,7 @@ function StudentsTab({
                     classId={classId}
                     studentId={student}
                     is_accepted={true}
+                    fetchClass={fetchClass}
                   />
                 ))}
               </tbody>

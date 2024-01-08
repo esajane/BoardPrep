@@ -1,5 +1,5 @@
 # views.py
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, F
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, parser_classes
 from rest_framework.generics import get_object_or_404
@@ -12,11 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import FileSystemStorage
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.db import transaction, models
 
-import logging
-
-# Create a logger instance
-logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 @csrf_exempt
@@ -40,6 +37,21 @@ class CourseListViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+    @action(detail=False, methods=['get'], url_path='check_id/(?P<course_id>[^/.]+)')
+    def check_course_id(self, request, course_id=None):
+        """
+        Check if a course with the given ID exists.
+        """
+        course_exists = Course.objects.filter(course_id=course_id).exists()
+        return Response({'exists': course_exists})
+
+    @action(detail=True, methods=['put'])
+    def publish(self, request, pk=None):
+        course = self.get_object()
+        course.is_published = True
+        course.save()
+        return Response({'status': 'course published'}, status=status.HTTP_200_OK)
+
 class CourseDetailViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseDetailSerializer
@@ -52,14 +64,6 @@ class SyllabusViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset().filter(course=course_id)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-    logger.debug("This is a debug message")
-
-    # Log a message at the INFO level
-    logger.info("This is an info message")
-
-    # Log a message at the ERROR level
-    logger.error("This is an error message")
 
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all().prefetch_related('pages')
@@ -82,6 +86,40 @@ class LessonViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['put'], url_path='update_lesson')
+    def update_lesson(self, request, pk):
+        try:
+            lesson = get_object_or_404(Lesson, pk=pk)
+            new_order = int(request.data.get('order', lesson.order))
+            new_title = request.data.get('lesson_title', lesson.lesson_title)
+
+            with transaction.atomic():
+                # Update the order of lessons
+                if new_order != lesson.order:
+                    if new_order < lesson.order:
+                        Lesson.objects.filter(
+                            syllabus=lesson.syllabus,
+                            order__lt=lesson.order,
+                            order__gte=new_order
+                        ).update(order=F('order') + 1)
+                    else:
+                        Lesson.objects.filter(
+                            syllabus=lesson.syllabus,
+                            order__gt=lesson.order,
+                            order__lte=new_order
+                        ).update(order=F('order') - 1)
+
+                # Update the lesson's order and title
+                lesson.order = new_order
+                lesson.lesson_title = new_title
+                lesson.save()
+
+            return Response({'status': 'lesson updated'}, status=status.HTTP_200_OK)
+
+        except (ValueError, TypeError) as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class PageViewSet(viewsets.ModelViewSet):
     queryset = Page.objects.all()
     serializer_class = PageSerializer
@@ -89,7 +127,6 @@ class PageViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get', 'post', 'put'], url_path='(?P<lesson_id>[^/.]+)')
     def by_lesson(self, request, lesson_id=None):
-        logger.debug(f"Request data: {request.data}")
         if request.method == 'GET':
             # Handle GET requests
             pages = self.queryset.filter(lesson_id=lesson_id)
@@ -121,7 +158,6 @@ class PageViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get', 'put', 'delete'],
             url_path='(?P<lesson_id>[^/.]+)/(?P<page_number>[^/.]+)')
     def by_lesson_and_page(self, request, lesson_id=None, page_number=None):
-        logger.debug(f"Request data: {request.data}")
         if request.method == 'GET':
             # Handle GET requests
             page = get_object_or_404(self.queryset, lesson_id=lesson_id, page_number=page_number)
@@ -143,13 +179,6 @@ class PageViewSet(viewsets.ModelViewSet):
         else:
             return Response({"detail": "Invalid request method."}, status=status.HTTP_400_BAD_REQUEST)
 
-    logger.debug("This is a debug message")
-
-    # Log a message at the INFO level
-    logger.info("This is an info message")
-
-    # Log a message at the ERROR level
-    logger.error("This is an error message")
 class FileUploadViewSet(viewsets.ModelViewSet):
     queryset = FileUpload.objects.all()
     serializer_class = FileUploadSerializer

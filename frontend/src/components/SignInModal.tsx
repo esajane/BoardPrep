@@ -46,8 +46,8 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
             {userType === "student"
               ? "Signin Student"
               : userType === "teacher"
-                ? "Signin Teacher"
-                : "Signin Creator"}
+              ? "Signin Teacher"
+              : "Signin Creator"}
           </h1>
           <span className="close title" onClick={closeModal}>
             &times;

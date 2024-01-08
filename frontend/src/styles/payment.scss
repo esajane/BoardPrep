@@ -1,0 +1,71 @@
+.payment-containerStyles {
+  display: 'flex';
+  flex-direction: 'column';
+  align-items: 'center';
+  justify-content: 'center';
+  width: 100vw;
+  height: 100vh;
+  background: #0d0b1c;
+
+  h2 {
+    color: white;
+    position: relative;
+    font-size: 30px;
+    left: 30%;
+    margin-bottom: 50px;
+  }
+}
+
+.payment-shokoy {
+  position: relative;
+  top: 20%;
+}
+
+.payment-cardStyles-container {
+  position: relative;
+  left: 50px;
+  display: flex;
+  width: 90%;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-cardStyles {
+  position: relative;
+  background-color: #2c0346;
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px solid #832ea8;
+  width: 350px;
+  margin: 30px;
+  padding: 20px;
+  border-radius: 5%;
+
+  * {
+    color: white;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .payment-value {
+    color: #e05cf0;
+    font-weight: bold;
+  }
+
+  .payment-buttonStyles {
+    background-color: #702779;
+    color: white;
+    border: none;
+
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin: 10px 0;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e05cf0;
+      color: #201c1c;
+    }
+  }
+}

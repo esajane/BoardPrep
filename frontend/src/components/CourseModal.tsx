@@ -1,13 +1,12 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { debounce } from "lodash";
 import "../styles/coursemodal.scss";
-import SyllabusModal from "./SyllabusModal"; // Import the new SyllabusModal
-import LessonsModal from "./LessonsModal";
 
 interface CourseModalProps {
   closeModal: () => void;
   course?: Course | null;
-  onUpdateDashboard: () => void; // Added this prop for dashboard update
+  onUpdateDashboard: () => void;
 }
 
 interface Course {
@@ -18,53 +17,165 @@ interface Course {
   image: string;
 }
 
-function CourseModal({ closeModal, course }: CourseModalProps) {
+function CourseModal({
+  closeModal,
+  course,
+  onUpdateDashboard,
+}: CourseModalProps) {
   const courseIdRef = useRef<HTMLInputElement>(null);
   const courseTitleRef = useRef<HTMLInputElement>(null);
   const shortDescriptionRef = useRef<HTMLTextAreaElement>(null);
-  const longDescriptionRef = useRef<HTMLTextAreaElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
-  const [isSyllabusModalOpen, setIsSyllabusModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [newCourseId, setNewCourseId] = useState("");
-  const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
-  const [currentSyllabusId, setCurrentSyllabusId] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    courseId: "",
+    courseTitle: "",
+    shortDescription: "",
+    image: "",
+  });
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [touched, setTouched] = useState({
+    courseId: false,
+    courseTitle: false,
+    shortDescription: false,
+    image: false,
+  });
+  const [isCourseIdAvailable, setIsCourseIdAvailable] = useState(true);
+
+  const checkCourseIdAvailability = async (courseId: string) => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/courses/check_id/${courseId}`
+      );
+      setIsCourseIdAvailable(!response.data.exists);
+    } catch (error) {
+      console.error("Error checking course ID availability:", error);
+    }
+  };
+
+  const [debouncedCheck, setDebouncedCheck] = useState(() =>
+    debounce(checkCourseIdAvailability, 500)
+  );
 
   useEffect(() => {
-    // Check if a course is provided (for editing) or not (for creating)
+    setDebouncedCheck(() => debounce(checkCourseIdAvailability, 500));
+
+    return () => {
+      debouncedCheck.cancel();
+    };
+  }, []);
+
+  const handleCourseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const courseId = e.target.value;
+    if (courseId.length <= 10) {
+      debouncedCheck(courseId);
+    }
+    handleInputChange(e);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    e.target.setCustomValidity("");
+    validateForm();
+  };
+  const handleBlur = (field: any) => {
+    setTouched({ ...touched, [field]: true });
+  };
+
+  useEffect(() => {
     if (course) {
       setIsEditing(true);
-      // Fill in the form fields with the course data for editing
       if (courseIdRef.current) courseIdRef.current.value = course.course_id;
       if (courseTitleRef.current)
         courseTitleRef.current.value = course.course_title;
       if (shortDescriptionRef.current)
         shortDescriptionRef.current.value = course.short_description;
-      if (longDescriptionRef.current)
-        longDescriptionRef.current.value = course.long_description;
-      // You may want to handle the image field separately
     }
+    validateForm();
   }, [course]);
 
-  const handleSyllabusCreated = (syllabusId: string) => {
-    setCurrentSyllabusId(syllabusId);
-    setIsSyllabusModalOpen(false);
-    setIsLessonModalOpen(true); // Open lesson modal after syllabus is created
+  const validateForm = () => {
+    const errors = { ...formErrors };
+
+    errors.courseId =
+      courseIdRef.current && courseIdRef.current.value === ""
+        ? "Course ID is required."
+        : courseIdRef.current && courseIdRef.current.value.length > 10
+        ? "Course ID must be maximum 10 characters long."
+        : !isCourseIdAvailable
+        ? "Course ID is already taken."
+        : "";
+
+    errors.courseTitle =
+      courseTitleRef.current && courseTitleRef.current.value.length < 5
+        ? "Course title must be at least 5 characters long."
+        : "";
+
+    errors.shortDescription =
+      shortDescriptionRef.current && shortDescriptionRef.current.value === ""
+        ? "Short description is required."
+        : "";
+
+    errors.image = errors.image =
+      imageRef.current && !imageRef.current.files?.[0]
+        ? "Please select an image file."
+        : "";
+
+    setFormErrors(errors);
+
+    const isAllFieldsValid = !Object.values(errors).some(
+      (error) => error !== ""
+    );
+    setIsFormValid(isAllFieldsValid);
   };
+
+  const handleUpdateDashboard = () => {
+    closeModal();
+  };
+
+  const handleInvalid = (target: HTMLInputElement | HTMLTextAreaElement) => {
+    const customMessages: { [key: string]: string } = {
+      courseId: "Please enter a valid Course ID.",
+      courseTitle: "Please enter a valid Course Title.",
+      shortDescription: "Please provide a short description.",
+    };
+
+    const message = customMessages[target.name as keyof typeof customMessages];
+    target.setCustomValidity(message || "");
+  };
+
+  const renderValidationIcon = (error: string) => {
+    if (error) {
+      return <span className="validation-icon error-icon">⨂</span>;
+    }
+    return <span className="validation-icon success-icon">✔</span>;
+  };
+
+  useEffect(() => {
+    setTouched({
+      courseId: false,
+      courseTitle: false,
+      shortDescription: false,
+      image: false,
+    });
+  }, [course]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setServerError(null);
+    validateForm();
+    if (!isFormValid) return;
+
     const courseId = courseIdRef.current?.value;
     const courseTitle = courseTitleRef.current?.value;
     const shortDescription = shortDescriptionRef.current?.value;
-    const longDescription = longDescriptionRef.current?.value;
     const image = imageRef.current?.files?.[0] || null;
 
     try {
       let newCourseId;
       if (isEditing) {
-        // Handle editing course logic here
-        // You can make a PUT request to update the course with the provided data
         if (course) {
           const formData = new FormData();
           formData.append("course_id", course.course_id);
@@ -73,7 +184,7 @@ function CourseModal({ closeModal, course }: CourseModalProps) {
           if (image) formData.append("image", image);
 
           const response = await axios.put(
-            `http://127.0.0.1:8000/courses/${course.course_id}/`, // Replace with your actual API endpoint
+            `http://127.0.0.1:8000/courses/${course.course_id}/`,
             formData,
             {
               headers: {
@@ -83,13 +194,10 @@ function CourseModal({ closeModal, course }: CourseModalProps) {
           );
 
           if (response.status === 200) {
-            // Course edited successfully
             closeModal();
-            // Add any additional logic you need (e.g., updating state)
           }
         }
       } else {
-        // Handle creating course logic here
         const formData = new FormData();
         formData.append("course_id", courseId || "");
         formData.append("course_title", courseTitle || "");
@@ -97,7 +205,7 @@ function CourseModal({ closeModal, course }: CourseModalProps) {
         if (image) formData.append("image", image);
 
         const response = await axios.post(
-          "http://127.0.0.1:8000/courses/", // Replace with your actual API endpoint
+          "http://127.0.0.1:8000/courses/",
           formData,
           {
             headers: {
@@ -105,26 +213,33 @@ function CourseModal({ closeModal, course }: CourseModalProps) {
             },
           }
         );
+        console.log("Submitting course with ID:", courseId);
 
-        if (response.status === 201 || response.status === 200) {
-          setNewCourseId(response.data.course_id); // Update newCourseId state
-          setIsSyllabusModalOpen(true);
+        if (response.status === 200 || response.status === 201) {
+          if (!isEditing) {
+            newCourseId = response.data.course_id;
+          }
+          closeModal();
+          handleUpdateDashboard();
         } else {
-          closeModal(); // Close modal if editing or course creation didn't provide a course_id
+          console.error("Error response", response.data);
         }
       }
     } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setServerError(
+          err.response.data.message ||
+            "An error occurred while submitting the form."
+        );
+      } else {
+        setServerError("An unexpected error occurred.");
+      }
       console.error("Error in POST/PUT request:", err);
     }
   };
 
-  const handleUpdateDashboard = () => {
-    // Implement logic to update the dashboard here
-    closeModal(); // Close the course modal after updating the dashboard
-  };
-
   return (
-    <div>
+    <div className="main-modal">
       <div className="modal-content">
         <div className="modal-header">
           <h1>{isEditing ? "Edit Course" : "Create Course"}</h1>
@@ -133,30 +248,86 @@ function CourseModal({ closeModal, course }: CourseModalProps) {
           </span>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Course ID" ref={courseIdRef} />
-          <input type="text" placeholder="Course Title" ref={courseTitleRef} />
-          <textarea placeholder="Short Description" ref={shortDescriptionRef} />
-          <input type="file" accept="image/*" ref={imageRef} />
-          <button type="submit">
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Course ID"
+              ref={courseIdRef}
+              name="courseId"
+              required
+              onChange={handleCourseIdChange}
+              onBlur={() => handleBlur("courseId")}
+              className={`form-control ${
+                formErrors.courseId && touched.courseId ? "error-input" : ""
+              }`}
+            />
+            {formErrors.courseId && touched.courseId && (
+              <div className="error-message">{formErrors.courseId}</div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Course Title"
+              ref={courseTitleRef}
+              name="courseTitle"
+              required
+              onChange={handleInputChange}
+              onBlur={() => handleBlur("courseTitle")}
+              className={`form-control ${
+                formErrors.courseTitle && touched.courseTitle
+                  ? "error-input"
+                  : ""
+              }`}
+            />
+            {formErrors.courseTitle && touched.courseTitle && (
+              <div className="error-message">{formErrors.courseTitle}</div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <textarea
+              placeholder="Short Description"
+              ref={shortDescriptionRef}
+              name="shortDescription"
+              required
+              onChange={handleInputChange}
+              onBlur={() => handleBlur("shortDescription")}
+              className={`form-control ${
+                formErrors.shortDescription && touched.shortDescription
+                  ? "error-input"
+                  : ""
+              }`}
+            />
+            {formErrors.shortDescription && touched.shortDescription && (
+              <div className="error-message">{formErrors.shortDescription}</div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <input
+              type="file"
+              accept="image/*"
+              ref={imageRef}
+              name="image"
+              required={!isEditing}
+              onChange={handleInputChange}
+              onBlur={() => handleBlur("image")}
+              className={`form-control ${
+                formErrors.image && touched.image ? "error-input" : ""
+              }`}
+            />
+            {formErrors.image && touched.image && (
+              <div className="error-message">{formErrors.image}</div>
+            )}
+          </div>
+          {serverError && <div className="server-error">{serverError}</div>}
+          <button type="submit" className="submit-btn" disabled={!isFormValid}>
             {isEditing ? "Save Changes" : "Create Course"}
           </button>
         </form>
-
-        {isSyllabusModalOpen && (
-          <SyllabusModal
-            closeModal={() => setIsSyllabusModalOpen(false)}
-            onSyllabusCreated={handleSyllabusCreated}
-            course={isEditing ? course?.course_id ?? "" : newCourseId}
-          />
-        )}
-        {isLessonModalOpen && (
-          <LessonsModal
-            closeModal={() => setIsLessonModalOpen(false)}
-            onUpdateDashboard={handleUpdateDashboard}
-            syllabusId={currentSyllabusId}
-          />
-        )}
       </div>
     </div>
   );

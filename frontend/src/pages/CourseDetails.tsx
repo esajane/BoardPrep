@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
+import "../styles/details.scss";
 import Syllabus from "../components/Syllabus";
 import "../styles/ckeditor-content.scss";
 import { useParams } from "react-router-dom";
@@ -8,7 +9,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import CustomEditor from "ckeditor5-custom-build/build/ckeditor";
 import CourseModal from "../components/CourseModal";
 import LessonsModal from "../components/LessonsModal";
-import "../styles/details.scss";
+import PublishModal from "../components/PublishModal";
 
 interface Course {
   course_id: string;
@@ -16,6 +17,7 @@ interface Course {
   short_description: string;
   long_description: string;
   image: string;
+  is_published: boolean;
 }
 
 interface Page {
@@ -51,14 +53,27 @@ function CourseDetails() {
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [courseData, setCourseData] = useState<Course | null>(null);
   const [openModal, setOpenModal] = useState<string | null>(null);
-
-  // ... rest of your existing code
-
-  // Function to handle opening the course modal
-
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [lessonsLoaded, setLessonsLoaded] = useState(false);
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const isCoursePublished = courseData?.is_published;
+  const paginationKey = pages.length;
+  const [loading, setLoading] = useState(true);
+  const defaultPageState: Page = {
+    page_number: 1,
+    content: "", // Assuming the default content should be empty
+    syllabus: syllabusId, // You already have syllabusId in your state
+  };
   const onUpdateDashboard = async () => {
     fetchSyllabus();
   };
+
+  useEffect(() => {
+    console.log("Lessons length:", lessons.length);
+    if (lessons.length === 0 && lessonsLoaded) {
+      handleOpenLessonModal();
+    }
+  }, [lessons, lessonsLoaded]);
 
   useEffect(() => {
     const fetchSyllabusAndFirstLesson = async () => {
@@ -68,13 +83,18 @@ function CourseDetails() {
         );
         const syllabusData = syllabusResponse.data[0];
         setLessons(syllabusData.lessons);
+        setLessonsLoaded(true);
         const fetchedSyllabusId = syllabusData.syllabus_id;
         setSyllabusId(fetchedSyllabusId);
 
+        if (syllabusData.lessons.length === 0) {
+          handleOpenLessonModal(); // Open LessonModal if no lessons
+        }
+
         if (syllabusData.lessons.length > 0) {
           const firstLessonId = syllabusData.lessons[0].lesson_id;
-          setCurrentLesson(firstLessonId); // Set the current lesson to the first lesson
-          await fetchPages(firstLessonId); // Fetch pages for the first lesson
+          setCurrentLesson(firstLessonId);
+          await fetchPages(firstLessonId);
         }
       } catch (error) {
         console.error("Error fetching syllabus:", error);
@@ -84,6 +104,10 @@ function CourseDetails() {
     if (courseId) {
       fetchSyllabusAndFirstLesson();
     }
+  }, [courseId]);
+
+  useEffect(() => {
+    setLessonsLoaded(false); // Reset when courseId changes
   }, [courseId]);
 
   const fetchSyllabus = async () => {
@@ -108,10 +132,14 @@ function CourseDetails() {
     setIsSyllabusCollapsed(!isSyllabusCollapsed);
   };
 
+  useEffect(() => {
+    fetchCourseData();
+  }, [courseId]);
+
   const fetchCourseData = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/courses/${courseId}`
+        `http://127.0.0.1:8000/courses/${courseId}/`
       );
       setCourseData(response.data);
     } catch (error) {
@@ -119,16 +147,39 @@ function CourseDetails() {
     }
   };
 
+  const handleConfirmPublish = async () => {
+    try {
+      await axios.put(`http://127.0.0.1:8000/courses/${courseId}/publish/`, {
+        isPublished: true,
+      });
+      console.log("Course published successfully");
+      fetchCourseData(); // Refetch course data after publishing
+    } catch (error) {
+      console.error("Error in publishing course:", error);
+    }
+  };
+
   const handleOpenCourseModal = () => {
     fetchCourseData();
-    setOpenModal("course"); // Set open modal to 'course'
+    setOpenModal("course");
   };
 
   const handleOpenLessonModal = () => {
-    setOpenModal("lesson"); // Set open modal to 'lesson'
+    if (lessons.length === 0) {
+      // Optionally, handle the case when there are no lessons
+      console.warn("No lessons available for updating");
+      setOpenModal("lesson");
+      return;
+    }
+    const currentLessonDetails = lessons.find(
+      (l) => l.lesson_id === currentLesson
+    );
+    if (currentLessonDetails) {
+      setSelectedLesson(currentLessonDetails);
+    }
+    setOpenModal("lesson");
   };
 
-  // Function to close any open modal
   const handleCloseModal = () => {
     setOpenModal(null);
   };
@@ -138,18 +189,12 @@ function CourseDetails() {
       const response = await axios.get(
         `http://127.0.0.1:8000/pages/${lessonId}/`
       );
-      console.log("Pages data:", response.data);
+      console.log("Fetched pages data:", response.data); // Log the fetched data
+      setPages(response.data);
+      console.log("Updated pages state:", response.data.length); // Log the updated stat
       if (response.data.length === 0) {
-        // No pages found for the lesson
-        setPages([{ page_number: 1, content: "", syllabus: syllabusId }]); // Set a default empty page
-        setCurrentPage(0);
-        setEditorContent(""); // Set empty content for the editor
-        setIsNewPage(true); // Indicate that this is a new page
+        setIsNewPage(true);
       } else {
-        // Pages found, set them in the state
-        setPages(response.data);
-        setCurrentPage(0);
-        setEditorContent(response.data[0].content); // Set the content of the first page
         setIsNewPage(false);
       }
     } catch (error) {
@@ -159,10 +204,7 @@ function CourseDetails() {
 
   const handleLessonClick = async (lessonId: string) => {
     try {
-      // Fetch the lesson's pages based on the lessonId
       await fetchPages(lessonId);
-
-      // Set the current lesson to the clicked lesson
       setCurrentLesson(lessonId);
     } catch (error) {
       console.error("Error handling lesson click:", error);
@@ -171,10 +213,9 @@ function CourseDetails() {
 
   const handlePageClick = async (event: { selected: number }) => {
     const newPageIndex = event.selected;
+    console.log("Page clicked, selected index:", newPageIndex);
     setCurrentPage(newPageIndex);
-    setIsNewPage(true); // Assume a new page initially
-
-    // Check if currentLesson is not null before proceeding
+    setIsNewPage(true);
     if (currentLesson) {
       try {
         const response = await axios.get(
@@ -182,15 +223,24 @@ function CourseDetails() {
         );
         if (response.data) {
           setEditorContent(response.data.content);
-          setIsNewPage(false); // Existing content found, not a new page
+          setIsNewPage(false);
         }
       } catch (error: any) {}
     }
   };
 
+  const handleOpenPublishModal = () => {
+    setShowPublishModal(true);
+  };
+
+  const handleClosePublishModal = () => {
+    setShowPublishModal(false);
+  };
+
   const handleEditorChange = (event: any, editor: any) => {
     const data = editor.getData();
     setEditorContent(data);
+    console.log("Editor content (should be HTML):", data);
   };
 
   const saveEditorContent = async () => {
@@ -204,17 +254,24 @@ function CourseDetails() {
       return;
     }
 
-    const isNew = pages.length === 0 || isNewPage;
-    let pageId = isNew
-      ? pages.length > 0
-        ? Math.max(...pages.map((p) => p.page_number)) + 1
-        : 1
-      : currentPage + 1;
+    let pageId: number;
+    if (isNewPage) {
+      if (
+        pages.length === 0 ||
+        (pages.length === 1 && pages[0].content === "")
+      ) {
+        pageId = 1;
+      } else {
+        pageId = Math.max(...pages.map((p) => p.page_number)) + 1;
+      }
+    } else {
+      pageId = currentPage + 1;
+    }
 
     const apiUrl = `http://127.0.0.1:8000/pages/${currentLesson}/${
-      isNew ? "" : pageId + "/"
+      isNewPage ? "" : pageId + "/"
     }`;
-    const method = isNew ? "post" : "put";
+    const method = isNewPage ? "post" : "put";
 
     try {
       const payload = {
@@ -227,7 +284,7 @@ function CourseDetails() {
       const response = await axios[method](apiUrl, payload);
 
       if (response.status === 200 || response.status === 201) {
-        const newPages = isNew
+        const newPages = isNewPage
           ? [...pages, payload]
           : pages.map((p) =>
               p.page_number === pageId ? { ...p, content: editorContent } : p
@@ -239,10 +296,15 @@ function CourseDetails() {
     } catch (error) {
       console.error("Error saving page content:", error);
     }
+    console.log("isNewPage:", isNewPage); // Log the value of isNewPage
+    console.log("Pages length:", pages.length); // Log the length of pages
+    console.log("Current page:", currentPage); // Log the current page index
+    console.log("Computed pageId:", pageId); // Log the computed pageId
   };
 
   const handleNewPage = () => {
     setIsNewPage(true);
+    console.log("Creating a new page, pages length:", pages.length);
     setEditorContent("");
     setCurrentPage(pages.length); // Sets to the next new page index
   };
@@ -289,10 +351,9 @@ function CourseDetails() {
         "|",
         "sourceEditing",
         "htmlEmbed",
-        "|", // Break starts here
+        "|",
         "pageBreak",
         "codeBlock",
-        // Additional toolbar items...
       ],
     },
     language: "en",
@@ -301,7 +362,10 @@ function CourseDetails() {
         "imageTextAlternative",
         "imageStyle:inline",
         "imageStyle:block",
-        "imageStyle:side",
+        "imageStyle:alignLeft",
+        "imageStyle:alignRight",
+        "imageStyle:alignBlockLeft",
+        "imageStyle:alignBlockRight",
         "linkImage",
       ],
     },
@@ -317,19 +381,32 @@ function CourseDetails() {
     mediaEmbed: mediaEmbedConfig,
     simpleUpload: {
       uploadUrl: `http://localhost:8000/media/uploads/`,
-      // ... other necessary configurations
     },
+    removePlugins: ["Markdown"],
   };
 
+  console.log("PageCount:", pageCount);
+
   return (
-    <div className="admin-dashboard-background">
-      <header className="admin-header">
+    <div className="dashboard-background">
+      <header className="top-header">
         <h1>Course Management</h1>
-        <button className="create-course-btn" onClick={handleOpenCourseModal}>
+        <button className="create-btn" onClick={handleOpenCourseModal}>
           Course
         </button>
-        <button className="create-course-btn" onClick={handleOpenLessonModal}>
+        <button className="create-btn" onClick={handleOpenLessonModal}>
           Lesson
+        </button>
+        <button
+          className={`create-btn ${
+            courseData?.is_published ? "published" : ""
+          }`}
+          onClick={
+            !courseData?.is_published ? handleOpenPublishModal : undefined
+          }
+          disabled={courseData?.is_published}
+        >
+          {courseData?.is_published ? "Published" : "Publish Course"}
         </button>
       </header>
 
@@ -384,7 +461,6 @@ function CourseDetails() {
           )}
         </div>
 
-        {/* Conditional rendering based on openModal state */}
         {openModal === "course" && (
           <CourseModal
             closeModal={handleCloseModal}
@@ -398,6 +474,15 @@ function CourseDetails() {
             closeModal={handleCloseModal}
             syllabusId={syllabusId}
             onUpdateDashboard={onUpdateDashboard}
+            initialLessonId={selectedLesson?.lesson_id}
+            initialLessonTitle={selectedLesson?.lesson_title}
+          />
+        )}
+        {showPublishModal && courseData && (
+          <PublishModal
+            closeModal={handleClosePublishModal}
+            onConfirmPublish={handleConfirmPublish}
+            courseData={courseData} // courseData is guaranteed not to be null here
           />
         )}
       </div>

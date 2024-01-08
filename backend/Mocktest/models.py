@@ -44,9 +44,24 @@ class MockTestScores(models.Model):
     feedback = models.TextField(null=False)
     mocktestDateTaken = models.DateField(auto_now_add=True)
     totalQuestions = models.IntegerField(default=0)
+    correct_questions = models.ManyToManyField(
+        'MockQuestions',
+        through='CorrectQuestions',
+        related_name='correct_in_tests'
+    )
 
     class Meta:
         unique_together = ['mocktest_id', 'student']
 
     def __str__(self):
         return f"{self.student} - {self.mocktest_id}"
+    
+class CorrectQuestions(models.Model):
+    mocktest_score = models.ForeignKey(MockTestScores, on_delete=models.CASCADE)
+    mockquestion = models.ForeignKey(MockQuestions, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('mocktest_score', 'mockquestion')
+
+    def __str__(self):
+        return f"{self.mocktest_score} - {self.mockquestion}"
