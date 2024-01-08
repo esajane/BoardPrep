@@ -4,6 +4,9 @@ import "../styles/studentcard.scss";
 import profileImage from "../assets/16.png";
 import { FaEllipsisH } from "react-icons/fa";
 import axiosInstance from "../axiosInstance";
+import StudentPerformanceModal from "./StudentPerformanceModal";
+import { useAppSelector } from "../redux/hooks";
+import { selectUser } from "../redux/slices/authSlice";
 
 interface Student {
   user_name: string;
@@ -34,11 +37,13 @@ function StudentCard({
   requestId,
   fetchClass,
 }: StudentCardProps) {
+  const user = useAppSelector(selectUser);
   const [student, setStudent] = useState<Student>();
   const [acceptColor, setAcceptColor] = useState("#08d46c");
   const [rejectColor, setRejectColor] = useState("#e04434");
   const [isAccepted, setIsAccepted] = useState(is_accepted);
   const [showMenu, setShowMenu] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -52,6 +57,14 @@ function StudentCard({
 
     fetchStudent();
   }, [studentId]);
+
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
   const handleAccept = async () => {
     try {
@@ -131,13 +144,13 @@ function StudentCard({
           </div>
         )}
       </td>
-      {isAccepted ? (
+      {user.token.type === "T" && isAccepted ? (
         <td className="ellipsis">
           <FaEllipsisH style={{ cursor: "pointer" }} onClick={toggleMenu} />
           {showMenu && (
             <div className="menu-dropdown">
               <ul>
-                <li>View Performance</li>
+                <li onClick={openModal}>View Performance</li>
                 <li onClick={handleRemoveStudent}>Remove</li>
               </ul>
             </div>
@@ -145,6 +158,13 @@ function StudentCard({
         </td>
       ) : (
         <td></td>
+      )}
+      {modalOpen && (
+        <StudentPerformanceModal
+          classId={classId}
+          student={student!}
+          closeModal={closeModal}
+        />
       )}
     </tr>
   );

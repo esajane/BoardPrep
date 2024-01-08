@@ -6,10 +6,11 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.db.models import Count, Case, When, Value, F
-from django.db.models.functions import Coalesce
-from django.db.models import Q
-from .models import MockTest, MockQuestions, MockTestScores
+from django.db.models import Count, Case, When, Value, F, OuterRef, Subquery, Aggregate
+from django.db.models.functions import Coalesce, Concat
+from django.db.models import Q, IntegerField, CharField
+from django.db import transaction
+from .models import MockTest, MockQuestions, MockTestScores, CorrectQuestions
 from User.models import Student, Teacher, User, Specialization
 from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer
 from openai import OpenAI
@@ -53,6 +54,17 @@ class MockQuestionsViewSet(viewsets.ModelViewSet):
         # except:
         #     return queryset.none()
         return queryset
+    
+class GroupConcatWithCount(Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(DISTINCT CONCAT(%(expressions)s))'
+
+    def __init__(self, expression, **extra):
+        super(GroupConcatWithCount, self).__init__(
+            expression,
+            output_field=CharField(),
+            **extra
+        )
 
 class MockTestScoresViewSet(viewsets.ModelViewSet):
     queryset = MockTestScores.objects.all()
@@ -62,11 +74,50 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
         queryset = MockTestScores.objects.all()
         student_id = self.request.query_params.get('student_id')
         mocktest_id = self.request.query_params.get('mocktest_id')
+        class_id = self.request.query_params.get('class_id')
 
+        if student_id and class_id:
+            mocktest = MockTest.objects.get(classID=class_id)
+            queryset = queryset.filter(student__user_name=student_id, mocktest_id=mocktest)
         if student_id:
             queryset = queryset.filter(student__user_name=student_id)
         if mocktest_id:
             queryset = queryset.filter(mocktest_id=mocktest_id)
+
+        def correct_questions_count(difficulty_name):
+            return Coalesce(
+                Subquery(
+                    CorrectQuestions.objects.filter(
+                        mocktest_score_id=OuterRef('pk'),
+                        mockquestion__difficulty__name=difficulty_name
+                    ).values('mocktest_score_id')
+                    .annotate(count=Count('pk')).values('count'),
+                    output_field=IntegerField()
+                ),
+                Value(0)
+            )
+        
+        def count_per_subject_correct():
+            correct_questions_count = Subquery(
+                CorrectQuestions.objects.filter(
+                    mocktest_score_id=OuterRef('pk'),
+                    mockquestion__subject=OuterRef('correct_questions__subject')
+                ).values('mockquestion__subject')
+                .annotate(count=Count('pk')).values('count'),
+                output_field=IntegerField()
+            )
+
+            return Case(
+                When(correct_questions__isnull=True, then=Value(None)),
+                default=GroupConcatWithCount(
+                    Concat(
+                        'correct_questions__subject',
+                        Value(':'),
+                        Coalesce(correct_questions_count, Value(0))
+                    )
+                ),
+                output_field=CharField()
+            )
 
         queryset = queryset.annotate(
             easy_count=Count('mocktest_id__mockquestions__id',
@@ -75,16 +126,25 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
                                filter=Q(mocktest_id__mockquestions__difficulty__name='Medium')),
             hard_count=Count('mocktest_id__mockquestions__id',
                              filter=Q(mocktest_id__mockquestions__difficulty__name='Hard')),
-            easy_correct=Count('mocktest_id__mockquestions__id',
-                               filter=Q(mocktest_id__mockquestions__difficulty__name='Easy',
-                                        mocktest_id__mockquestions__correctAnswer=F('score'))),
-            medium_correct=Count('mocktest_id__mockquestions__id',
-                                 filter=Q(mocktest_id__mockquestions__difficulty__name='Medium',
-                                          mocktest_id__mockquestions__correctAnswer=F('score'))),
-            hard_correct=Count('mocktest_id__mockquestions__id',
-                               filter=Q(mocktest_id__mockquestions__difficulty__name='Hard',
-                                        mocktest_id__mockquestions__correctAnswer=F('score'))),
-            subjects_count=Count('mocktest_id__mockquestions__subject', distinct=True)
+            easy_correct=correct_questions_count('Easy'),
+            medium_correct=correct_questions_count('Medium'),
+            hard_correct=correct_questions_count('Hard'),
+            subjects_count=Count('mocktest_id__mockquestions__subject', distinct=True),
+            subjects=GroupConcatWithCount(
+                Concat(
+                    'mocktest_id__mockquestions__subject',
+                    Value(':'),
+                    Subquery(
+                        MockQuestions.objects.filter(
+                            subject=OuterRef('mocktest_id__mockquestions__subject'),
+                            mocktest=OuterRef('mocktest_id')
+                        ).order_by().values('subject')
+                        .annotate(count=Count('pk')).values('count'),
+                        output_field=IntegerField()
+                    )
+                )
+            ),
+            subjects_correct=count_per_subject_correct()
         )
         # try:
         #     student_id = int(student_id)
@@ -160,16 +220,25 @@ def submit_mocktest(request, mocktest_id):
 
         feedback = completion.choices[0].message.content
 
-        MockTestScores.objects.update_or_create(
-            mocktest_id=mocktest,
-            student=student,
-            defaults={
-                'score': score,
-                'totalQuestions': total_questions,
-                'mocktestDateTaken': timezone.now(),
-                'feedback': feedback
-            }
-        )
+        with transaction.atomic():
+            mocktest_score, created = MockTestScores.objects.update_or_create(
+                mocktest_id=mocktest,
+                student=student,
+                defaults={
+                    'score': score,
+                    'totalQuestions': total_questions,
+                    'mocktestDateTaken': timezone.now(),
+                    'feedback': feedback
+                }
+            )
+
+            if not created:
+                mocktest_score.correct_questions.clear()
+
+            for question_id in answers:
+                if answers[question_id] == correct_answers_dict.get(str(question_id)):
+                    correct_question = MockQuestions.objects.get(id=question_id)
+                    mocktest_score.correct_questions.add(correct_question)
 
         response_data = {
             'score': score,
