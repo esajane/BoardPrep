@@ -7,7 +7,7 @@
     align-items: center;
     border-radius: 20px;
     overflow: hidden;
-    background-color: $box_bg; // Card background color
+    background-color: $box_bg; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -41,7 +41,6 @@
     padding: 5px;
     align-content: center;
     position: relative;
-    margin-left: 1em;
     width: 100%;
     font-family: Arial;
 

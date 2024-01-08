@@ -3,13 +3,14 @@ import { IoChevronBackOutline } from "react-icons/io5";
 import "../styles/activitydetails.scss";
 import { dueDateify } from "../functions";
 import Attachment from "./Attachment";
-import { MdAttachFile } from "react-icons/md";
+import { MdAttachFile, MdModeEdit } from "react-icons/md";
 import { GoPlus } from "react-icons/go";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import SmallAttachmentModal from "./SmallAttachmentModal";
-import axios from "axios";
 import SubmissionsModal from "./SubmissionsModal";
+import ActivityModal from "./ActivityModal";
+import axiosInstance from "../axiosInstance";
 
 interface Attachments {
   id: number;
@@ -74,6 +75,7 @@ function ActivityDetails({
   const [isClosed, setIsClosed] = React.useState(
     activityDetails.status === "In Progress" ? false : true
   );
+  const [isEditting, setIsEditting] = React.useState(false);
   const statusColor =
     activityDetails.status === "In Progress"
       ? "orange"
@@ -84,8 +86,8 @@ function ActivityDetails({
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/submissions/?${
+        const response = await axiosInstance.get(
+          `/submissions/?${
             user.token.type === "T" ? "activity_id" : "student_id"
           }=${user.token.type === "T" ? activityDetails.id : user.token.id}`
         );
@@ -104,6 +106,14 @@ function ActivityDetails({
 
     fetchSubmissions();
   }, []);
+
+  const openEditModal = () => {
+    setIsEditting(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditting(false);
+  };
 
   const openModal = () => {
     setModalOpen(true);
@@ -143,7 +153,7 @@ function ActivityDetails({
     }
     try {
       const attachs = subAttachments.map((attachment) => attachment.id);
-      const response = await axios.post("http://127.0.0.1:8000/submissions/", {
+      const response = await axiosInstance.post("/submissions/", {
         submission_text: "test",
         activity: activityDetails.id,
         score: 0,
@@ -176,17 +186,25 @@ function ActivityDetails({
           <IoChevronBackOutline />
           <div className="activity-details--header__left--back">Back</div>
         </div>
-        <button
-          className="activity-details--header__button"
-          onClick={handleSubmitClick}
-          disabled={user.token.type === "S" && (isSubmitted || isClosed)}
-        >
-          {user.token.type === "T"
-            ? "See Submissions"
-            : isSubmitted
-            ? "Submitted"
-            : "Submit"}
-        </button>
+        <div className="right-side">
+          {user.token.type === "T" && (
+            <div className="edit" onClick={openEditModal}>
+              <MdModeEdit />
+              Edit
+            </div>
+          )}
+          <button
+            className="activity-details--header__button"
+            onClick={handleSubmitClick}
+            disabled={user.token.type === "S" && (isSubmitted || isClosed)}
+          >
+            {user.token.type === "T"
+              ? "See Submissions"
+              : isSubmitted
+              ? "Submitted"
+              : "Submit"}
+          </button>
+        </div>
       </div>
       <div className="scroller">
         <div className="activity-details--title">
@@ -280,6 +298,14 @@ function ActivityDetails({
             </div>
           )}
       </div>
+      {isEditting && (
+        <ActivityModal
+          closeModal={closeEditModal}
+          classId={activityDetails.class_instance}
+          setActivityDetails={setActivityDetails}
+          activity={activityDetails}
+        />
+      )}
     </div>
   );
 }

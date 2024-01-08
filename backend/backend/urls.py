@@ -16,6 +16,7 @@ router.register(r'courses', CourseListViewSet, basename='course')
 router.register(r'course/details', CourseDetailViewSet, basename='coursedetail')
 router.register(r'syllabi', SyllabusViewSet, basename='syllabus')
 router.register(r'lessons', LessonViewSet, basename='lesson')
+router.register(r'pages', PageViewSet, basename='pages')
 router.register(r'file-upload', FileUploadViewSet, basename='fileupload')
 router.register(r'classes', ClassViewSet, basename='class')
 # Other viewsets that need basename

@@ -40,8 +40,8 @@ function SubmissionCard({
   setCurrentSubmissions,
 }: SubmissionCardProps) {
   const [openAttachments, setOpenAttachments] = useState(false);
-  const [feedback, setFeedback] = useState<string>("");
-  const [score, setScore] = useState<number>(0);
+  const [feedback, setFeedback] = useState<string>(submission.feedback);
+  const [score, setScore] = useState<number>(submission.score);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const returnSubmission = async () => {

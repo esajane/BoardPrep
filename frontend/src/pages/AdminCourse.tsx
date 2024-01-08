@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CourseCard from "../components/CoursecardC";
-import CourseModal from "../components/CourseModal"; // Import the CourseModal component
+import CourseModal from "../components/CourseModal";
 import "../styles/admin.scss";
 import Searchbar from "../components/SearchBar";
 import { AxiosResponse } from "axios";
@@ -50,7 +50,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleCloseCreateCourseModal = () => {
     setIsCreateCourseModalOpen(false);
-    fetchCourses(); // Fetch the courses again to update the list with any new additions
+    fetchCourses();
   };
 
   const handleSearch = (query: string) => {
@@ -73,13 +73,13 @@ const AdminDashboard: React.FC = () => {
           <Searchbar onSearch={handleSearch} />
         </div>
         <div className="profile-pic2">
-            <img
-              src={profileImage}
-              className="logo"
-              alt="RILL"
-              onClick={() => setOpenProfile((prev) => !prev)}
-            />
-            {openProfile && <DropDownProfile />}
+          <img
+            src={profileImage}
+            className="logo"
+            alt="RILL"
+            onClick={() => setOpenProfile((prev) => !prev)}
+          />
+          {openProfile && <DropDownProfile />}
         </div>
       </div>
 

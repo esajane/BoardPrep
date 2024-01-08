@@ -9,6 +9,51 @@ body {
   background-color: #0d0b1c;
 }
 
+.dashboard-background {
+  width: 100vw;
+  height: 100vh;
+  background: #0d0b1c;
+  overflow-y: auto;
+}
+
+.top-header {
+  background-color:#0d0b1c;
+  color: #ffffff;
+  display: flex;
+  width: 90%;
+  padding-top: 50px;
+  align-items: center;
+  
+}
+
+.create-btn {
+  color: #ffffff;
+  font-size: 25px;
+  width:  150px;
+  height: 70px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid white;
+  transition: all 0.3s ease;
+  &:hover {
+    background-color: #fff;
+    color: #201c1c;
+  }
+ 
+}
+
+.create-btn.published {
+  background-color: #b650f4; /* Green background for published state */
+  color: white;
+  cursor: not-allowed;
+  border: 1px solid #893cb9;
+}
+
+.create-btn.published:hover {
+  background-color: #893cb9; /* Slightly darker green on hover */
+}
+
+
 .course-page {
   margin-top: 20px;
   display: flex;
@@ -32,7 +77,6 @@ body {
     .syllabus-container {
       padding-top: 60px; // Padding to prevent content from hiding behind the toggle
       transition: margin 0.3s ease;
-      
     }
 
     &.collapsed {
@@ -40,8 +84,6 @@ body {
       width: 0; // Collapse to width of the toggle button
       flex-basis: 0;
     }
-
-    
   }
 
   .lesson-content-container {
@@ -55,7 +97,6 @@ body {
     padding: 50px;
     transition: margin 0.3s ease, flex-basis 0.3s ease;
     box-shadow: 11px 5px 9px 0px rgb(225, 131, 225), -1px -1px 10px rgb(144, 129, 129);
-    overflow: hidden;
     background-color: #fefcff;  
 
     .lesson-content-container img {
@@ -70,22 +111,8 @@ body {
   .ck.ck-editor__editable{
     min-height: 300px;
     max-height: 400px;
-    max-width: 1000px;
     overflow-y: auto;
   }
-
-  .ck.ck-toolbar {
-    display: flex;
-    flex-wrap: wrap; /* Allows items to wrap onto the next line */
-    max-width: 100%; /* Adjust width as needed */
-    justify-content: flex-start; /* Aligns items to the start */
-    overflow: hidden;
-}
-
-.ck.ck-toolbar .ck-toolbar__item {
-    margin-bottom: 5px; /* Adds a small space between rows */
-    overflow: hidden;
-}
 
 
   .ck-editor__editable imgae {
@@ -133,8 +160,6 @@ body {
 }
 
 
-
-
 .checkbox {
   display: none;
 }
@@ -154,7 +179,7 @@ body {
   z-index: 11; // Above the syllabus-main
   transition: right 0.2s ease;
 
-  .materials-page:not(.collapsed) & {
+  .course-page:not(.collapsed) & {
     margin-top: 5.5%; // Adjust this to fit the inside edge of syllabus-main
     margin-left: 2%;
   }
@@ -200,7 +225,6 @@ body {
 .checkbox:not(:checked) + .toggle {
   transform: rotate(180deg);
 }
-
   
   // ... Rest of your existing styles
   
@@ -245,56 +269,7 @@ body {
     }
   }
 
-  .admin-dashboard-background {
-    width: 100vw;
-    height: 100vh;
-    background: #0d0b1c;
-    overflow-y: auto;
-  }
-
-  .admin-header {
-    background-color:#0d0b1c;
-    color: #ffffff;
-    display: flex;
-    width: 90%;
-    margin: auto;
-    padding-top: 50px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
   
-.create-course-btn {
-  color: #ffffff;
-  font-size: 25px;
-  width: 100px;
-  height: 20px;
-  border-radius: 14px;
-  background: transparent;
-  border: 1px solid white;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #fff;
-    color: #201c1c;
-  }
-}
-
-  .btn {
-    color: #ffffff;
-    font-size: 25px;
-    width: 200px;
-    height: 100px;
-    border-radius: 14px;
-    background: transparent;
-    border: 1px solid white;
-    transition: all 0.3s ease;
-  
-    &:hover {
-      background-color: #fff;
-      color: #201c1c;
-    }
-  }
 
   .content-area {
     display: flex;
