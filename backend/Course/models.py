@@ -11,6 +11,9 @@ class Course(models.Model):
     def __str__(self):
         return self.course_title
 
+    def hasMocktest(self):
+        return self.mocktest_set.exists()
+
 class Syllabus(models.Model):
     course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name='syllabus')
     syllabus_id = models.CharField(max_length=10, primary_key=True)

@@ -35,6 +35,7 @@ const MockTestResults = () => {
   const { course_id, mocktest_id, id } = useParams();
   const navigate = useNavigate();
   const { score, total, mocktestName, studentName, dateOfMocktest } = state || {};
+//   const [isPremium, setIsPremium] = useState(false);
   const isPremium = true;
   const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -53,7 +54,11 @@ const MockTestResults = () => {
   };
 
 //   const getUserDetails = () => {
-//     axios.get(`http://127.0.0.1:8080/students`)
+//     const userid = user.token.id;
+//     const res = axios.get(`http://127.0.0.1:8080/user/${userid}`);
+//     setIsPremium(res.data.is_premium);
+//     return res.data.is_premium;
+//   }
 
   useEffect(() => {
     console.log('Mocktest Name:', mocktestName);
@@ -87,7 +92,7 @@ const MockTestResults = () => {
           setIsLoading(false);
         })
         .catch((error) => {
-          console.error('There was an error fetching the mock  test results', error);
+          console.error('There was an error fetching the mock test results', error);
           setIsLoading(false);
         });
     }
@@ -112,7 +117,7 @@ const MockTestResults = () => {
       </div>
       <div className="buttons-container">
           { isPremium &&
-                <button className="view-assessment-btn" onClick={viewAssessmentHandler}>VIEW ASSESSMENT</button>
+            <button className="view-assessment-btn" onClick={viewAssessmentHandler}>VIEW ASSESSMENT</button>
           }
           <button className="back-to-class-btn" onClick={handleBackToClass}>BACK TO CLASS</button>
       </div>

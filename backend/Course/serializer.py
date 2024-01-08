@@ -5,9 +5,14 @@ from Course.models import Course, Syllabus, Lesson, Page, FileUpload
 
 
 class CourseListSerializer(serializers.ModelSerializer):
+    hasMocktest = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
-        fields = ['course_id', 'course_title', 'short_description', 'image']
+        fields = ['course_id', 'course_title', 'short_description', 'image', 'hasMocktest']
+
+    def get_hasMocktest(self, obj):
+        return obj.hasMocktest
 
 
 class PageSerializer(serializers.ModelSerializer):

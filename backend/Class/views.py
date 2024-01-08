@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.http import StreamingHttpResponse
+from django.db.models import Exists, OuterRef
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Class, JoinRequest, Post, Comment, Activity, Submission, Attachment
 from User.models import Student
+from Mocktest.models import MockTest
 from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer, AttachmentSerializer
 
 # Create your views here.
@@ -15,6 +17,7 @@ class ClassViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = queryset.annotate(hasMocktest=Exists(MockTest.objects.filter(classID=OuterRef('pk'))))
         teacher_id = self.request.query_params.get('teacher_id')
         student_id = self.request.query_params.get('student_id')
 

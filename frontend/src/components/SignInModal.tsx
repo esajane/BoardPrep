@@ -30,7 +30,9 @@ function SigninModal({ closeModal, userType }: SigninModalProps) {
     e.preventDefault();
     try {
       await dispatch(signIn({ username, password }));
-      if(userType === "content-creator") navigate('/content');
+      const targetRoute =
+        userType === "content-creator" ? "/content" : "/classes";
+      navigate(targetRoute);
     } catch (err) {
       console.log(err);
     }

@@ -1,20 +1,19 @@
 import os, environ
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Count, Case, When, Value, F
+from django.db import connection
 from django.db.models.functions import Coalesce
 from django.db.models import Q
-from .models import MockTest, MockQuestions, MockTestScores
+from .models import MockTest, MockQuestions, MockTestScores, Difficulty
 from User.models import Student, Teacher, User, Specialization
-from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer
+from Mocktest.serializer import MockTestSerializer, MockQuestionsSerializer, MockTestScoresSerializer, DifficultySerializer
 from openai import OpenAI
-
-
 
 class MockTestViewSet(viewsets.ModelViewSet):
     queryset = MockTest.objects.none()
@@ -35,6 +34,67 @@ class MockTestViewSet(viewsets.ModelViewSet):
         #     return queryset.none()
         return queryset
 
+    @action(detail=False, methods=['get'])
+    def get_by_course(self, request, course_id=None):
+        try:
+            mocktest = MockTest.objects.get(course=course_id)
+            serializer = MockTestSerializer(mocktest)
+            print(course_id)
+            return Response(serializer.data)
+        except MockTest.DoesNotExist:
+            return Response({'error': 'MockTest not found for the given course.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['put'])
+    def update_by_course(self, request, course_id=None):
+        try:
+            mocktest = MockTest.objects.get(course=course_id)
+            mocktest_serializer = self.get_serializer(mocktest, data=request.data)
+            mocktest_serializer.is_valid(raise_exception=True)
+            mocktest_serializer.save()
+
+            current_question_ids = set(MockQuestions.objects.filter(mocktest=mocktest).values_list('id', flat=True))
+
+            questions_data = request.data.get('questions', [])
+            for question_data in questions_data:
+                question_id = question_data.get('id')
+                if question_id:
+                    question_instance = MockQuestions.objects.get(id=question_id, mocktest=mocktest)
+                    question_serializer = MockQuestionsSerializer(instance=question_instance, data=question_data)
+                else:
+                    question_serializer = MockQuestionsSerializer(data=question_data)
+
+                question_serializer.is_valid(raise_exception=True)
+                question_serializer.save(mocktest=mocktest)
+
+                if question_id:
+                    current_question_ids.discard(question_id)
+
+            MockQuestions.objects.filter(id__in=current_question_ids).delete()
+
+            updated_mocktest_serializer = MockTestSerializer(instance=mocktest)
+            print('MockTest and questions updated successfully')
+            return Response(updated_mocktest_serializer.data)
+        except MockTest.DoesNotExist:
+            return Response({'error': 'MockTest not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except MockQuestions.DoesNotExist:
+            return Response({'error': 'Question not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['delete'])
+    def destroy_by_course(self, request, course_id):
+        try:
+            mocktest = MockTest.objects.get(course=course_id)
+            mocktest.delete()
+            print('MockTest deleted successfully')
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except MockTest.DoesNotExist:
+            return Response({'error': 'MockTest not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class MockQuestionsViewSet(viewsets.ModelViewSet):
     queryset = MockQuestions.objects.none()
     serializer_class = MockQuestionsSerializer
@@ -53,6 +113,34 @@ class MockQuestionsViewSet(viewsets.ModelViewSet):
         # except:
         #     return queryset.none()
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        difficulty_id = data.get('difficulty')
+        if difficulty_id:
+            difficulty_instance = get_object_or_404(Difficulty, id=difficulty_id)
+            data['difficulty'] = difficulty_instance.id
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        data = request.data.copy()
+        difficulty_id = data.get('difficulty')
+        if difficulty_id:
+            difficulty_instance = get_object_or_404(Difficulty, id=difficulty_id)
+            data['difficulty'] = difficulty_instance.id
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 class MockTestScoresViewSet(viewsets.ModelViewSet):
     queryset = MockTestScores.objects.all()
@@ -91,6 +179,10 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
         # except:
         #     return queryset.none()
         return queryset
+
+class DifficultyViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Difficulty.objects.all()
+    serializer_class = DifficultySerializer
 
 @api_view(['POST'])
 def submit_mocktest(request, mocktest_id):
@@ -153,7 +245,7 @@ def submit_mocktest(request, mocktest_id):
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are Preppy, BoardPrep's Engineering Assistant and an excellent and critical engineer, tasked with providing constructive feedback on mock test performances of your students. In giving a feedback, you don't thank the student for sharing the details, instead you congratulate the student first for finishing the mock test, then you provide your feedbacks. After providing your feedbacks, you then put your signature at the end of your response"},
+                {"role": "system", "content": "You are Preppy, BoardPrep's Engineering Companion and an excellent and critical engineer, tasked with providing constructive feedback on mock test performances of your students. In giving a feedback, you don't thank the student for sharing the details, instead you congratulate the student first for finishing the mock test, then you provide your feedbacks. After providing your feedbacks, you then put your signature at the end of your response"},
                 {"role": "user", "content": f"I am {student_name}, a {specialization_name} major, and here are the details of my test. {correct_answers_paragraph}\n\n{wrong_answers_paragraph}\n\nBased on these results, can you provide some feedback and suggestions for improvement, like what subjects to focus on, which field i excel, and some strategies? Address me directly, and don't put any placeholders as this will be displayed directly in unformatted text form."}
             ]
         )

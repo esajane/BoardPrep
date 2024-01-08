@@ -55,6 +55,7 @@ const authSlice = createSlice({
     },
     signOut: (state) => {
       localStorage.removeItem("token");
+      localStorage.removeItem("mocktestStartTime");
       state.isAuth = false;
       state.token = {
         id: "",

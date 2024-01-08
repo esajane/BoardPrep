@@ -6,9 +6,9 @@
 
 .mock-test {
   background: #100D1F;
-  color: #ffffff;
+  color: #FFFFFF;
   padding: 40px;
-  min-height: auto;
+  height: 100vh;
   overflow: auto;
 
   .surround {
@@ -55,11 +55,43 @@
     display: block;
     align-self: flex-end;
     margin: 40px 0 0px 1217px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s, cursor 0.3s;
+    position: relative;
 
     &:hover {
       background: #FFFFFF;
       color: #B62AB9;
+    }
+
+    &.submitting {
+       background: #B62AB9;
+       color: transparent;
+       cursor: default;
+       padding: 26.3px 85.7px;
+    }
+
+    .loading-circle {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #B62AB9;
+      border-top-color: #FFFFFF;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      transform: translate(-50%, -50%);
+    }
+
+    &.submitting .loading-circle {
+      display: block;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
   }
 }
