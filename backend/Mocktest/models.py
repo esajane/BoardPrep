@@ -19,7 +19,7 @@ class MockQuestions(models.Model):
     choiceC = models.CharField(max_length=255, verbose_name="C")
     choiceD = models.CharField(max_length=255, verbose_name="D")
     subject = models.CharField(max_length=255)
-    difficulty = models.ForeignKey('Difficulty', on_delete=models.CASCADE, null=True)
+    difficulty = models.ForeignKey('Difficulty', on_delete=models.CASCADE)
     correctAnswer = models.CharField(max_length=255, verbose_name="Correct Answer")
 
     def __str__(self):

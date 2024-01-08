@@ -5,9 +5,11 @@ import Courselist from "./pages/Courselist";
 import "./styles/testing.scss";
 import Syllabus from "./components/Syllabus";
 import MockTest from "./pages/Mocktest";
+import CreateMocktest from "./pages/CreateMocktest";
 import CourseDetails from "./pages/CourseDetails";
 import AdminDashboard from "./pages/AdminCourse";
 import MockTestResult from "./pages/MocktestResults";
+import ViewMocktestCreator from "./pages/ViewMocktestCreator";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Classes from "./pages/Classes";
 import Classroom from "./pages/Classroom";
@@ -80,6 +82,22 @@ function App() {
           element={
             <PrivateRoute>
               <MockTestResult />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/courses/:courseId/mocktest/create"
+          element={
+            <PrivateRoute>
+              <CreateMocktest />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/courses/:courseId/mocktest"
+          element={
+            <PrivateRoute>
+              <ViewMocktestCreator />
             </PrivateRoute>
           }
         />

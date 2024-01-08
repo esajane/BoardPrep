@@ -5,8 +5,6 @@ from Course.models import Course, Syllabus, Lesson,  Page, FileUpload
 from datetime import datetime
 import time
 
-
-
 class PageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Page
@@ -89,9 +87,14 @@ class SyllabusSerializer(serializers.ModelSerializer):
 
 class CourseListSerializer(serializers.ModelSerializer):
     syllabus = SyllabusSerializer(read_only=True)
+    hasMocktest = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
         fields = ['course_id', 'course_title', 'short_description', 'image', 'syllabus', 'is_published']
+
+    def get_hasMocktest(self, obj):
+        return obj.hasMocktest
 
     def create(self, validated_data):
         course = Course.objects.create(**validated_data)

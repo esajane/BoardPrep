@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.http import StreamingHttpResponse
-from django.db.models import Case, When, Value, IntegerField, F
+from django.db.models import Case, When, Value, IntegerField, F, Exists, OuterRef
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Class, JoinRequest, Post, Comment, Activity, Submission, Attachment
 from User.models import Student
+from Mocktest.models import MockTest
 from .serializers import ClassSerializer, PostSerializer, CommentSerializer, JoinRequestSerializer, ActivitySerializer, SubmissionSerializer, AttachmentSerializer
 
 # Create your views here.
@@ -16,6 +17,7 @@ class ClassViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = queryset.annotate(hasMocktest=Exists(MockTest.objects.filter(classID=OuterRef('pk'))))
         teacher_id = self.request.query_params.get('teacher_id')
         student_id = self.request.query_params.get('student_id')
 
@@ -55,13 +57,13 @@ class ClassViewSet(viewsets.ModelViewSet):
             student = Student.objects.get(user_name=student)
         except (Class.DoesNotExist, Student.DoesNotExist):
             return Response({'error': 'Invalid class ID or student ID'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         class_instance.students.remove(student)
         join_request = JoinRequest.objects.filter(class_instance=class_instance, student=student, is_accepted=True)
         if join_request.exists():
             join_request.delete()
         return Response({'message': 'Student removed successfully'}, status=status.HTTP_200_OK)
-        
+
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
@@ -234,14 +236,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             serializer.save()
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.data)
-    
+
 class SubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = SubmissionSerializer
 

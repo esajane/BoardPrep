@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from Course.views import CourseListViewSet, CourseDetailViewSet, SyllabusViewSet, LessonViewSet, FileUploadViewSet, PageViewSet
 from Class.views import ClassViewSet, PostViewSet, CommentViewSet, JoinRequestViewSet, ActivityViewSet, SubmissionViewSet, AttachmentViewSet
-from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet, submit_mocktest
+from Mocktest.views import MockTestViewSet, MockQuestionsViewSet, MockTestScoresViewSet, DifficultyViewSet, submit_mocktest
 from User.views import StudentViewSet, TeacherViewSet
 from Course import views
 
@@ -25,12 +25,14 @@ router.register(r'comments', CommentViewSet, basename='comments')
 router.register(r'mocktest', MockTestViewSet, basename='mocktest')
 router.register(r'questions', MockQuestionsViewSet, basename='questions')
 router.register(r'scores', MockTestScoresViewSet, basename='scores')
+router.register(r'difficulty', DifficultyViewSet, basename='difficulty')
 router.register(r'student', StudentViewSet, basename='student')
 router.register(r'teacher', TeacherViewSet, basename='teacher')
 router.register(r'join-requests', JoinRequestViewSet, basename='join-requests')
 router.register(r'activities', ActivityViewSet, basename='activities')
 router.register(r'submissions', SubmissionViewSet, basename='submissions')
 router.register(r'attachments', AttachmentViewSet)
+router.register(r'pages', PageViewSet, basename='page')
 
 
 #pagkuha og indibidwal nga mga kurso
@@ -47,6 +49,9 @@ urlpatterns = [
     path('mocktest/<int:mocktest_id>/submit', submit_mocktest, name='submit_mocktest'),
     path('mocktest/<int:course_id>/', MockTestViewSet.as_view({'get': 'retrieve'}), name='mocktest-course'),
     path('mocktest/<int:classID>/', MockTestViewSet.as_view({'get': 'retrieve'}), name='mocktest-class'),
+    path('mocktest/delete_by_course/<str:course_id>/', MockTestViewSet.as_view({'delete': 'destroy_by_course'}), name='delete-mocktest-by-course'),
+    path('mocktest/update_by_course/<str:course_id>/', MockTestViewSet.as_view({'put': 'update_by_course'}), name='update-mocktest-by-course'),
+    path('mocktest/get_by_course/<str:course_id>/', MockTestViewSet.as_view({'get': 'get_by_course'}), name='get-mocktest-by-course'),
     path('questions/<int:question_id>/', MockQuestionsViewSet.as_view({'get': 'retrieve'}), name='question-detail'),
 
     #path for payment and subscriptions

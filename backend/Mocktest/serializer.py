@@ -1,21 +1,26 @@
 from rest_framework import serializers
 from Mocktest.models import MockTest, MockQuestions, MockTestScores, Difficulty
 
+
+class DifficultySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Difficulty
+        fields = '__all__'
+
+
 class MockQuestionsSerializer(serializers.ModelSerializer):
-    difficulty = serializers.SerializerMethodField()
+    difficulty = serializers.PrimaryKeyRelatedField(queryset=Difficulty.objects.all())
     class Meta:
         model = MockQuestions
         fields = '__all__'
 
-    def get_difficulty(self, obj):
-        difficulty = Difficulty.objects.get(id=obj.difficulty_id)
-        return difficulty.name
 
 class MockTestSerializer(serializers.ModelSerializer):
     question = MockQuestionsSerializer(many=True, read_only=True, source='mockquestions_set')
     class Meta:
         model = MockTest
         fields = '__all__'
+
 
 class MockTestScoresSerializer(serializers.ModelSerializer):
     studentName = serializers.SerializerMethodField()

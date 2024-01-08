@@ -24,7 +24,7 @@ interface Question {
   difficulty: number;
 }
 
-const Mocktest: React.FC = () => {
+const ViewMocktestCreator: React.FC = () => {
   const user = useAppSelector(selectUser);
   const userType = user.token.type;
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -36,8 +36,7 @@ const Mocktest: React.FC = () => {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { course_id, classID } = useParams<{ course_id: string; classID: string }>();
+  const { courseId, classID } = useParams<{ courseId: string; classID: string }>();
 
   const clearTimer = useCallback(() => {
     console.log ("Clearing timer...");
@@ -46,11 +45,12 @@ const Mocktest: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if(classID) {
-        axios.get(`http://127.0.0.1:8000/mocktest/?classID=${classID}`)
+    if(courseId) {
+        axios.get(`http://127.0.0.1:8000/mocktest/get_by_course/${courseId}/`)
         .then(response => {
-          if(response.data.length > 0) {
-            const fetchedMocktest = response.data[0];
+          if(response.data) {
+            const fetchedMocktest = response.data;
+            console.log(fetchedMocktest);
             setMocktestDetails(fetchedMocktest);
             setMocktestID(fetchedMocktest.mocktestID);
           } else {
@@ -61,21 +61,21 @@ const Mocktest: React.FC = () => {
           console.error('There was an error fetching the mock test details.', error);
         });
     }
-  }, [classID]);
+    console.log(courseId);
+  }, [courseId]);
 
   useEffect(() => {
     if(mocktest_id) {
         axios.get(`http://127.0.0.1:8000/questions/?mocktest_id=${mocktest_id}`)
         .then(response => {
           if(response.data.length > 0) {
-            const fetchedMocktest = response.data[0];
             setQuestions(response.data);
           } else {
-            console.error('No mocktest found for this course.');
+            console.error('No questions found for this mock test.');
           }
         })
         .catch(error => {
-          console.error('There was an error fetching the mock test details.', error);
+          console.error('There was an error fetching the questions.', error);
         });
     }
   }, [mocktest_id]);
@@ -181,13 +181,13 @@ const Mocktest: React.FC = () => {
     <div className="mock-test">
         {mocktestDetail ? (
             <>
-            <h1>{mocktestDetail?.mocktestName || 'Loading Test Name..'}</h1>
+            <h1>{mocktestDetail.mocktestName || 'Loading Test Name...'}</h1>
             <p className="subtitle">by BoardPrep Admin</p>
             {userType === 'S' && (
                 <div className="exam-timer"> Time Remaining: {formatTime()} </div>
             )}
             <div className="surround">
-            {questions && questions.length > 0 ? (
+            {questions.length > 0 ? (
                 questions.map((q, index) => (
                 <MockTestCard
                     key={q.id}
@@ -216,9 +216,8 @@ const Mocktest: React.FC = () => {
         ) : (
         <p>Loading test name...</p>
         )}
-
     </div>
   );
 };
 
-export default Mocktest;
+export default ViewMocktestCreator;

@@ -13,6 +13,7 @@ class ClassSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
     image = serializers.SerializerMethodField()
     teacher_name = serializers.SerializerMethodField()
+    hasMocktest = serializers.SerializerMethodField()
     class Meta:
         model = Class
         fields = '__all__'
@@ -31,7 +32,11 @@ class ClassSerializer(serializers.ModelSerializer):
     
     def get_teacher_name(self, obj):
         return f'{obj.teacher.first_name} {obj.teacher.last_name}' if obj.teacher else None
-    
+
+    def get_hasMocktest(self, obj):
+        return obj.hasMocktest
+
+
 class JoinRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinRequest

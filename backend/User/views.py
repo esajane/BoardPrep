@@ -1,3 +1,4 @@
+from django.db import connection
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import login, logout
@@ -149,19 +150,15 @@ class TeacherRegister(APIView):
 
 class UserView(APIView):
     def get(self, request):
-        token = request.COOKIES.get('jwt')
-
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
+        user_id = request.query_params.get('user_id')
 
         try:
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated!')
+            user = User.objects.get(user_name=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        student = Student.objects.all()
-        serializer = StudentSerializer(student, many=True)
-        return Response(serializer.data)
 
 class ContentCreatorLogin(APIView):
     def post(self, request):
