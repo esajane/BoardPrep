@@ -27,6 +27,8 @@ class MockTestScoresSerializer(serializers.ModelSerializer):
     hard_correct = serializers.IntegerField(read_only=True)
     subjects_count = serializers.IntegerField(read_only=True)
     feedback = serializers.CharField(read_only=True)
+    subjects = serializers.CharField(read_only=True)
+    subjects_correct = serializers.CharField(read_only=True)
     class Meta:
         model = MockTestScores
         fields = ('mocktestScoreID',
@@ -43,7 +45,9 @@ class MockTestScoresSerializer(serializers.ModelSerializer):
                   'medium_correct',
                   'hard_correct',
                   'subjects_count',
-                  'feedback'
+                  'feedback',
+                  'subjects',
+                  'subjects_correct'
                   )
 
     def to_representation(self, instance):
