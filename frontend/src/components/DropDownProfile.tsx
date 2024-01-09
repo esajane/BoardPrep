@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/dropdown.scss';
 import { signOut, selectUser } from '../redux/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { useDispatch } from 'react-redux';
 import axiosInstance from '../axiosInstance';
 
 const DropDownProfile = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const userType = user.token.type;
   const [details, setDetails] = React.useState<any>({});
   const navigate = useNavigate();
 
@@ -63,7 +65,7 @@ const DropDownProfile = () => {
         <li className="d-item" onClick={handleForum}>
           Forum
         </li>
-        {!details.is_premium && (
+        {!details.is_premium && userType === 'S' && (
           <li className="d-item" onClick={handlePayment}>
             Upgrade
           </li>

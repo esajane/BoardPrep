@@ -5,7 +5,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAppSelector } from "../redux/hooks";
 import { useDispatch } from 'react-redux';
 import { selectUser } from "../redux/slices/authSlice";
+import axiosInstance from '../axiosInstance';
 import '../styles/mocktest.scss';
+
 
 interface MocktestDetail {
   mocktestID: number;
@@ -47,7 +49,7 @@ const Mocktest: React.FC = () => {
 
   useEffect(() => {
     if(classID) {
-        axios.get(`http://127.0.0.1:8000/mocktest/?classID=${classID}`)
+        axiosInstance.get(`/mocktest/?classID=${classID}`)
         .then(response => {
           if(response.data.length > 0) {
             const fetchedMocktest = response.data[0];
@@ -65,7 +67,7 @@ const Mocktest: React.FC = () => {
 
   useEffect(() => {
     if(mocktest_id) {
-        axios.get(`http://127.0.0.1:8000/questions/?mocktest_id=${mocktest_id}`)
+        axiosInstance.get(`/questions/?mocktest_id=${mocktest_id}`)
         .then(response => {
           if(response.data.length > 0) {
             const fetchedMocktest = response.data[0];
@@ -150,7 +152,7 @@ const Mocktest: React.FC = () => {
 
       try {
         if(user.isAuth) {
-            const response = await axios.post(`http://127.0.0.1:8000/mocktest/${mocktest_id}/submit`,
+            const response = await axiosInstance.post(`/mocktest/${mocktest_id}/submit`,
                 {
                     user_name: user.token.id,
                     answers: answers
