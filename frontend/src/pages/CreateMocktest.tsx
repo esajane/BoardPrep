@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 import '../styles/createmocktest.scss';
 
 interface Mocktest {
@@ -78,7 +79,7 @@ const CreateMockTestPage = () => {
             if(!courseId) return;
 
             try {
-                const mocktestResponse = await axios.get(`http://127.0.0.1:8000/mocktest/`);
+                const mocktestResponse = await axiosInstance.get(`/mocktest/`);
                 const mocktestData: Mocktest[] = mocktestResponse.data;
                 console.log('Fetched Mock Test Data:', mocktestData);
                 const currentMocktest = mocktestData.find((test: Mocktest) => test.course === courseId);
@@ -106,7 +107,7 @@ const CreateMockTestPage = () => {
             if (!mocktestID) return;
 
             try {
-                const questionsResponse = await axios.get(`http://127.0.0.1:8000/questions/`);
+                const questionsResponse = await axiosInstance.get(`/questions/`);
                 const questionsData: Question[] = questionsResponse.data;
                 console.log('Fetched Questions Data:', questionsData);
                 const relatedQuestions = questionsData.filter(q => q.mocktest === mocktestID);
@@ -134,7 +135,7 @@ const CreateMockTestPage = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const coursesResponse = await axios.get(`http://127.0.0.1:8000/courses/`);
+                const coursesResponse = await axiosInstance.get(`/courses/`);
                 console.log('Courses: ', coursesResponse.data);
                 const availableCourses = coursesResponse.data.filter((course: Course) => !course.hasMocktest);
                 setCourses(availableCourses);
@@ -143,7 +144,7 @@ const CreateMockTestPage = () => {
                     setSelectedCourse(courseId);
                 }
 
-                const classesResponse = await axios.get(`http://127.0.0.1:8000/classes/`);
+                const classesResponse = await axiosInstance.get(`/classes/`);
                 console.log('Classes: ', classesResponse.data);
                 const filteredClasses = classesResponse.data.filter((cls: Class) => !cls.hasMocktest);
                 setClasses(filteredClasses);
@@ -155,7 +156,7 @@ const CreateMockTestPage = () => {
 
         const fetchClasses = async () => {
             try {
-                const classesResponse = await axios.get(`http://127.0.0.1:8000/classes/`);
+                const classesResponse = await axiosInstance.get(`/classes/`);
                 const classesData: Class[] = classesResponse.data;
                 const currentClass = classesData.find(cls => cls.course === courseId);
                 setHasMocktest(currentClass ? currentClass.hasMocktest : false);
@@ -166,7 +167,7 @@ const CreateMockTestPage = () => {
 
         const fetchDifficulties = async () => {
             try {
-                const difficultyResponse = await axios.get(`http://127.0.0.1:8000/difficulty/`);
+                const difficultyResponse = await axiosInstance.get(`/difficulty/`);
                 setDifficulties(difficultyResponse.data);
             } catch (error) {
                 console.error('Error fetching difficulties:', error);
@@ -181,8 +182,8 @@ const CreateMockTestPage = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const mocktestUrl = 'http://127.0.0.1:8000/mocktest/';
-        const questionUrl = 'http://127.0.0.1:8000/questions/';
+        const mocktestUrl = '/mocktest/';
+        const questionUrl = '/questions/';
 
         try {
             const existingQuestions = questions.filter(q => q.id !== 0);
@@ -197,7 +198,7 @@ const CreateMockTestPage = () => {
                     return questionData;
                 });
 
-                const response = await axios.post(mocktestUrl, {
+                const response = await axiosInstance.post(mocktestUrl, {
                     mocktestName: mockTestName,
                     mocktestDescription: mockTestDescription,
                     course: selectedCourse,
@@ -210,13 +211,13 @@ const CreateMockTestPage = () => {
                 for (let question of questions) {
                     console.log("Questions before sending:", questions);
                     console.log({...question, mocktest });
-                    await axios.post(questionUrl, {
+                    await axiosInstance.post(questionUrl, {
                         ...question,
                         mocktest: mocktest,
                     });
                 }
             } else {
-                await axios.put(`http://127.0.0.1:8000/mocktest/update_by_course/${courseId}/`, {
+                await axiosInstance.put(`/mocktest/update_by_course/${courseId}/`, {
                     mocktestName: mockTestName,
                     mocktestDescription: mockTestDescription,
                     course: selectedCourse,
@@ -225,7 +226,7 @@ const CreateMockTestPage = () => {
                 });
 
                 for (let question of newQuestions) {
-                    await axios.post(questionUrl, {
+                    await axiosInstance.post(questionUrl, {
                         ...question,
                         mocktest: mocktestID,
                     });
@@ -250,7 +251,7 @@ const CreateMockTestPage = () => {
     };
 
     const handleViewMockTest = async () => {
-        const response = await axios.get(`http://127.0.0.1:8000/mocktest/${classID}`);
+        const response = await axiosInstance.get(`/mocktest/${classID}`);
         setFetchedMockTest(response.data);
         setIsViewMode(true);
     };
@@ -262,7 +263,7 @@ const CreateMockTestPage = () => {
         }
 
         try {
-            await axios.delete(`http://127.0.0.1:8000/mocktest/delete_by_course/${courseId}/`);
+            await axiosInstance.delete(`/delete_by_course/${courseId}/`);
             console.log("Mock test deleted successfully");
             navigate(`/courses/${courseId}/edit`);
 

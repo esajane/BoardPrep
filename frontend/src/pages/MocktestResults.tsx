@@ -5,6 +5,7 @@ import "../styles/mocktestresults.scss";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import PerformanceAssessment from "../components/PerformanceAssessment";
+import axiosInstance from "../axiosInstance";
 
 type ScoreDetailsType = {
   easy_count: number;
@@ -40,7 +41,7 @@ const MockTestResults = () => {
   const navigate = useNavigate();
   const { score, total, mocktestName, studentName, dateOfMocktest } =
     state || {};
-  const isPremium = true;
+  const [isPremium, setIsPremium] = useState(false);
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -61,12 +62,18 @@ const MockTestResults = () => {
     setShowAssessment(true);
   };
 
-//   const getUserDetails = () => {
-//     const userid = user.token.id;
-//     const res = axios.get(`http://127.0.0.1:8080/user/${userid}`);
-//     setIsPremium(res.data.is_premium);
-//     return res.data.is_premium;
-//   }
+  const getUserDetails = async() => {
+    const userid = user.token.id;
+    const res = await axiosInstance.get('/get/user/', {
+        params: {
+          username: user.token.id,
+        },
+      });
+    console.log(res.data);
+    if(res.data.is_premium) {
+      setIsPremium(true);
+    }
+  }
 
   useEffect(() => {
     console.log("Mocktest Name:", mocktestName);
@@ -74,10 +81,12 @@ const MockTestResults = () => {
     console.log("Score from state:", score);
     console.log("Total from state:", total);
 
+    getUserDetails();
+
     if (mocktest_id && user.token.id) {
-      axios
+      axiosInstance
         .get(
-          `http://127.0.0.1:8000/scores/?student_id=${user.token.id}&mocktest_id=${mocktest_id}`
+          `/scores/?student_id=${user.token.id}&mocktest_id=${mocktest_id}`
         )
         .then((response) => {
           const resultData = response.data.length ? response.data[0] : null;
