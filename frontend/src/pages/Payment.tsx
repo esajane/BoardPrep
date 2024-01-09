@@ -10,7 +10,7 @@ const userName = "joe ed Secoya"
 const Payment = () => {
     const handleCheckout = async (priceId: string, planType: 'M' | 'H' | 'Y',userName: string) => {
         // Call your backend to create a checkout session
-        const response = await fetch('users/joe ed secoya/create_payment_session/', {
+        const response = await fetch(`http://127.0.0.1:8000/users/joe%20ed%20Secoya/create_payment_session/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

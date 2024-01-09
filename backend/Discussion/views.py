@@ -16,6 +16,7 @@ class CreatePost(APIView):
 class GetPosts(APIView):
     def get(self, request):
         posts = Post.objects.all()
+        print(posts)
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=200)
 

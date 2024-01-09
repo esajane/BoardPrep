@@ -43,9 +43,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 'plan_type': plan_type,
             },
             success_url=request.build_absolute_uri(
-                f'classes/'
+                f'http://localhost:3000/classes'
             ),
-            cancel_url=request.build_absolute_uri('classes/')
+            cancel_url=request.build_absolute_uri('http://localhost:3000/classes')
         )
         return Response({'session_id': session.id})
 
