@@ -17,7 +17,6 @@ import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
 import Forum from "./pages/Forum";
 import ContentCreator from "./pages/ContentCreator";
 import PrivateRoute from "./components/PrivateRoute";
@@ -28,6 +27,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 //import MockTestManage from "./pages/MockTestManage";
 import Payment from "./pages/Payment";
+import Success from "./pages/Success";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -118,11 +118,11 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route
-          path="/profile"
+          <Route
+          path="/success"
           element={
             <PrivateRoute>
-              <Profile />
+              <Success />
             </PrivateRoute>
           }
         />

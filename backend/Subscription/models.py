@@ -23,7 +23,7 @@ class Subscription(models.Model):
 
     def save(self, *args, **kwargs):
         # Automatically set the end date based on the subscription type
-        if not self.id:  # only set end_date if it's a new object
+        if not self.subscriptionID:  # only set end_date if it's a new object
             if self.subscription_type == 'M':
                 self.end_date = self.start_date + timedelta(days=30)
             elif self.subscription_type == 'H':

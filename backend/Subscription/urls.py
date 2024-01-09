@@ -15,7 +15,6 @@ urlpatterns = [
          name='create-payment-session'),
     # Subscription URLs
     path('subscriptions/', SubscriptionViewSet.as_view({'get': 'list', 'post': 'create'}), name='subscription-list'),
-    path('subscriptions/<str:user_name>/', SubscriptionViewSet.as_view(
-        {'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}),
-         name='subscription-detail'),
+    path('subscriptions/<str:user__user_name>/', SubscriptionViewSet.as_view({'get': 'retrieve'}),
+         name='subscription_detail')
 ]
