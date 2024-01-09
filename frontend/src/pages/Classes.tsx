@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import ClassModal from "../components/ClassModal";
 import profileImage from "../assets/16.png";
 import ClassCard from "../components/ClassCard";
@@ -7,6 +6,9 @@ import DropDownProfile from "../components/DropDownProfile";
 import "../styles/class.scss";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import axiosInstance from "../axiosInstance";
+import { set } from "lodash";
+import AlertMessage from "../components/AlertMessage";
 
 interface Class {
   classId: number;
@@ -24,6 +26,7 @@ function Classes() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+  const [alert, setAlert] = useState(false);
 
   useEffect(() => {
     fetchClasses();
@@ -31,10 +34,10 @@ function Classes() {
 
   const fetchClasses = async () => {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/classes/?${
-          user.token.type === "T" ? "teacher_id" : "student_id"
-        }=${user.token.id}`
+      const response = await axiosInstance.get(
+        `/classes/?${user.token.type === "T" ? "teacher_id" : "student_id"}=${
+          user.token.id
+        }`
       );
       setClasses(response.data);
     } catch (err) {
@@ -48,6 +51,7 @@ function Classes() {
 
   const closeModal = () => {
     setModalOpen(false);
+    setAlert(true);
   };
 
   return (
@@ -79,6 +83,13 @@ function Classes() {
           />
         )}
       </div>
+      {alert && (
+        <AlertMessage
+          message="Sent Join Request!"
+          type="success"
+          onClose={() => setAlert(false)}
+        />
+      )}
     </div>
   );
 }

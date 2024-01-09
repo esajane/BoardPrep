@@ -3,7 +3,7 @@ import "../styles/submissioncard.scss";
 import { convertToPHTime } from "../functions";
 import { IoChevronForward, IoChevronDown } from "react-icons/io5";
 import Attachment from "./Attachment";
-import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 interface Attachments {
   id: number;
@@ -48,8 +48,8 @@ function SubmissionCard({
     if (score > activityPoints) return;
 
     try {
-      const response = await axios.post(
-        `http://127.0.0.1:8000/submissions/${submission.id}/score-submission/`,
+      const response = await axiosInstance.post(
+        `/submissions/${submission.id}/score-submission/`,
         {
           score: score,
           feedback: feedback,
