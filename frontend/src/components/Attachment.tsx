@@ -3,9 +3,9 @@ import { FaEllipsisH, FaFile, FaFileImage } from "react-icons/fa";
 import { MdOutlineFileOpen, MdDeleteOutline } from "react-icons/md";
 import { LuDownload } from "react-icons/lu";
 import "../styles/attachment.scss";
-import axios from "axios";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import axiosInstance from "../axiosInstance";
 
 interface Attachments {
   id: number;
@@ -67,7 +67,7 @@ function Attachment({ attachment, setAttachments }: AttachmentProps) {
 
   const deleteAttachment = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/attachments/${attachment.id}/`);
+      await axiosInstance.delete(`/attachments/${attachment.id}/`);
       setAttachments &&
         setAttachments((prevAttachments: Attachments[]) => {
           return prevAttachments.filter(

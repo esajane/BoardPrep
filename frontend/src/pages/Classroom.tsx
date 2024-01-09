@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import profileImage from "../assets/16.png";
 import "../styles/classroom.scss";
@@ -10,6 +9,7 @@ import ActivitiesTab from "../components/ActivitiesTab";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import DropDownProfile from "../components/DropDownProfile";
+import axiosInstance from "../axiosInstance";
 
 interface Class {
   classId: number;
@@ -39,13 +39,9 @@ function Classroom() {
 
   const fetchClass = async () => {
     try {
-      let response = await axios.get(
-        `http://127.0.0.1:8000/classes/${classId}/`
-      );
+      let response = await axiosInstance.get(`/classes/${classId}/`);
       setClass(response.data);
-      response = await axios.get(
-        `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
-      );
+      response = await axiosInstance.get(`/join-requests/?class_id=${classId}`);
       setJoinRequests(response.data);
     } catch (err) {
       console.error(err);
@@ -55,9 +51,7 @@ function Classroom() {
   useEffect(() => {
     const fetchClass = async () => {
       try {
-        let response = await axios.get(
-          `http://127.0.0.1:8000/classes/${classId}/`
-        );
+        let response = await axiosInstance.get(`/classes/${classId}/`);
         setClass(response.data);
         if (user.token.type === "T") {
           if (user.token.id !== response.data.teacher) {
@@ -74,8 +68,8 @@ function Classroom() {
             navigate(`/classes`);
           }
         }
-        response = await axios.get(
-          `http://127.0.0.1:8000/join-requests/?class_id=${classId}`
+        response = await axiosInstance.get(
+          `/join-requests/?class_id=${classId}`
         );
         setJoinRequests(response.data);
       } catch (err) {
@@ -148,7 +142,12 @@ function Classroom() {
           </nav>
         </div>
         <div className="profile-pic2">
-          <img src={profileImage} className="logo" alt="RILL" onClick={() => setOpenProfile((prev) => !prev)}/>
+          <img
+            src={profileImage}
+            className="logo"
+            alt="RILL"
+            onClick={() => setOpenProfile((prev) => !prev)}
+          />
           {openProfile && <DropDownProfile />}
         </div>
       </div>

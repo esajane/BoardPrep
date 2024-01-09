@@ -1,16 +1,21 @@
 import React from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import '../styles/payment.scss'
+import { useDispatch } from 'react-redux';
+import { selectUser } from "../redux/slices/authSlice";
+import { useAppSelector } from "../redux/hooks";
+
 
 // Replace with your Stripe public key
 const stripePromise = loadStripe('pk_test_51OKTa5IqhJdy9d5WDY3iC9qy1e0l2py5lbCmUNMq72gk4ZJEoZfMwQ8fADSq8PziXqOJJmvm1gQf8m1dGvW8aFTW00MlGGxUNi');
 
-const userName = "joe ed Secoya"
 
 const Payment = () => {
+    const user = useAppSelector(selectUser);
+    const userName = user.token.id;
     const handleCheckout = async (priceId: string, planType: 'M' | 'H' | 'Y',userName: string) => {
         // Call your backend to create a checkout session
-        const response = await fetch('users/joe ed secoya/create_payment_session/', {
+        const response = await fetch('users/'+userName+'/create_payment_session/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -3,7 +3,7 @@ import '../styles/forumcomment.scss';
 import { useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import ForumCommentCard from './ForumCommentCard';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 
 interface ForumModalCommentProps {
   id: number;
@@ -23,7 +23,7 @@ function ForumModalComment({ id, closeModal }: ForumModalCommentProps) {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://127.0.0.1:8000/create/comment/', {
+      const res = await axiosInstance.post('http://127.0.0.1:8000/create/comment/', {
         post: id,
         author: user.token.id,
         content: comment,
@@ -37,7 +37,7 @@ function ForumModalComment({ id, closeModal }: ForumModalCommentProps) {
 
   const getComment = async () => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/get/comment/?post=${id}`);
+      const res = await axiosInstance.get(`http://127.0.0.1:8000/get/comment/?post=${id}`);
       console.log('getting comments');
       console.log(res.data);
       setComments(res.data);

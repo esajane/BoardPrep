@@ -1,9 +1,9 @@
-import axios from "axios";
 import React, { useState, useRef } from "react";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import "../styles/smallattachmentmodal.scss";
 import ErrorCard from "./ErrorCard";
+import axiosInstance from "../axiosInstance";
 
 interface SmallAttachmentModalProps {
   closeModal: () => void;
@@ -35,15 +35,11 @@ function SmallAttachmentModal({
         if (file) {
           formData.append("file", file);
           formData.append("user", user.token.id);
-          const response = await axios.post(
-            "http://127.0.0.1:8000/attachments/",
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
+          const response = await axiosInstance.post("/attachments/", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
           setSubAttachments((prevAttachments) => [
             ...prevAttachments,
             response.data,
@@ -52,15 +48,11 @@ function SmallAttachmentModal({
       } else {
         formData.append("link", linkRef.current?.value as string);
         formData.append("user", user.token.id);
-        const response = await axios.post(
-          "http://127.0.0.1:8000/attachments/",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axiosInstance.post("/attachments/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         setSubAttachments((prevAttachments) => [
           ...prevAttachments,
           response.data,

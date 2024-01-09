@@ -1,10 +1,10 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
-import axios from "axios";
 import Courselist from "../pages/Courselist";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import "../styles/class.scss";
 import "../styles/course-list-popup.scss";
+import axiosInstance from "../axiosInstance";
 
 interface Class {
   classId: number;
@@ -45,7 +45,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/courses/");
+        const response = await axiosInstance.get("/courses/");
         const filteredCourses = response.data.filter(
           (course: Course) => course.is_published
         );
@@ -82,7 +82,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
           console.error("Required fields are missing");
           return;
         }
-        const response = await axios.post("http://127.0.0.1:8000/classes/", {
+        const response = await axiosInstance.post("/classes/", {
           className: name,
           classDescription: description,
           course: courseValue,
@@ -106,10 +106,7 @@ function ClassModal({ closeModal, classes, setClasses }: ClassModalProps) {
         };
         console.log("POST Data:", postData);
 
-        const response = await axios.post(
-          "http://127.0.0.1:8000/join-requests/",
-          postData
-        );
+        const response = await axiosInstance.post("/join-requests/", postData);
         console.log("Response:", response);
 
         if (response.status === 201) {

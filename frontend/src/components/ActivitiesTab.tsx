@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "../styles/activitiestab.scss";
-import axios from "axios";
 import ActivityRow from "./ActivityRow";
 import ActivityDetails from "./ActivityDetails";
 import { IoCreateOutline } from "react-icons/io5";
@@ -8,6 +7,7 @@ import ActivityModal from "./ActivityModal";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 import Loader from "./Loader";
+import axiosInstance from "../axiosInstance";
 
 interface Attachments {
   id: number;
@@ -48,8 +48,8 @@ function ActivitiesTab({ classId }: ActivitiesTabProps) {
     const fetchActivities = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/activities/?class_id=${classId}`
+        const response = await axiosInstance.get(
+          `/activities/?class_id=${classId}`
         );
         setActivities(await response.data);
         setIsLoading(false);

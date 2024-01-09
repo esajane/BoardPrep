@@ -3,7 +3,7 @@ import '../styles/forumlike.scss';
 import { useAppSelector } from '../redux/hooks';
 import { selectUser } from '../redux/slices/authSlice';
 import ForumLikeCard from './ForumLikeCard';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 
 interface ForumModalCommentProps {
   id: number;
@@ -22,7 +22,7 @@ function ForumModalLike({ id, closeModal }: ForumModalCommentProps) {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://127.0.0.1:8000/create/like/', {
+      const res = await axiosInstance.post('http://127.0.0.1:8000/create/like/', {
         post: id,
         user: user.token.id,
       });
@@ -35,7 +35,7 @@ function ForumModalLike({ id, closeModal }: ForumModalCommentProps) {
 
   const getLikes = async () => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/get/like/?post=${id}`);
+      const res = await axiosInstance.get(`http://127.0.0.1:8000/get/like/?post=${id}`);
       console.log('getting likes');
 
 

@@ -17,8 +17,8 @@ import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
 import Forum from "./pages/Forum";
+import Profile from "./pages/Profile";
 import ContentCreator from "./pages/ContentCreator";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -28,6 +28,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 //import MockTestManage from "./pages/MockTestManage";
 import Payment from "./pages/Payment";
+import Success from "./pages/Success";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -118,11 +119,11 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route
-          path="/profile"
+          <Route
+          path="/success"
           element={
             <PrivateRoute>
-              <Profile />
+              <Success />
             </PrivateRoute>
           }
         />
@@ -142,7 +143,14 @@ function App() {
             </PublicRoute>
           }
         />
-
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/content-creator"
           element={
