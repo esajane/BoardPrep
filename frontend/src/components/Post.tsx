@@ -4,11 +4,11 @@ import { FaReply, FaEllipsisV, FaSave } from "react-icons/fa";
 import { MdCancel } from "react-icons/md";
 import { IoChevronForwardOutline, IoChevronDownOutline } from "react-icons/io5";
 import profileImage from "../assets/16.png";
-import axios from "axios";
 import { convertToPHTime } from "../functions";
 import Reply from "./Reply";
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
+import axiosInstance from "../axiosInstance";
 
 interface PostProps {
   post: Posts;
@@ -47,8 +47,8 @@ function Post({ post, setPosts }: PostProps) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/comments/?post_id=${post.id}`
+        const response = await axiosInstance.get(
+          `/comments/?post_id=${post.id}`
         );
         setComments(response.data);
       } catch (err) {
@@ -63,7 +63,7 @@ function Post({ post, setPosts }: PostProps) {
 
   const deletePost = async () => {
     try {
-      await axios.delete(`http://localhost:8000/posts/${post.id}/`);
+      await axiosInstance.delete(`/posts/${post.id}/`);
       setPosts((posts: Posts[]) =>
         posts.filter((currPost) => currPost.id !== post.id)
       );
@@ -81,7 +81,7 @@ function Post({ post, setPosts }: PostProps) {
     try {
       const reply = replyRef.current?.value;
       if (reply) {
-        const response = await axios.post(`http://127.0.0.1:8000/comments/`, {
+        const response = await axiosInstance.post(`/comments/`, {
           content: reply,
           post: post.id,
           user: user.token.id,
@@ -117,12 +117,9 @@ function Post({ post, setPosts }: PostProps) {
       return;
     }
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/posts/${post.id}/update_content/`,
-        {
-          content: newContent,
-        }
-      );
+      await axiosInstance.post(`/posts/${post.id}/update_content/`, {
+        content: newContent,
+      });
       setContent(newContent);
       setIsEditing(false);
       setError("");
