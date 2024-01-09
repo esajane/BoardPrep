@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "../styles/coursemodal.scss";
+import axiosInstance from "../axiosInstance";
 
 interface Lesson {
   lesson_id: string;
@@ -26,8 +27,6 @@ function LessonModal({
 }: LessonModalProps) {
   const [isUpdating, setIsUpdating] = useState(Boolean(initialLessonId));
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const newLessonIdRef = useRef<HTMLInputElement>(null);
-  const updateLessonIdRef = useRef<HTMLSelectElement>(null);
   const orderRef = useRef<HTMLInputElement>(null);
   const [selectedLessonId, setSelectedLessonId] = useState(initialLessonId);
   const [lessonTitle, setLessonTitle] = useState(initialLessonTitle);
@@ -49,78 +48,71 @@ function LessonModal({
   };
 
   useEffect(() => {
-    // If initialLessonId is not provided, set isUpdating to false
     setIsUpdating(!!initialLessonId);
-    // ... rest of the useEffect logic ...
+    if (!initialLessonId) {
+      // If there is no initial lesson ID, clear the lesson title for new lesson creation
+      setLessonTitle("");
+    }
   }, [initialLessonId]);
 
   useEffect(() => {
-    if (!isUpdating) {
-      // new lesson
+    if (isUpdating) {
+      // When updating an existing lesson
+      fetchLessons();
+    } else {
+      // When creating a new lesson
       setSelectedLessonId("");
       setLessonTitle("");
+      setDropdownSelectedLesson("");
       if (orderRef.current) {
         orderRef.current.value = "";
       }
-    } else {
-      // updating an existing lesson
-      setSelectedLessonId(initialLessonId);
-      setLessonTitle(initialLessonTitle);
     }
   }, [isUpdating, initialLessonId, initialLessonTitle]);
 
-  useEffect(() => {
-    const fetchLessons = async () => {
-      try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/lessons/by_syllabus/${syllabusId}/`
+  const fetchLessons = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/lessons/by_syllabus/${syllabusId}/`
+      );
+      setLessons(response.data);
+
+      if (initialLessonId && response.data.length > 0) {
+        const currentLesson = response.data.find(
+          (lesson: Lesson) => lesson.lesson_id === initialLessonId
         );
-        setLessons(response.data);
-
-        if (lessons.length === 0) {
-          setIsUpdating(false); // Ensure 'New Lesson' is selected by default if no lessons
+        if (currentLesson) {
+          setSelectedLessonId(initialLessonId);
+          setLessonTitle(currentLesson.lesson_title);
+          setDropdownSelectedLesson(currentLesson.lesson_title);
         }
-
-        // Set the default dropdown value after fetching lessons
-        if (initialLessonId && response.data.length > 0) {
-          const currentLesson = response.data.find(
-            (lesson: Lesson) => lesson.lesson_id === initialLessonId
-          );
-          if (currentLesson) {
-            setSelectedLessonId(initialLessonId);
-            setLessonTitle(currentLesson.lesson_title);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching lessons:", error);
       }
-    };
-
-    if (isUpdating) {
-      fetchLessons();
+    } catch (error) {
+      console.error("Error fetching lessons:", error);
     }
-  }, [isUpdating, syllabusId, initialLessonId]);
+  };
 
   useEffect(() => {
     const fetchLessonDetails = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/lessons/${selectedLessonId}`
+        const response = await axiosInstance.get(
+          `/lessons/${selectedLessonId}`
         );
+
         setLessonTitle(response.data.lesson_title);
       } catch (error) {
         console.error("Error fetching lesson details:", error);
       }
     };
 
-    if (selectedLessonId) {
+    if (selectedLessonId && isUpdating) {
       fetchLessonDetails();
     }
   }, [selectedLessonId]);
 
   const handleLessonSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedLessonTitle = event.target.value;
-    setDropdownSelectedLesson(selectedLessonTitle); // Update the dropdown selection state
+    setDropdownSelectedLesson(selectedLessonTitle);
 
     const selectedLesson = lessons.find(
       (lesson) => lesson.lesson_title === selectedLessonTitle
@@ -144,13 +136,13 @@ function LessonModal({
     let response;
 
     if (isUpdating) {
-      response = await axios.put(
-        `http://127.0.0.1:8000/lessons/${selectedLessonId}/update_lesson/`,
+      response = await axiosInstance.put(
+        `/lessons/${selectedLessonId}/update_lesson/`,
         { lesson_id: selectedLessonId, order, lesson_title: lessonTitle }
       );
     } else {
       // POST request for creating a new lesson
-      response = await axios.post("http://127.0.0.1:8000/lessons/", {
+      response = await axiosInstance.post("/lessons/", {
         lesson_title: lessonTitle,
         order: order,
         syllabus: syllabusId,
@@ -200,7 +192,10 @@ function LessonModal({
                 type="radio"
                 name="action"
                 checked={!isUpdating}
-                onChange={() => setIsUpdating(false)}
+                onChange={() => {
+                  setIsUpdating(false);
+                  setLessonTitle("");
+                }}
               />
               New Lesson
             </label>

@@ -3,6 +3,7 @@ import axios from "axios";
 import CourseCard from "../components/Coursecard";
 import Searchbar from "../components/SearchBar";
 import "../styles/courselist.scss";
+import axiosInstance from "../axiosInstance";
 
 interface Course {
   course_id: string;
@@ -22,7 +23,7 @@ function CourseList({ onSelectCourse }: CourseListProps) {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/courses/");
+      const response = await axiosInstance.get("/courses/");
       const publishedCourses = response.data.filter(
         (course: Course) => course.is_published
       );

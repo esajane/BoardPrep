@@ -2,6 +2,7 @@ import React, { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { debounce } from "lodash";
 import "../styles/coursemodal.scss";
+import axiosInstance from "../axiosInstance";
 
 interface CourseModalProps {
   closeModal: () => void;
@@ -45,9 +46,7 @@ function CourseModal({
 
   const checkCourseIdAvailability = async (courseId: string) => {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/courses/check_id/${courseId}`
-      );
+      const response = await axiosInstance.get(`/courses/check_id/${courseId}`);
       setIsCourseIdAvailable(!response.data.exists);
     } catch (error) {
       console.error("Error checking course ID availability:", error);
@@ -183,8 +182,8 @@ function CourseModal({
           formData.append("short_description", shortDescription || "");
           if (image) formData.append("image", image);
 
-          const response = await axios.put(
-            `http://127.0.0.1:8000/courses/${course.course_id}/`,
+          const response = await axiosInstance.put(
+            `/courses/${course.course_id}/`,
             formData,
             {
               headers: {
@@ -204,15 +203,11 @@ function CourseModal({
         formData.append("short_description", shortDescription || "");
         if (image) formData.append("image", image);
 
-        const response = await axios.post(
-          "http://127.0.0.1:8000/courses/",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axiosInstance.post("/courses/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         console.log("Submitting course with ID:", courseId);
 
         if (response.status === 200 || response.status === 201) {
@@ -325,7 +320,7 @@ function CourseModal({
           </div>
           {serverError && <div className="server-error">{serverError}</div>}
           <button type="submit" className="submit-btn" disabled={!isFormValid}>
-            {isEditing ? "Save Changes" : "Create Course"}
+            {isEditing ? "Save" : "Create"}
           </button>
         </form>
       </div>
