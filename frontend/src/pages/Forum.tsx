@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ForumPost from '../components/ForumPost';
 import '../styles/forum.scss'
 import ForumCreateModal from '../components/ForumCreateModal';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance';
 
 interface Posts {
   author: string;
@@ -22,7 +22,7 @@ const Forum = () => {
 
   const getPosts = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      const res = await axiosInstance.get('/get/post/');
       console.log(res.data);
       setPosts(res.data);
     } catch (err) {
@@ -32,7 +32,7 @@ const Forum = () => {
 
   const handleNewButton = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      const res = await axiosInstance.get('/get/post/');
       console.log(res.data);
       const sortedPost = res.data.sort((a: any, b: any) => {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -45,13 +45,13 @@ const Forum = () => {
 
   const handleTopButton = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      const res = await axiosInstance.get('/get/post/');
 
       const posts = res.data;
 
       const fetchLikesPromises = posts.map(async (post: any) => {
         try {
-          const likesRes = await axios.get(`http://127.0.0.1:8000/get/like/?post=${post.id}`);
+          const likesRes = await axiosInstance.get(`/get/like/?post=${post.id}`);
           const likesCount = likesRes.data.length;
           return { ...post, likesCount };
         } catch (err) {
@@ -73,12 +73,12 @@ const Forum = () => {
 
   const handleHotButton = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/get/post/');
+      const res = await axiosInstance.get('/get/post/');
       const posts = res.data;
 
       const fetchCommentsPromises = posts.map(async (post: any) => {
         try {
-          const commentsRes = await axios.get(`http://127.0.0.1:8000/get/comment/?post=${post.id}`);
+          const commentsRes = await axiosInstance.get(`/get/comment/?post=${post.id}`);
           const commentsCount = commentsRes.data.length;
           return { ...post, commentsCount };
         } catch (err) {
