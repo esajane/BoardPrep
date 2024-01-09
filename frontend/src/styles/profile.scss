@@ -167,6 +167,25 @@
       width: 100%;
       padding: 10px;
       // border: 1px solid white;
+
+      .details {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        .expiry {
+          color: red;
+          font-size: 24px;
+          background-color: #181437;
+          padding: 8px;
+          border-radius: 5px;
+        }
+
+        span {
+          font-weight: bold;
+        }
+      }
     }
   }
 }

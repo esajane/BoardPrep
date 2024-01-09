@@ -14,7 +14,7 @@ const Profile = () => {
 
   useEffect(() => {
     getDetails();
-    // getSubscription();
+    getSubscription();
   }, []);
 
   const handleButtonClick = (buttonType: any) => {
@@ -60,12 +60,21 @@ const Profile = () => {
 
   const getSubscription = async () => {
     try {
-      const res = await axiosInstance.get(`/get/subscription/${user.token.id}`);
+      const res = await axiosInstance.get(`/subscriptions/${user.token.id}`);
       console.log(res.data);
       setSubscription(res.data);
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const formatDate = (dateString: any) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
@@ -139,8 +148,24 @@ const Profile = () => {
 
             <div className="subscription">
               <h3>Subscription</h3>
-              <div className='sub-details'>
-                {details.subscription ? <h1>Premium</h1> : <h1>Free</h1>}
+              <div className="sub-details">
+                {details.is_premium ? (
+                  <div className="details">
+                    {subscription.subscription_type === 'M' ? (
+                      <h2>Monthly</h2>
+                    ) : subscription.subscription_type === 'H' ? (
+                      <h2>Half-Year</h2>
+                    ) : (
+                      <h2>Yearly</h2>
+                    )}
+                    <p className="expiry">
+                      Expires on{' '}
+                      <span>{formatDate(subscription.end_date)}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <h1>Free</h1>
+                )}
               </div>
             </div>
           </div>
