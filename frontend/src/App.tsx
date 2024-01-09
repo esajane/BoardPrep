@@ -17,6 +17,7 @@ import Student from "./pages/Student";
 import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 import Forum from "./pages/Forum";
 import ContentCreator from "./pages/ContentCreator";
 import PrivateRoute from "./components/PrivateRoute";
@@ -114,6 +115,14 @@ function App() {
           element={
             <PrivateRoute>
               <Payment />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           }
         />

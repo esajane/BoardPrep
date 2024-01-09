@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import StudentLogin, TeacherLogin, StudentRegister, TeacherRegister, UserLogin, UserLogout, UserView, ContentCreatorLogin, ContentCreatorRegister
+from .views import StudentLogin, TeacherLogin, StudentRegister, TeacherRegister, UserLogin, UserLogout, UserView, ContentCreatorLogin, ContentCreatorRegister, GetUser, UpdateUser
 
 urlpatterns = [
     path('login/user/', UserLogin.as_view(), name='user_login'),
@@ -11,4 +11,6 @@ urlpatterns = [
     path('register/content-creator/', ContentCreatorRegister.as_view(), name='content_creator_register'),
     path('logout/', UserLogout.as_view(), name='user_logout'),
     path('user/', UserView.as_view(), name='user_view'),
+    path('get/user/', GetUser.as_view(), name='user_view'),
+    path('update/user/', UpdateUser.as_view(), name='user_update'),
 ]

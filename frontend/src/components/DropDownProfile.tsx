@@ -44,10 +44,14 @@ const DropDownProfile = () => {
     navigate("/forum");
   }
 
+  const handleProfile = () => {
+    navigate("/profile");
+  }
+
   return (
     <div className="flex flex-col dropDownProfile">
       <ul className="d-items">
-        <li className="d-item">Profile</li>
+        <li className="d-item" onClick={handleProfile}>Profile</li>
         <li className="d-item" onClick={handleForum}>Forum</li>
         <li className="d-item" onClick={handlePayment}>Upgrade</li>
         <li className="d-item">Settings</li>

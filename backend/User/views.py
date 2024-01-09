@@ -198,3 +198,29 @@ class ContentCreatorRegister(APIView):
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetUser(APIView):
+    def get(self, request):
+        user_id = request.query_params.get('username')
+        try:
+            user = User.objects.get(user_name=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UpdateUser(APIView):
+    def put(self, request):
+        user_id = request.data.get('username')
+        if user_id is None:
+            return Response({"error": "Username parameter is missing"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(user_name=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=404)
