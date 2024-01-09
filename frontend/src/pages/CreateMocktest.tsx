@@ -263,7 +263,7 @@ const CreateMockTestPage = () => {
         }
 
         try {
-            await axiosInstance.delete(`/delete_by_course/${courseId}/`);
+            await axiosInstance.delete(`/mocktest/delete_by_course/${courseId}/`);
             console.log("Mock test deleted successfully");
             navigate(`/courses/${courseId}/edit`);
 
