@@ -8,6 +8,7 @@ import Searchbar from "../components/SearchBar";
 import { AxiosResponse } from "axios";
 import DropDownProfile from "../components/DropDownProfile";
 import profileImage from "../assets/16.png";
+import axiosInstance from "../axiosInstance";
 
 interface Course {
   course_id: string;
@@ -29,14 +30,11 @@ const AdminDashboard: React.FC = () => {
 
   const fetchCourses = async () => {
     try {
-      const response: AxiosResponse = await axios.get(
-        "http://127.0.0.1:8000/courses/"
-      );
+      const response: AxiosResponse = await axiosInstance.get("/courses/");
       setCourses(response.data);
       setFilteredCourses(response.data);
     } catch (error) {
       console.error("Error fetching courses:", error);
-      // Handle error (show message or UI element)
     }
   };
 

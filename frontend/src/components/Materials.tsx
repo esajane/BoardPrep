@@ -4,6 +4,7 @@ import ReactPaginate from "react-paginate";
 import Syllabus from "./Syllabus";
 import LessonContent from "./Lessons";
 import "../styles/materials.scss";
+import axiosInstance from "../axiosInstance";
 
 interface Page {
   page_number: number;
@@ -33,16 +34,16 @@ function Materials({ courseId }: MaterialsProps) {
   useEffect(() => {
     const fetchSyllabusAndFirstLesson = async () => {
       try {
-        const syllabusResponse = await axios.get(
-          `http://127.0.0.1:8000/syllabi/${courseId}/`
+        const syllabusResponse = await axiosInstance.get(
+          `/syllabi/${courseId}/`
         );
         const syllabusData = syllabusResponse.data[0];
         setLessons(syllabusData.lessons);
 
         if (syllabusData.lessons.length > 0) {
           const firstLessonId = syllabusData.lessons[0].lesson_id;
-          setCurrentLesson(firstLessonId); // Set the current lesson to the first lesson
-          await fetchPages(firstLessonId); // Fetch pages for the first lesson
+          setCurrentLesson(firstLessonId);
+          await fetchPages(firstLessonId);
         }
       } catch (error) {
         console.error("Error fetching syllabus:", error);
@@ -57,9 +58,7 @@ function Materials({ courseId }: MaterialsProps) {
   useEffect(() => {
     const fetchSyllabus = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/syllabi/${courseId}/`
-        );
+        const response = await axiosInstance.get(`/syllabi/${courseId}/`);
         const syllabusData = response.data[0];
         setLessons(syllabusData.lessons);
       } catch (error) {
@@ -78,18 +77,16 @@ function Materials({ courseId }: MaterialsProps) {
 
   const fetchPages = async (lessonId: string) => {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/pages/${lessonId}/`
-      );
+      const response = await axiosInstance.get(`/pages/${lessonId}/`);
       setPages(response.data);
-      setCurrentPage(0); // Set to display the first page
+      setCurrentPage(0);
     } catch (error) {
       console.error("Error fetching pages:", error);
     }
   };
 
   const handleLessonClick = (lessonId: string) => {
-    fetchPages(lessonId); // Fetch pages when a lesson is clicked
+    fetchPages(lessonId);
     setCurrentLesson(lessonId);
   };
 
@@ -123,7 +120,7 @@ function Materials({ courseId }: MaterialsProps) {
           <LessonContent content={pages[currentPage].content} />
         )}
 
-        {pageCount > 1 && ( // Only render pagination if more than one page
+        {pageCount > 1 && (
           <ReactPaginate
             previousLabel={currentPage > 0 ? "previous" : ""}
             nextLabel={currentPage < pageCount - 1 ? "next" : ""}
