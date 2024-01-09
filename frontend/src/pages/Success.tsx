@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/payment.scss';
+import '../styles/success.scss';
 import { useAppSelector } from "../redux/hooks";
 import { selectUser } from "../redux/slices/authSlice";
 
@@ -38,16 +38,16 @@ const Success = () => {
 
 
      return (
-        <div className='payment-containerStyles'>
-            <div className='payment-shokoy'>
+        <div className='success-containerStyles'>
+            <div className='success-shokoy'>
                 <h2>Payment Successful!</h2>
-                <div className='payment-cardStyles centered-content'>
+                <div className='success-cardStyles centered-content'>
                     {subscription ? (
                         <>
                             <p>Subscription Type: {subscription.subscription_type}</p>
                             <p>Start Date: {new Date(subscription.start_date).toLocaleDateString()}</p>
                             <p>End Date: {new Date(subscription.end_date).toLocaleDateString()}</p>
-                            {/*<button onClick={'http://localhost:3000/classes'}>Go to Dashboard</button> /!* Add button *!/*/}
+                            {/* <button onClick={'http://localhost:3000/classes'}>Go to Dashboard</button> /!* Add button *!/ */}
                         </>
                     ) : (
                         <p>Loading subscription details...</p>

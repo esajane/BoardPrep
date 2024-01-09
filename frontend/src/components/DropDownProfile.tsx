@@ -54,7 +54,6 @@ const DropDownProfile = () => {
         <li className="d-item" onClick={handleProfile}>Profile</li>
         <li className="d-item" onClick={handleForum}>Forum</li>
         <li className="d-item" onClick={handlePayment}>Upgrade</li>
-        <li className="d-item">Settings</li>
         <li className="d-item" onClick={handleLogout}>
           Logout
         </li>

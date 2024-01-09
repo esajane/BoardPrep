@@ -18,6 +18,7 @@ import Teacher from "./pages/Teacher";
 import LessonPage from "./pages/LessonPage";
 import Home from "./pages/Home";
 import Forum from "./pages/Forum";
+import Profile from "./pages/Profile";
 import ContentCreator from "./pages/ContentCreator";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -142,7 +143,14 @@ function App() {
             </PublicRoute>
           }
         />
-
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/content-creator"
           element={

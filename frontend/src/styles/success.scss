@@ -1,8 +1,29 @@
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+.success-containerStyles {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0d0b1c;
+    height: 100vh;
 
-.payment-shokoy {
-    animation: fadeIn 2s ease-in-out;
+    .success-shokoy {
+        display: flex;
+        align-items: center;
+        border: 1px solid white;
+        flex-direction: column;
+        color: white;
+        padding: 50px;
+        margin: 20px;
+        height: 300px;
+    }
+
+    .success-cardStyles {
+        display: flex;
+        align-items: center;
+        border: 1px solid white;
+        flex-direction: column;
+        color: white;
+        padding: 50px;
+        margin: 20px;
+        height: 300px;
+    }
 }
