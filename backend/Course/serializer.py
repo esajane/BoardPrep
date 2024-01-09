@@ -86,21 +86,21 @@ class SyllabusSerializer(serializers.ModelSerializer):
 
 
 class CourseListSerializer(serializers.ModelSerializer):
-    syllabus = SyllabusSerializer(read_only=True)
     hasMocktest = serializers.SerializerMethodField()
+    syllabus = SyllabusSerializer(read_only=True)
 
     class Meta:
         model = Course
-        fields = ['course_id', 'course_title', 'short_description', 'image', 'syllabus', 'is_published']
-
-    def get_hasMocktest(self, obj):
-        return obj.hasMocktest
+        fields = ['course_id', 'course_title', 'short_description', 'image', 'syllabus', 'is_published', 'hasMocktest']
 
     def create(self, validated_data):
         course = Course.objects.create(**validated_data)
         syllabus_id = generate_syllabus_id(course)  # Use the function
         Syllabus.objects.create(course=course, syllabus_id=syllabus_id)
         return course
+
+    def get_hasMocktest(self, obj):
+        return obj.hasMocktest
 
 
 def generate_syllabus_id(course):
