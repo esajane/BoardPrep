@@ -72,7 +72,7 @@ function App() {
           }
         />
         <Route
-          path="/classes/:classID/mocktest"
+          path="/classes/:classID/mocktest/:courseId"
           element={
             <PrivateRoute>
               <MockTest />

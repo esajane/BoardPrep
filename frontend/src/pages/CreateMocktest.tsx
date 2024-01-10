@@ -31,13 +31,6 @@ interface Course {
     hasMocktest: boolean;
 }
 
-interface Class {
-    classId: string;
-    className: string;
-    course: string;
-    hasMocktest: boolean;
-}
-
 interface Difficulty {
     id: number;
     name: string;
@@ -50,10 +43,8 @@ const CreateMockTestPage = () => {
     const [hasMocktest, setHasMocktest] = useState<boolean | null>(null);
     const [questions, setQuestions] = useState([{ id: 0, question: '', choiceA: '', choiceB: '', choiceC: '', choiceD: '', correctAnswer: '', subject: '', difficulty: 0}]);
     const [courses, setCourses] = useState<Course[]>([]);
-    const [classes, setClasses] = useState<Class[]>([]);
     const [difficulties, setDifficulties] = useState<Difficulty[]>([]);
     const [selectedCourse, setSelectedCourse] = useState<string>('');
-    const [selectedClass, setSelectedClass] = useState<string>('');
     const [fetchedMockTest, setFetchedMockTest] = useState<Mocktest | null>(null);
     const [isViewMode, setIsViewMode] = useState(false);
     const { courseId, classID } = useParams<{ courseId: string, classID: string }>();
@@ -88,7 +79,6 @@ const CreateMockTestPage = () => {
                     setMockTestName(currentMocktest.mocktestName);
                     setMockTestDescription(currentMocktest.mocktestDescription);
                     setSelectedCourse(currentMocktest.course);
-                    setSelectedClass(currentMocktest.classID);
                     setHasMocktest(true);
                 } else {
                     setHasMocktest(false);
@@ -143,23 +133,6 @@ const CreateMockTestPage = () => {
                 if (courseId) {
                     setSelectedCourse(courseId);
                 }
-
-                const classesResponse = await axiosInstance.get(`/classes/`);
-                console.log('Classes: ', classesResponse.data);
-                const filteredClasses = classesResponse.data.filter((cls: Class) => !cls.hasMocktest);
-                setClasses(filteredClasses);
-                console.log('hasMockTest: ', filteredClasses);
-            } catch (error) {
-                console.error('Error fetching data: ', error);
-            }
-        };
-
-        const fetchClasses = async () => {
-            try {
-                const classesResponse = await axiosInstance.get(`/classes/`);
-                const classesData: Class[] = classesResponse.data;
-                const currentClass = classesData.find(cls => cls.course === courseId);
-                setHasMocktest(currentClass ? currentClass.hasMocktest : false);
             } catch (error) {
                 console.error('Error fetching data: ', error);
             }
@@ -176,7 +149,6 @@ const CreateMockTestPage = () => {
 
         fetchCourses();
         fetchDifficulties();
-        fetchClasses();
     }, [courseId]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -202,7 +174,6 @@ const CreateMockTestPage = () => {
                     mocktestName: mockTestName,
                     mocktestDescription: mockTestDescription,
                     course: selectedCourse,
-                    classID: selectedClass,
                     questions: updatedQuestions
                 });
 
@@ -221,7 +192,6 @@ const CreateMockTestPage = () => {
                     mocktestName: mockTestName,
                     mocktestDescription: mockTestDescription,
                     course: selectedCourse,
-                    classID: selectedClass,
                     questions: existingQuestions
                 });
 
@@ -241,7 +211,6 @@ const CreateMockTestPage = () => {
         setMockTestName('');
         setMockTestDescription('');
         setQuestions([{ id: 0, question: '', choiceA: '', choiceB: '', choiceC: '', choiceD: '', correctAnswer: '', subject: '', difficulty: 0}]);
-        setSelectedClass('');
 
         if(hasMocktest) {
             alert("Mock test edited successfully.");
@@ -270,7 +239,6 @@ const CreateMockTestPage = () => {
             setMockTestName('');
             setMockTestDescription('');
             setQuestions([{ id: 0, question: '', choiceA: '', choiceB: '', choiceC: '', choiceD: '', correctAnswer: '', subject: '', difficulty: 0}]);
-            setSelectedClass('');
             alert("Mock test deleted successfully.");
         } catch (error) {
             console.error('Error deleting mock test:', error);
@@ -323,12 +291,6 @@ const CreateMockTestPage = () => {
                                 <option value="">Select Course</option>
                                 {courses.map((course) => (
                                     <option key={course.course_id} value={course.course_id}>{course.course_title}</option>
-                                ))}
-                            </select>
-                            <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-                                <option value="">Select Class</option>
-                                {classes.map((cls) => (
-                                    <option key={cls.classId} value={cls.classId}>{cls.className}</option>
                                 ))}
                             </select>
                         </div>

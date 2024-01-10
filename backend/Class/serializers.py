@@ -34,7 +34,7 @@ class ClassSerializer(serializers.ModelSerializer):
         return f'{obj.teacher.first_name} {obj.teacher.last_name}' if obj.teacher else None
 
     def get_hasMocktest(self, obj):
-        return obj.hasMocktest
+        return obj.has_mock_test()
 
 
 class JoinRequestSerializer(serializers.ModelSerializer):

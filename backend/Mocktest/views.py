@@ -165,10 +165,10 @@ class MockTestScoresViewSet(viewsets.ModelViewSet):
         queryset = MockTestScores.objects.all()
         student_id = self.request.query_params.get('student_id')
         mocktest_id = self.request.query_params.get('mocktest_id')
-        class_id = self.request.query_params.get('class_id')
+        course_id = self.request.query_params.get('course_id')
 
-        if student_id and class_id:
-            mocktest = MockTest.objects.get(classID=class_id)
+        if student_id and course_id:
+            mocktest = MockTest.objects.get(course=course_id)
             queryset = queryset.filter(student__user_name=student_id, mocktest_id=mocktest)
         if student_id:
             queryset = queryset.filter(student__user_name=student_id)
