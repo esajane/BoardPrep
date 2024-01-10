@@ -70,12 +70,11 @@ class UserViewSet(viewsets.ModelViewSet):
 def stripe_webhook(request):
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-    endpoint_secret = 'whsec_f35732ecffbf816f2e3f8b3167fc5bb0b9104f1d27af2383c8400adea10423e0'
     event = None
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
+            payload, sig_header, stripe.api_key
         )
     except ValueError:
         return JsonResponse({'status': 'invalid payload'}, status=400)
