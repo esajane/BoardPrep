@@ -39,7 +39,7 @@ const Mocktest: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { course_id, classID } = useParams<{ course_id: string; classID: string }>();
+  const { courseId, classID } = useParams<{ courseId: string; classID: string }>();
 
   const clearTimer = useCallback(() => {
     console.log ("Clearing timer...");
@@ -48,11 +48,11 @@ const Mocktest: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if(classID) {
-        axiosInstance.get(`/mocktest/?classID=${classID}`)
+    if(courseId) {
+        axiosInstance.get(`/mocktest/get_by_course/${courseId}/`)
         .then(response => {
-          if(response.data.length > 0) {
-            const fetchedMocktest = response.data[0];
+          if(response.data) {
+            const fetchedMocktest = response.data;
             setMocktestDetails(fetchedMocktest);
             setMocktestID(fetchedMocktest.mocktestID);
           } else {
@@ -63,7 +63,7 @@ const Mocktest: React.FC = () => {
           console.error('There was an error fetching the mock test details.', error);
         });
     }
-  }, [classID]);
+  }, [courseId]);
 
   useEffect(() => {
     if(mocktest_id) {

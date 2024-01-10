@@ -12,11 +12,14 @@ interface Lessons {
   lesson_id: string;
 }
 
-interface ClassData {
-  classID: string;
-  course: string;
-  className: string;
+interface CourseData {
+  course_id: string;
   hasMocktest: boolean;
+}
+
+interface ClassData {
+  classId: number;
+  course: string;
 }
 
 interface SyllabusProps {
@@ -31,10 +34,11 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
   const [error, setError] = useState("");
   const user = useAppSelector(selectUser);
   const userType = user.token.type;
-  const { courseId, classID } = useParams<{
+  const { courseId } = useParams<{
     courseId: string;
-    classID: string;
   }>();
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [courseIdForUser, setCourseIdForUser] = useState<string | null>(null);
   const [hasMocktest, setHasMocktest] = useState(false);
   const [fetchedContents, setFetchedContents] = useState<{
     [key: string]: string;
@@ -42,16 +46,13 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
 
   const navigate = useNavigate();
 
+  const classPath = window.location.pathname;
+  console.log(classPath.split("/")[2]);
+  const classId = classPath.split("/")[2];
+
   const onClickMockTest = () => {
-    const path = window.location.pathname;
-    console.log(path.split("/")[2]);
-    const classID = path.split("/")[2];
-    console.log(courseId);
-    if (userType != "S" && userType != "T") {
-      navigate(`/courses/${courseId}/mocktest/create`);
-    } else {
-      navigate(`/classes/${classID}/mocktest`);
-    }
+    const path = userType === 'S' || userType === 'T' ? `/classes/${classId}/mocktest/${courseIdForUser}` : `/courses/${courseId}/mocktest/create`;
+    navigate(path);
   };
 
   const onClickViewMockTest = () => {
@@ -86,25 +87,50 @@ function Syllabus({ syllabus = [], lessons, onLessonClick }: SyllabusProps) {
   };
 
   useEffect(() => {
-    const fetchClassData = async () => {
+    const fetchCourseDataForUser = async () => {
+      if ((userType === 'S' || userType === 'T') && !courseId) {
+        try {
+          const response = await axiosInstance.get(`/classes/${classId}`);
+          const classData = response.data;
+          console.log(classData);
+          console.log(classData.course);
+
+          if (classData && classData.course) {
+            setCourseIdForUser(classData.course);
+          } else {
+            console.error(`No course found for class ID: ${classId}`);
+          }
+        } catch (error) {
+           console.error('Error fetching course data for user:', error);
+        }
+      }
+    };
+
+    fetchCourseDataForUser();
+  }, [userType, classId]);
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
       try {
-        const response = await axiosInstance.get(`/classes/`);
-        const classData: ClassData[] = response.data;
-        console.log(classData);
-        const currentClass = classData.find((cls) => cls.course === courseId);
-        console.log(currentClass);
-        if (currentClass && currentClass.hasMocktest) {
-          setHasMocktest(true);
+        const response = await axiosInstance.get(`/courses/`);
+        const courseData: CourseData[] = response.data;
+        console.log(courseData);
+        const currentCourse = courseData.find((crs) => crs.course_id === courseId);
+        console.log(currentCourse);
+        if (currentCourse) {
+            setSelectedCourseId(currentCourse.course_id);
+            setHasMocktest(currentCourse.hasMocktest);
         } else {
-          setHasMocktest(false);
+            setSelectedCourseId(null);
+            setHasMocktest(false);
         }
       } catch (error) {
         console.error("Error fetching class data", error);
       }
     };
 
-    fetchClassData();
-  }, [classID]);
+    fetchCourseData();
+  }, []);
 
   return (
     <div className="syllabus-container">

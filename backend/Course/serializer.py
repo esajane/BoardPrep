@@ -100,7 +100,7 @@ class CourseListSerializer(serializers.ModelSerializer):
         return course
 
     def get_hasMocktest(self, obj):
-        return obj.hasMocktest
+        return obj.has_mock_test()
 
 
 def generate_syllabus_id(course):

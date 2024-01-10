@@ -12,7 +12,7 @@ class Course(models.Model):
     def __str__(self):
         return self.course_title
 
-    def hasMocktest(self):
+    def has_mock_test(self):
         return self.mocktest_set.exists()
 
 class Syllabus(models.Model):
